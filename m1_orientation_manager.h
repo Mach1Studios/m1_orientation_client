@@ -10,9 +10,9 @@
   ID:                 m1_orientation_manager
   vendor:             Mach1
   version:            0.0.1
-  name:               M1 Orientation Manager
-  description:
-  website:            https://github.com/
+  name:               Mach1 Orientation Manager
+  description:        An orientation manager to aggregate peripheral orienatation or headtracking devices and inputs.
+  website:            https://github.com/Mach1Studios/m1_orientation_manager
   license:            Free
 
   dependencies:       juce_osc
@@ -25,4 +25,3 @@
 
 #include "M1OrientationManagerOSCServerBase.h"
 #include "M1OrientationManagerOSCClient.h"
-
