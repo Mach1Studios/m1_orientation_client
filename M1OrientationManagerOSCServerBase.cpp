@@ -128,20 +128,22 @@ M1OrientationManagerOSCServerBase::~M1OrientationManagerOSCServerBase() {
 }
 
 void M1OrientationManagerOSCServerBase::setOrientation(float yaw, float pitch, float roll) {
-    if (getTrackingYaw()) {
-        juce::OSCMessage msg("/yaw");
-        msg.addFloat32(yaw);
-        send(clients, msg);
-    }
-    if (getTrackingPitch()) {
-        juce::OSCMessage msg("/pitch");
-        msg.addFloat32(pitch);
-        send(clients, msg);
-    }
-    if (getTrackingRoll()) {
-        juce::OSCMessage msg("/roll");
-        msg.addFloat32(roll);
-        send(clients, msg);
+    if (getTracking()) {
+        if (getTrackingYaw()) {
+            juce::OSCMessage msg("/yaw");
+            msg.addFloat32(yaw);
+            send(clients, msg);
+        }
+        if (getTrackingPitch()) {
+            juce::OSCMessage msg("/pitch");
+            msg.addFloat32(pitch);
+            send(clients, msg);
+        }
+        if (getTrackingRoll()) {
+            juce::OSCMessage msg("/roll");
+            msg.addFloat32(roll);
+            send(clients, msg);
+        }
     }
 }
 
