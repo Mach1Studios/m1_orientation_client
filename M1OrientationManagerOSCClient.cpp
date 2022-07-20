@@ -13,10 +13,14 @@ void M1OrientationManagerOSCClient::oscMessageReceived(const juce::OSCMessage& m
     else if (message.getAddressPattern() == "/getCurrentDevice") {
         currentDevice = message[0].getString().toStdString();
     }
-    else if (message.getAddressPattern() == "/orientation") {
+    else if (message.getAddressPattern() == "/yaw") {
         yaw = message[0].getFloat32();
-        pitch = message[1].getFloat32();
-        roll = message[2].getFloat32();
+    }
+    else if (message.getAddressPattern() == "/pitch") {
+        pitch = message[0].getFloat32();
+    }
+    else if (message.getAddressPattern() == "/roll") {
+        roll = message[0].getFloat32();
     }
     else if (message.getAddressPattern() == "/getTrackingYaw") {
         bTrackingYaw = message[0].getInt32();
