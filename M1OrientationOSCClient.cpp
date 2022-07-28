@@ -66,7 +66,7 @@ void M1OrientationOSCClient::command_setTrackingRollEnabled(bool enable) {
     send(msg);
 }
 
-M1GlobalOrientation M1OrientationOSCClient::getOrientation() {
+Orientation M1OrientationOSCClient::getOrientation() {
     return orientation;
 }
 
