@@ -178,8 +178,8 @@ void M1OrientationManagerOSCServerBase::close() {
 }
 
 void M1OrientationManagerOSCServerBase::command_refreshDevices() {
+    
     refreshDevices();
-
     send_getDevices(clients);
 }
 
