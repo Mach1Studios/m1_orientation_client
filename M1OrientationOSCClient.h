@@ -15,7 +15,7 @@ class M1OrientationOSCClient :
 
     std::vector<M1OrientationDevice> devices;
 
-    M1GlobalOrientation orientation;
+    Orientation orientation;
 
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
@@ -44,7 +44,7 @@ public:
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
 
-    M1GlobalOrientation getOrientation();
+    Orientation getOrientation();
 
     bool getTrackingYawEnabled();
     bool getTrackingPitchEnabled();

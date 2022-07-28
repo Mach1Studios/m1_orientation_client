@@ -84,15 +84,15 @@ void Orientation::setQuat(M1OrientationQuat orientation) {
     }
 }
 
-M1OrientationYPR M1GlobalOrientation::getYPR() {
+M1OrientationYPR Orientation::getYPR() {
     return orientationYPR;
 }
 
-M1OrientationQuat M1GlobalOrientation::getQuat() {
+M1OrientationQuat Orientation::getQuat() {
     return orientationQuat;
 }
 
-void M1GlobalOrientation::resetOrientation() {
+void Orientation::resetOrientation() {
     // quat.qw = quat.lastqw;
     // quat.qx = quat.lastqx;
     // quat.qy = quat.lastqy;
