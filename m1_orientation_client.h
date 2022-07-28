@@ -7,12 +7,12 @@
 
  BEGIN_JUCE_MODULE_DECLARATION
 
-  ID:                 m1_orientation_manager
+  ID:                 m1_orientation_client
   vendor:             Mach1
   version:            0.0.1
-  name:               Mach1 Orientation Manager
-  description:        An orientation manager to aggregate peripheral orienatation or headtracking devices and inputs.
-  website:            https://github.com/Mach1Studios/m1_orientation_manager
+  name:               Mach1 Orientation Client
+  description:        An orientation client that receives the aggregate peripheral orienatation or headtracking devices and inputs from the orientation-server.
+  website:            https://github.com/Mach1Studios/m1_orientation_client
   license:            Free
 
   dependencies:       juce_osc

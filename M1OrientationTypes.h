@@ -9,13 +9,19 @@ struct M1OrientationYPR {
     float yaw_min = -180.0f, pitch_min = -180.0f, roll_min = -180.0f;
     float yaw_max = 180.0f, pitch_max = 180.0f, roll_max = 180.0f;
     float custom_output_yaw = 0.0f, custom_output_pitch = 0.0f, custom_output_roll = 0.0f;
+    enum AngleType {
+        DEGREES = (int) 0,
+        RADIANS = (int) 1,
+        NORMALED = (int) 2
+    };
 };
 
 struct M1OrientationQuat {
-    float x = 0.0f, y = 0.0f, z = 0.0f, w = 0.0f;
+    float w = 0.0f, x = 0.0f, y = 0.0f, z = 0.0f;
+    float lastw, lastx, lasty, lastz;
 };
 
-class M1GlobalOrientation {
+class Orientation {
     M1OrientationYPR orientationYPR;
     M1OrientationQuat orientationQuat;
 
@@ -31,7 +37,7 @@ public:
 
 struct M1OrientationTrackingResult
 {
-    M1GlobalOrientation orientation;
+    Orientation currentOrientation;
     bool success;
 };
 
