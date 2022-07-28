@@ -36,10 +36,10 @@ void Orientation::setQuat(M1OrientationQuat orientation) {
     orientationQuat.y /= magnitude;
     orientationQuat.z /= magnitude;
 
-    // quat.qw = quat.lastqw * orientationQuat.w + quat.lastqx * orientationQuat.x + quat.lastqy * orientationQuat.y + quat.lastqz * orientationQuat.z;
-    // quat.qx = quat.lastqw * orientationQuat.x - quat.lastqx * orientationQuat.w - quat.lastqy * orientationQuat.z + quat.lastqz * orientationQuat.y;
-    // quat.qy = quat.lastqw * orientationQuat.y + quat.lastqx * orientationQuat.z - quat.lastqy * orientationQuat.w - quat.lastqz * orientationQuat.x;
-    // quat.qz = quat.lastqw * orientationQuat.z - quat.lastqx * orientationQuat.y + quat.lastqy * orientationQuat.x - quat.lastqz * orientationQuat.w;
+    orientationQuat.w = orientation.lastw * orientation.w + orientation.lastx * orientation.x + orientation.lasty * orientation.y + orientation.lastz * orientation.z;
+    orientationQuat.x = orientation.lastw * orientation.x - orientation.lastx * orientation.w - orientation.lasty * orientation.z + orientation.lastz * orientation.y;
+    orientationQuat.y = orientation.lastw * orientation.y + orientation.lastx * orientation.z - orientation.lasty * orientation.w - orientation.lastz * orientation.x;
+    orientationQuat.z = orientation.lastw * orientation.z - orientation.lastx * orientation.y + orientation.lasty * orientation.x - orientation.lastz * orientation.w;
     
     //TODO: add logic for reordering and inversing
 
@@ -93,8 +93,12 @@ M1OrientationQuat Orientation::getQuat() {
 }
 
 void Orientation::resetOrientation() {
-    // quat.qw = quat.lastqw;
-    // quat.qx = quat.lastqx;
-    // quat.qy = quat.lastqy;
-    // quat.qz = quat.lastqz;
+    M1OrientationQuat quat = getQuat();
+    
+    quat.lastw = quat.w;
+    quat.lastx = quat.x;
+    quat.lasty = quat.y;
+    quat.lastz = quat.z;
+    
+    setQuat(quat);
 }
