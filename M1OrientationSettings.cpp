@@ -1,5 +1,5 @@
 #include <JuceHeader.h>
-#include "M1OrientationManagerOSCSettings.h"
+#include "M1OrientationSettings.h"
 
 bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsFilePath) {
     juce::File settingsFile = juce::File(jsonSettingsFilePath);

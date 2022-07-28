@@ -23,5 +23,6 @@
 
 #pragma once
 
-#include "M1OrientationManagerOSCServerBase.h"
-#include "M1OrientationManagerOSCClient.h"
+#include "M1OrientationTypes.h"
+#include "M1OrientationSettings.h"
+#include "M1OrientationOSCClient.h"

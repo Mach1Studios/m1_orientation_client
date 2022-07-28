@@ -1,6 +1,6 @@
 #pragma once
 
-#include <JuceHeader.h>
+#include <string>
 
 class M1OrientationManagerOSCSettings
 {

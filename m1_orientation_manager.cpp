@@ -1,3 +1,4 @@
-#include "M1OrientationManagerOSCSettings.cpp"
-#include "M1OrientationManagerOSCClient.cpp"
-#include "M1OrientationManagerOSCServerBase.cpp"
+#include "M1OrientationTypes.cpp"
+#include "M1OrientationSettings.cpp"
+#include "M1OrientationOSCClient.cpp"
+
