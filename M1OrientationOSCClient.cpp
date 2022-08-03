@@ -25,9 +25,15 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
     else if (message.getAddressPattern() == "/getTrackingRollEnabled") {
         bTrackingRollEnabled = message[0].getInt32();
     }
-    else if (callback) {
-        callback(message);
+    else if (message.getAddressPattern() == "/getStatus") {
+        bool success = message[0].getInt32();
+        std::string text = message[1].getString().toStdString();
+
+        if (statusCallback) {
+            statusCallback(success, text);
+        }
     }
+   
 }
 
 bool M1OrientationOSCClient::send(std::string str) {
@@ -86,8 +92,9 @@ bool M1OrientationOSCClient::isConnectedToServer() {
     return connectedToServer;
 }
 
-void M1OrientationOSCClient::setCallback(std::function<void(const juce::OSCMessage& message)> callback) {
-    this->callback = callback;
+void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, std::string message)> callback)
+{
+    this->statusCallback = callback;
 }
 
 bool M1OrientationOSCClient::init(int serverPort) {

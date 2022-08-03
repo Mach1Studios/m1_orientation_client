@@ -25,7 +25,7 @@ class M1OrientationOSCClient :
 
     M1OrientationDevice currentDevice;
 
-    std::function<void(const juce::OSCMessage& message)> callback = nullptr;
+    std::function<void(bool success, std::string message)> statusCallback = nullptr;
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
 
@@ -52,8 +52,8 @@ public:
 
     bool isConnectedToServer();
 
-    void setCallback(std::function<void(const juce::OSCMessage& message)> callback);
-    
+    void setStatusCallback(std::function<void(bool success, std::string message)> callback);
+
     std::vector<M1OrientationDevice> getDevices();
     M1OrientationDevice getCurrentDevice();
 
