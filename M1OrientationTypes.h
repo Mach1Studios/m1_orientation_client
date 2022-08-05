@@ -43,17 +43,18 @@ struct M1OrientationTrackingResult
 
 enum M1OrientationDeviceType {
     M1OrientationManagerDeviceTypeNone = 0,
-    M1OrientationManagerDeviceTypeBLE,
     M1OrientationManagerDeviceTypeSerial,
+    M1OrientationManagerDeviceTypeBLE,
     M1OrientationManagerDeviceTypeOSC,
     M1OrientationManagerDeviceTypeCamera,
 };
 
 enum M1OrientationStatusType {
-    M1OrientationManagerStatusTypeNone = 0,
-    M1OrientationManagerStatusTypeConnecting,
+    M1OrientationManagerStatusTypeError = -3,
+    M1OrientationManagerStatusTypeNotConnectable,
+    M1OrientationManagerStatusTypeUnknown,
+    M1OrientationManagerStatusTypeConnectable,
     M1OrientationManagerStatusTypeConnected,
-    M1OrientationManagerStatusTypeError,
 };
 
 struct M1OrientationDevice {
