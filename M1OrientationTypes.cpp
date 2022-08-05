@@ -17,8 +17,6 @@ std::map<enum M1OrientationStatusType, std::string> M1OrientationStatusTypeName 
     { M1OrientationManagerStatusTypeConnected, "Connected"},
 };
 
-// -----
-
 void Orientation::setYPR(M1OrientationYPR orientation) {
     orientationYPR = orientation;
 
@@ -105,4 +103,3 @@ void Orientation::resetOrientation() {
     
     setQuat(quat);
 }
-

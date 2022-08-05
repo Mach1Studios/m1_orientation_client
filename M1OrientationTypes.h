@@ -97,6 +97,4 @@ struct M1OrientationDevice {
 };
 
 extern std::map<enum M1OrientationDeviceType, std::string> M1OrientationDeviceTypeName;
-
 extern std::map<enum M1OrientationStatusType, std::string> M1OrientationStatusTypeName;
-
