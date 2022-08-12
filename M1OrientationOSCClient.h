@@ -13,6 +13,7 @@ class M1OrientationOSCClient :
     int clientPort = 0;
     bool connectedToServer = false;
 
+    M1OrientationDevice currentDevice;
     std::vector<M1OrientationDevice> devices;
 
     Orientation orientation;
@@ -23,7 +24,6 @@ class M1OrientationOSCClient :
 
     bool bTracking = false;
 
-    M1OrientationDevice currentDevice;
 
     std::function<void(bool success, std::string message)> statusCallback = nullptr;
 

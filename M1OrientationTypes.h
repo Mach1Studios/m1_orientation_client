@@ -50,7 +50,7 @@ enum M1OrientationDeviceType {
 };
 
 enum M1OrientationStatusType {
-    M1OrientationManagerStatusTypeError = -3,
+    M1OrientationManagerStatusTypeError = -2,
     M1OrientationManagerStatusTypeNotConnectable,
     M1OrientationManagerStatusTypeUnknown,
     M1OrientationManagerStatusTypeConnectable,
@@ -58,11 +58,11 @@ enum M1OrientationStatusType {
 };
 
 struct M1OrientationDevice {
-	std::string name;
-	M1OrientationDeviceType type;
-    std::string path; // Device path or UUID
-    M1OrientationStatusType state;
-    int rssi;
+	std::string name = "";
+	M1OrientationDeviceType type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeNone;
+    std::string path = ""; // Device path or UUID
+    M1OrientationStatusType state = M1OrientationStatusType::M1OrientationManagerStatusTypeUnknown;
+    int rssi = 0;
     
 //    M1OrientationDevice(std::string deviceName, M1OrientationDeviceType deviceType, std::string devicePath, M1OrientationStatusType deviceState, int deviceRssi){
 //        name = deviceName;
@@ -71,6 +71,7 @@ struct M1OrientationDevice {
 //        state = deviceState;
 //        rssi = deviceRssi;
 //    }
+
     std::string getDeviceName(){
         return name;
     }
@@ -87,7 +88,7 @@ struct M1OrientationDevice {
         return rssi;
     }
     // Custom search function for string name of device
-    struct find_id : std::unary_function<M1OrientationDevice, bool> {
+    struct find_id {
         std::string name;
         find_id(std::string name):name(name) { }
         bool operator()(M1OrientationDevice const& m) const {
