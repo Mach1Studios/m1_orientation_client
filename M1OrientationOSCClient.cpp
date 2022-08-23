@@ -7,11 +7,11 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
     else if (message.getAddressPattern() == "/getDevices") {
         devices.clear();
         for (int i = 0; i < message.size(); i+=2) {
-            devices.push_back({ message[i + 0].getString().toStdString(), (enum M1OrientationDeviceType)message[i + 1].getInt32() });
+            devices.push_back({ message[i + 0].getString().toStdString(), (enum M1OrientationDeviceType)message[i + 1].getInt32(), message[i + 2].getString().toStdString() });
         }
     }
     else if (message.getAddressPattern() == "/getCurrentDevice") {
-        currentDevice = { message[0].getString().toStdString(), (enum M1OrientationDeviceType)message[1].getInt32() };
+        currentDevice = { message[0].getString().toStdString(), (enum M1OrientationDeviceType)message[1].getInt32(), message[2].getString().toStdString() };
     }
     else if (message.getAddressPattern() == "/getOrientation") {
         orientation.setYPR({ message[0].getFloat32(), message[1].getFloat32(), message[2].getFloat32() });
@@ -139,18 +139,19 @@ void M1OrientationOSCClient::command_refreshDevices()
     send("/refreshDevices");
 }
 
-std::vector<M1OrientationDevice> M1OrientationOSCClient::getDevices() {
+std::vector<M1OrientationDeviceInfo> M1OrientationOSCClient::getDevices() {
     return devices;
 }
 
-M1OrientationDevice M1OrientationOSCClient::getCurrentDevice() {
+M1OrientationDeviceInfo M1OrientationOSCClient::getCurrentDevice() {
     return currentDevice;
 }
 
-void M1OrientationOSCClient::command_startTrackingUsingDevice(M1OrientationDevice device) {
+void M1OrientationOSCClient::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
     juce::OSCMessage msg("/startTrackingUsingDevice");
-    msg.addString(device.name);
-    msg.addInt32(device.type);
+    msg.addString(device.getDeviceName());
+    msg.addInt32(device.getDeviceType());
+    msg.addString(device.getDeviceAddress());
     send(msg);
 }
 

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <variant>
 
 struct M1OrientationYPR {
     float yaw = 0.0f, pitch = 0.0f, roll = 0.0f;
@@ -52,25 +53,27 @@ enum M1OrientationDeviceType {
 enum M1OrientationStatusType {
     M1OrientationManagerStatusTypeError = -2,
     M1OrientationManagerStatusTypeNotConnectable,
-    M1OrientationManagerStatusTypeUnknown,
     M1OrientationManagerStatusTypeConnectable,
     M1OrientationManagerStatusTypeConnected,
 };
 
-struct M1OrientationDevice {
-	std::string name = "";
-	M1OrientationDeviceType type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeNone;
-    std::string path = ""; // Device path or UUID
-    M1OrientationStatusType state = M1OrientationStatusType::M1OrientationManagerStatusTypeUnknown;
-    int rssi = 0;
+struct M1OrientationDeviceInfo {
+public:
+    // Constructor
+    M1OrientationDeviceInfo() {
     
-//    M1OrientationDevice(std::string deviceName, M1OrientationDeviceType deviceType, std::string devicePath, M1OrientationStatusType deviceState, int deviceRssi){
-//        name = deviceName;
-//        type = deviceType;
-//        path = devicePath;
-//        state = deviceState;
-//        rssi = deviceRssi;
-//    }
+    }
+    
+    M1OrientationDeviceInfo(std::string name_, M1OrientationDeviceType type_, std::string address_, std::variant<bool, int> signalStrength_ = false) {
+        name = name_;
+        type = type_;
+        address = address_;
+        signalStrength = signalStrength_;
+    }
+    
+    bool notConnectable = false;
+    bool newErrorToParse = false;
+    std::string error = "";
 
     std::string getDeviceName(){
         return name;
@@ -78,23 +81,36 @@ struct M1OrientationDevice {
     M1OrientationDeviceType getDeviceType(){
         return type;
     }
-    std::string getDevicePath(){
-        return path;
+    std::string getDeviceAddress(){
+        // [Serial]: returns the path
+        // [BLE]: returns the UUID
+        return address;
     }
-    M1OrientationStatusType getDeviceState(){
-        return state;
-    }
-    int getDeviceRssi(){
-        return rssi;
+    std::variant<bool, int> getDeviceSignalStrength(){
+        return signalStrength;
+        
+        /* Reference:
+        if (std::holds_alternative<bool>(signalStrength)) {
+            // it's false, which means the signal strength is unknown
+        } else {
+            // it has a signal strength value
+        }
+        */
     }
     // Custom search function for string name of device
     struct find_id {
         std::string name;
         find_id(std::string name):name(name) { }
-        bool operator()(M1OrientationDevice const& m) const {
+        bool operator()(M1OrientationDeviceInfo const& m) const {
             return m.name == name;
         }
     };
+    
+private:
+    std::string name = "";
+    M1OrientationDeviceType type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeNone;
+    std::string address = ""; // Device path or UUID
+    std::variant<bool, int> signalStrength = false;
 };
 
 extern std::map<enum M1OrientationDeviceType, std::string> M1OrientationDeviceTypeName;

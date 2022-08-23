@@ -12,7 +12,6 @@ std::map<enum M1OrientationDeviceType, std::string> M1OrientationDeviceTypeName 
 std::map<enum M1OrientationStatusType, std::string> M1OrientationStatusTypeName = {
     { M1OrientationManagerStatusTypeError, "Error"},
     { M1OrientationManagerStatusTypeNotConnectable, "Not Connectable"},
-    { M1OrientationManagerStatusTypeUnknown, "Unknown"},
     { M1OrientationManagerStatusTypeConnectable, "Connectable"},
     { M1OrientationManagerStatusTypeConnected, "Connected"},
 };

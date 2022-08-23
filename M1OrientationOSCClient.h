@@ -13,8 +13,8 @@ class M1OrientationOSCClient :
     int clientPort = 0;
     bool connectedToServer = false;
 
-    M1OrientationDevice currentDevice;
-    std::vector<M1OrientationDevice> devices;
+    M1OrientationDeviceInfo currentDevice;
+    std::vector<M1OrientationDeviceInfo> devices;
 
     Orientation orientation;
 
@@ -39,7 +39,7 @@ public:
     bool init(int serverPort) override;
 
     void command_refreshDevices();
-    void command_startTrackingUsingDevice(M1OrientationDevice device);
+    void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
@@ -54,8 +54,8 @@ public:
 
     void setStatusCallback(std::function<void(bool success, std::string message)> callback);
 
-    std::vector<M1OrientationDevice> getDevices();
-    M1OrientationDevice getCurrentDevice();
+    std::vector<M1OrientationDeviceInfo> getDevices();
+    M1OrientationDeviceInfo getCurrentDevice();
 
     void close();
 };
