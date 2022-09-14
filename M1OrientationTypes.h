@@ -60,15 +60,13 @@ enum M1OrientationStatusType {
 struct M1OrientationDeviceInfo {
 public:
     // Constructor
-    M1OrientationDeviceInfo() {
-    
-    }
-    
-    M1OrientationDeviceInfo(std::string name_, M1OrientationDeviceType type_, std::string address_, std::variant<bool, int> signalStrength_ = false) {
+    M1OrientationDeviceInfo() {}
+    M1OrientationDeviceInfo(std::string name_, M1OrientationDeviceType type_, std::string address_, std::variant<bool, int> signalStrength_ = false, std::variant<bool, int> batteryPercentage_ = false) {
         name = name_;
         type = type_;
         address = address_;
         signalStrength = signalStrength_;
+        batteryPercentage = batteryPercentage_;
     }
     
     bool notConnectable = false;
@@ -78,14 +76,18 @@ public:
     std::string getDeviceName(){
         return name;
     }
+    
     M1OrientationDeviceType getDeviceType(){
         return type;
     }
+    
     std::string getDeviceAddress(){
         // [Serial]: returns the path
         // [BLE]: returns the UUID
         return address;
     }
+    
+    // Keeping these getters for ease of documentation but these variables are now public
     std::variant<bool, int> getDeviceSignalStrength(){
         return signalStrength;
         
@@ -97,6 +99,20 @@ public:
         }
         */
     }
+    
+    // Keeping these getters for ease of documentation but these variables are now public
+    std::variant<bool, int> getDeviceBatteryPercentage(){
+        return batteryPercentage;
+        
+        /* Reference:
+        if (std::holds_alternative<bool>(batteryPercentage)) {
+            // it's false, which means the battery percentage is unknown
+        } else {
+            // it has a battery percentage value
+        }
+        */
+    }
+    
     // Custom search function for string name of device
     struct find_id {
         std::string name;
@@ -110,7 +126,9 @@ private:
     std::string name = "";
     M1OrientationDeviceType type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeNone;
     std::string address = ""; // Device path or UUID
+public:
     std::variant<bool, int> signalStrength = false;
+    std::variant<bool, int> batteryPercentage = false;
 };
 
 extern std::map<enum M1OrientationDeviceType, std::string> M1OrientationDeviceTypeName;
