@@ -14,12 +14,13 @@ struct M1OrientationYPR {
         DEGREES = (int) 0,
         RADIANS = (int) 1,
         NORMALED = (int) 2
-    };
+    } angleType;
 };
 
 struct M1OrientationQuat {
-    float w = 0.0f, x = 0.0f, y = 0.0f, z = 0.0f;
-    float lastw, lastx, lasty, lastz;
+    float w = 1.0f, x = 0.0f, y = 0.0f, z = 0.0f; // Used for getting/reading processed values
+    float wIn = 1.0f, xIn = 0.0f, yIn = 0.0f, zIn = 0.0f; // Used for setting new input values
+    float wb = 1.0f, xb = 0.0f, yb = 0.0f, zb = 0.0f; // Used for resets
 };
 
 class Orientation {

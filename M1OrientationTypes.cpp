@@ -18,28 +18,46 @@ std::map<enum M1OrientationStatusType, std::string> M1OrientationStatusTypeName 
 
 void Orientation::setYPR(M1OrientationYPR orientation) {
     orientationYPR = orientation;
+    
+    if (orientationYPR.angleType == M1OrientationYPR::AngleType::DEGREES) {
+        // convert to radians for conversion to Quat
+        orientationYPR.yaw = juce::degreesToRadians(orientation.yaw);
+        orientationYPR.pitch = juce::degreesToRadians(orientation.pitch);
+        orientationYPR.roll = juce::degreesToRadians(orientation.roll);
+    } else if (orientationYPR.angleType == M1OrientationYPR::AngleType::RADIANS) {
+        // passthrough for conversion to Quat
+    } else if (orientationYPR.angleType == M1OrientationYPR::AngleType::NORMALED) {
+        // convert to radians for conversion to Quat
+        orientationYPR.yaw = (float)juce::jmap(orientationYPR.yaw, (float)0.0, (float)1.0, (float)-juce::MathConstants<double>::pi, (float)juce::MathConstants<double>::pi);
+        orientationYPR.pitch = (float)juce::jmap(orientationYPR.pitch, (float)0.0, (float)1.0, (float)-juce::MathConstants<double>::pi, (float)juce::MathConstants<double>::pi);
+        orientationYPR.roll = (float)juce::jmap(orientationYPR.roll, (float)0.0, (float)1.0, (float)-juce::MathConstants<double>::pi, (float)juce::MathConstants<double>::pi);
 
-    /// It is better to avoid this function and stick to updating quat and calculating best YPR
+    } else {
+        // TODO: error for not defining angle type or default to DEGREES
+    }
+
+    // Below converts YPR RADIANS -> Quat
+    // It is better to avoid this function and stick to updating quat and calculating best YPR
+    orientationQuat.w = cos(orientationYPR.roll / 2) * cos(orientationYPR.pitch / 2) * cos(orientationYPR.yaw / 2) + sin(orientationYPR.roll / 2) * sin(orientationYPR.pitch / 2) * sin(orientationYPR.yaw / 2);
     orientationQuat.x = sin(orientationYPR.roll / 2) * cos(orientationYPR.pitch / 2) * cos(orientationYPR.yaw / 2) - cos(orientationYPR.roll / 2) * sin(orientationYPR.pitch / 2) * sin(orientationYPR.yaw / 2);
     orientationQuat.y = cos(orientationYPR.roll / 2) * sin(orientationYPR.pitch / 2) * cos(orientationYPR.yaw / 2) + sin(orientationYPR.roll / 2) * cos(orientationYPR.pitch / 2) * sin(orientationYPR.yaw / 2);
     orientationQuat.z = cos(orientationYPR.roll / 2) * cos(orientationYPR.pitch / 2) * sin(orientationYPR.yaw / 2) - sin(orientationYPR.roll / 2) * sin(orientationYPR.pitch / 2) * cos(orientationYPR.yaw / 2);
-    orientationQuat.w = cos(orientationYPR.roll / 2) * cos(orientationYPR.pitch / 2) * cos(orientationYPR.yaw / 2) + sin(orientationYPR.roll / 2) * sin(orientationYPR.pitch / 2) * sin(orientationYPR.yaw / 2);
 }
 
 void Orientation::setQuat(M1OrientationQuat orientation) {
     orientationQuat = orientation;
 
     //normalize
-    double magnitude = sqrt(orientationQuat.w * orientationQuat.w + orientationQuat.x * orientationQuat.x + orientationQuat.y * orientationQuat.y + orientationQuat.z * orientationQuat.z);
-    orientationQuat.w /= magnitude;
-    orientationQuat.x /= magnitude;
-    orientationQuat.y /= magnitude;
-    orientationQuat.z /= magnitude;
+    double magnitude = sqrt(orientationQuat.wIn * orientationQuat.wIn + orientationQuat.xIn * orientationQuat.xIn + orientationQuat.yIn * orientationQuat.yIn + orientationQuat.zIn * orientationQuat.zIn);
+    orientationQuat.wIn /= magnitude;
+    orientationQuat.xIn /= magnitude;
+    orientationQuat.yIn /= magnitude;
+    orientationQuat.zIn /= magnitude;
 
-    orientationQuat.w = orientation.lastw * orientation.w + orientation.lastx * orientation.x + orientation.lasty * orientation.y + orientation.lastz * orientation.z;
-    orientationQuat.x = orientation.lastw * orientation.x - orientation.lastx * orientation.w - orientation.lasty * orientation.z + orientation.lastz * orientation.y;
-    orientationQuat.y = orientation.lastw * orientation.y + orientation.lastx * orientation.z - orientation.lasty * orientation.w - orientation.lastz * orientation.x;
-    orientationQuat.z = orientation.lastw * orientation.z - orientation.lastx * orientation.y + orientation.lasty * orientation.x - orientation.lastz * orientation.w;
+    orientationQuat.w = orientation.wb * orientation.wIn + orientation.xb * orientation.xIn + orientation.yb * orientation.yIn + orientation.zb * orientation.zIn;
+    orientationQuat.x = orientation.wb * orientation.xIn - orientation.xb * orientation.wIn - orientation.yb * orientation.zIn + orientation.zb * orientation.yIn;
+    orientationQuat.y = orientation.wb * orientation.yIn + orientation.xb * orientation.zIn - orientation.yb * orientation.wIn - orientation.zb * orientation.xIn;
+    orientationQuat.z = orientation.wb * orientation.zIn - orientation.xb * orientation.yIn + orientation.yb * orientation.xIn - orientation.zb * orientation.wIn;
     
     //TODO: add logic for reordering and inversing
 
@@ -76,6 +94,7 @@ void Orientation::setQuat(M1OrientationQuat orientation) {
         orientationYPR.yaw = juce::radiansToDegrees(y);
         orientationYPR.pitch = juce::radiansToDegrees(p);
         orientationYPR.roll = juce::radiansToDegrees(r);
+        orientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
 
         // remap output orientationYPR
         orientationYPR.custom_output_yaw = (float)juce::jmap(orientationYPR.yaw, (float)-180, (float)180, orientationYPR.yaw_min, orientationYPR.yaw_max);
@@ -95,10 +114,10 @@ M1OrientationQuat Orientation::getQuat() {
 void Orientation::resetOrientation() {
     M1OrientationQuat quat = getQuat();
     
-    quat.lastw = quat.w;
-    quat.lastx = quat.x;
-    quat.lasty = quat.y;
-    quat.lastz = quat.z;
+    quat.wb = quat.wIn;
+    quat.xb = quat.xIn;
+    quat.yb = quat.yIn;
+    quat.zb = quat.zIn;
     
     setQuat(quat);
 }
