@@ -19,29 +19,30 @@ std::map<enum M1OrientationStatusType, std::string> M1OrientationStatusTypeName 
 void Orientation::setYPR(M1OrientationYPR orientation) {
     orientationYPR = orientation;
     
-    if (orientationYPR.angleType == M1OrientationYPR::AngleType::DEGREES) {
-        // convert to radians for conversion to Quat
-        orientationYPR.yaw = juce::degreesToRadians(orientation.yaw);
-        orientationYPR.pitch = juce::degreesToRadians(orientation.pitch);
-        orientationYPR.roll = juce::degreesToRadians(orientation.roll);
-    } else if (orientationYPR.angleType == M1OrientationYPR::AngleType::RADIANS) {
+    if (orientation.angleType == M1OrientationYPR::AngleType::DEGREES) {
         // passthrough for conversion to Quat
-    } else if (orientationYPR.angleType == M1OrientationYPR::AngleType::NORMALED) {
-        // convert to radians for conversion to Quat
-        orientationYPR.yaw = (float)juce::jmap(orientationYPR.yaw, (float)0.0, (float)1.0, (float)-juce::MathConstants<double>::pi, (float)juce::MathConstants<double>::pi);
-        orientationYPR.pitch = (float)juce::jmap(orientationYPR.pitch, (float)0.0, (float)1.0, (float)-juce::MathConstants<double>::pi, (float)juce::MathConstants<double>::pi);
-        orientationYPR.roll = (float)juce::jmap(orientationYPR.roll, (float)0.0, (float)1.0, (float)-juce::MathConstants<double>::pi, (float)juce::MathConstants<double>::pi);
-
+    } else if (orientation.angleType == M1OrientationYPR::AngleType::RADIANS) {
+        // convert to degrees for conversion to Quat
+        orientationYPR.yaw = juce::radiansToDegrees(orientation.yaw);
+        orientationYPR.pitch = juce::radiansToDegrees(orientation.pitch);
+        orientationYPR.roll = juce::radiansToDegrees(orientation.roll);
+        orientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
+    } else if (orientation.angleType == M1OrientationYPR::AngleType::NORMALED) {
+        // convert to degrees for conversion to Quat
+        orientationYPR.yaw = (float)juce::jmap(orientation.yaw, (float)0.0, (float)1.0, (float)-180, (float)180);
+        orientationYPR.pitch = (float)juce::jmap(orientation.pitch, (float)0.0, (float)1.0, (float)-180, (float)180);
+        orientationYPR.roll = (float)juce::jmap(orientation.roll, (float)0.0, (float)1.0, (float)-180, (float)180);
+        orientationYPR.angleType = M1OrientationYPR::AngleType::DEGREES;
     } else {
         // TODO: error for not defining angle type or default to DEGREES
     }
 
-    // Below converts YPR RADIANS -> Quat
+    // Below converts YPR DEGREES -> YPR RADIANS -> Quat
     // It is better to avoid this function and stick to updating quat and calculating best YPR
-    orientationQuat.w = cos(orientationYPR.roll / 2) * cos(orientationYPR.pitch / 2) * cos(orientationYPR.yaw / 2) + sin(orientationYPR.roll / 2) * sin(orientationYPR.pitch / 2) * sin(orientationYPR.yaw / 2);
-    orientationQuat.x = sin(orientationYPR.roll / 2) * cos(orientationYPR.pitch / 2) * cos(orientationYPR.yaw / 2) - cos(orientationYPR.roll / 2) * sin(orientationYPR.pitch / 2) * sin(orientationYPR.yaw / 2);
-    orientationQuat.y = cos(orientationYPR.roll / 2) * sin(orientationYPR.pitch / 2) * cos(orientationYPR.yaw / 2) + sin(orientationYPR.roll / 2) * cos(orientationYPR.pitch / 2) * sin(orientationYPR.yaw / 2);
-    orientationQuat.z = cos(orientationYPR.roll / 2) * cos(orientationYPR.pitch / 2) * sin(orientationYPR.yaw / 2) - sin(orientationYPR.roll / 2) * sin(orientationYPR.pitch / 2) * cos(orientationYPR.yaw / 2);
+    orientationQuat.w = cos(juce::degreesToRadians(orientationYPR.roll) / 2) * cos(juce::degreesToRadians(orientationYPR.pitch) / 2) * cos(juce::degreesToRadians(orientationYPR.yaw) / 2) + sin(juce::degreesToRadians(orientationYPR.roll) / 2) * sin(juce::degreesToRadians(orientationYPR.pitch) / 2) * sin(juce::degreesToRadians(orientationYPR.yaw) / 2);
+    orientationQuat.x = sin(juce::degreesToRadians(orientationYPR.roll) / 2) * cos(juce::degreesToRadians(orientationYPR.pitch) / 2) * cos(juce::degreesToRadians(orientationYPR.yaw) / 2) - cos(juce::degreesToRadians(orientationYPR.roll) / 2) * sin(juce::degreesToRadians(orientationYPR.pitch) / 2) * sin(juce::degreesToRadians(orientationYPR.yaw) / 2);
+    orientationQuat.y = cos(juce::degreesToRadians(orientationYPR.roll) / 2) * sin(juce::degreesToRadians(orientationYPR.pitch) / 2) * cos(juce::degreesToRadians(orientationYPR.yaw) / 2) + sin(juce::degreesToRadians(orientationYPR.roll) / 2) * cos(juce::degreesToRadians(orientationYPR.pitch) / 2) * sin(juce::degreesToRadians(orientationYPR.yaw) / 2);
+    orientationQuat.z = cos(juce::degreesToRadians(orientationYPR.roll) / 2) * cos(juce::degreesToRadians(orientationYPR.pitch) / 2) * sin(juce::degreesToRadians(orientationYPR.yaw) / 2) - sin(juce::degreesToRadians(orientationYPR.roll) / 2) * sin(juce::degreesToRadians(orientationYPR.pitch) / 2) * cos(juce::degreesToRadians(orientationYPR.yaw) / 2);
 }
 
 void Orientation::setQuat(M1OrientationQuat orientation) {
