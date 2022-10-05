@@ -33,7 +33,22 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
             statusCallback(success, text);
         }
     }
-   
+    // Playhead Timecode
+    else if (message.getAddressPattern() == "/getFramerate") {
+        frameRate = message[0].getFloat32();
+    }
+    else if (message.getAddressPattern() == "/getTimecode") {
+        // Retrieve current playhead position as timecode
+        if (message.size() == 4) {
+            HH = message[0].getInt32();
+            MM = message[1].getInt32();
+            SS = message[2].getInt32();
+            FS = message[3].getInt32();
+            currentPlayheadPositionInSeconds = (HH * 3600) + (MM * 60) + SS + (frameRate > 0 ? FS / frameRate : 0);
+        } else {
+            currentPlayheadPositionInSeconds = message[0].getFloat32();
+        }
+    }
 }
 
 bool M1OrientationOSCClient::send(std::string str) {
@@ -86,6 +101,10 @@ bool M1OrientationOSCClient::getTrackingPitchEnabled() {
 
 bool M1OrientationOSCClient::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
+}
+
+float M1OrientationOSCClient::getPlayheadPositionInSeconds() {
+    return currentPlayheadPositionInSeconds;
 }
 
 bool M1OrientationOSCClient::isConnectedToServer() {

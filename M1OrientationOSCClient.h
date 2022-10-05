@@ -17,13 +17,14 @@ class M1OrientationOSCClient :
     std::vector<M1OrientationDeviceInfo> devices;
 
     Orientation orientation;
-
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
-
     bool bTracking = false;
-
+    
+    float currentPlayheadPositionInSeconds;
+    float frameRate;
+    int HH, MM, SS, FS;
 
     std::function<void(bool success, std::string message)> statusCallback = nullptr;
 
@@ -44,18 +45,19 @@ public:
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
 
+    std::vector<M1OrientationDeviceInfo> getDevices();
+    M1OrientationDeviceInfo getCurrentDevice();
+    
     Orientation getOrientation();
-
     bool getTrackingYawEnabled();
     bool getTrackingPitchEnabled();
     bool getTrackingRollEnabled();
 
+    // Master Timecode and Playhead position
+    float getPlayheadPositionInSeconds();
+    
     bool isConnectedToServer();
-
     void setStatusCallback(std::function<void(bool success, std::string message)> callback);
-
-    std::vector<M1OrientationDeviceInfo> getDevices();
-    M1OrientationDeviceInfo getCurrentDevice();
 
     void close();
 };
