@@ -87,6 +87,18 @@ void M1OrientationOSCClient::command_setTrackingRollEnabled(bool enable) {
     send(msg);
 }
 
+void M1OrientationOSCClient::command_setFrameRate(float frameRate) {
+    juce::OSCMessage msg("/setFrameRate");
+    msg.addFloat32(frameRate);
+    send(msg);
+}
+
+void M1OrientationOSCClient::command_setPlayheadPositionInSeconds(float playheadPositionInSeconds) {
+    juce::OSCMessage msg("/setPlayheadPosition");
+    msg.addFloat32(playheadPositionInSeconds);
+    send(msg);
+}
+
 Orientation M1OrientationOSCClient::getOrientation() {
     return orientation;
 }

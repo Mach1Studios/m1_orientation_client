@@ -44,6 +44,8 @@ public:
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
+    void command_setFrameRate(float frameRate);
+    void command_setPlayheadPositionInSeconds(float playheadPositionInSeconds);
 
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getCurrentDevice();
