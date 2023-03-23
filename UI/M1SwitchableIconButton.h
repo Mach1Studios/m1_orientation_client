@@ -47,9 +47,9 @@ public:
                 }
             }
             m.drawImage(icon, 5, 5, shape.size.y - 10, shape.size.y - 10);
-            m.draw<M1Label>({shape.size.y, 5, shape.size.x - shape.size.y - 10, shape.size.y - 10}).withText(caption).withTextAlignment(TEXT_CENTER).commit();
+            m.prepare<M1Label>({shape.size.y, 5, shape.size.x - shape.size.y - 10, shape.size.y - 10}).withText(caption).withTextAlignment(TEXT_CENTER).commit();
         } else {
-            m.draw<M1Label>({5, 5, shape.size.x - 10, shape.size.y - 10}).withText(caption).withTextAlignment(TEXT_CENTER).commit();
+            m.prepare<M1Label>({5, 5, shape.size.x - 10, shape.size.y - 10}).withText(caption).withTextAlignment(TEXT_CENTER).commit();
         }
         
         if (inside && ctx.mouseDownPressed[0]) {
