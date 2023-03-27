@@ -64,7 +64,7 @@ public:
                 withCaption("Refresh").withBorders().onClick(
                         [&](M1SwitchableIconButton& b) {
                             startRefreshing();
-                        }).withFontSize(15).commit();
+                        }).withFontSize(15).draw();
             
             // Drawing devices
             for (int i = 0; i < deviceSlots.size(); i++) {
@@ -77,7 +77,7 @@ public:
                         deviceSlots[b.elementIndex].onClickCallback(b.elementIndex);
                     })
                     .withElementIndex(deviceSlots[i].index)
-                    .commit();
+                    .draw();
             }
             
             // Drawing settings if settings panel is enabled
@@ -85,7 +85,7 @@ public:
                 m.prepare<M1SwitchableIconButton>({2, shape.size.y - 100, shape.size.x - 4, 25})
                     .withBorders()
                     .withCaption("Disconnect").withFontSize(12).onClick([&](M1SwitchableIconButton& b){ disconnectClickedCallback(); })
-                    .commit();
+                    .draw();
                 
                 int yprToggleWidth = int(float(shape.size.x - 10) / 3.0);
                 
@@ -94,7 +94,7 @@ public:
                     .withCaption("Track Yaw").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(0);
                     })
                     .setHighlighted(trackYaw)
-                    .commit();
+                    .draw();
 
 
                 m.prepare<M1SwitchableIconButton>({2 + yprToggleWidth * 1, shape.size.y - 72, yprToggleWidth, 25})
@@ -102,7 +102,7 @@ public:
                     .withCaption("Track Pitch").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(1);
                     })
                     .setHighlighted(trackPitch)
-                    .commit();
+                    .draw();
 
 
                 m.prepare<M1SwitchableIconButton>({2 + yprToggleWidth * 2, shape.size.y - 72, yprToggleWidth, 25})
@@ -110,7 +110,7 @@ public:
                     .withCaption("Track Roll").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(2);
                     })
                     .setHighlighted(trackRoll)
-                    .commit();
+                    .draw();
             }
         }
     }
