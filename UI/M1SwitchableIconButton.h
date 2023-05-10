@@ -14,19 +14,15 @@ public:
     }
     
     void internalDraw(Murka & m) {
-        MurkaContext& ctx = m.currentContext;
-
-        bool inside = ctx.isHovered() * !areInteractiveChildrenHovered(ctx) * hasMouseFocus(m);
-        
-        m.setColor(40 + 40 * highlighted + 15 * inside,
-                   40 + 40 * highlighted + 15 * inside,
-                   40 + 40 * highlighted + 15 * inside, 255);
+        m.setColor(40 + 40 * highlighted + 15 * inside(),
+                   40 + 40 * highlighted + 15 * inside(),
+                   40 + 40 * highlighted + 15 * inside(), 255);
         m.enableFill();
         m.drawRectangle(0, 0, shape.size.x, shape.size.y);
 
-        m.setColor(110 + 200 * inside,
-                   110 + 200 * inside,
-                   110 + 200 * inside, 255);
+        m.setColor(110 + 200 * inside(),
+                   110 + 200 * inside(),
+                   110 + 200 * inside(), 255);
         m.disableFill();
         if (drawBorders)
             m.drawRectangle(0, 0, shape.size.x, shape.size.y);
@@ -52,7 +48,7 @@ public:
             m.prepare<M1Label>({5, 5, shape.size.x - 10, shape.size.y - 10}).withText(caption).withTextAlignment(TEXT_CENTER).draw();
         }
         
-        if (inside && ctx.mouseDownPressed[0]) {
+        if (inside() && mouseDownPressed(0)) {
             onClickCallback(*this);
         }
     }

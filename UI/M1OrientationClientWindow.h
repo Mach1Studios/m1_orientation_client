@@ -23,10 +23,6 @@ public:
     }
     
     void internalDraw(Murka & m) {
-        MurkaContext& ctx = m.currentContext;
-
-        bool inside = ctx.isHovered() * !areInteractiveChildrenHovered(ctx) * hasMouseFocus(m);
-        
         m.setColor(40,
                    40,
                    40, 255);
@@ -39,7 +35,7 @@ public:
         m.disableFill();
         m.drawRectangle(0, 0, shape.size.x, shape.size.y);
         
-        if (!inside && !areInteractiveChildrenHovered(ctx) && ctx.mouseDownPressed[0]) {
+        if (!inside() && !areInteractiveChildrenHovered() && mouseDownPressed(0)) {
             onClickOutsideCallback();
         }
         

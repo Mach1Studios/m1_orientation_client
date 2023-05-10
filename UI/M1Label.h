@@ -9,11 +9,6 @@ class M1Label : public murka::View<M1Label> {
 public:
     void internalDraw(Murka & m) {
         
-        MurkaContext& context = m.currentContext;
-
-        bool inside = context.isHovered() *
-            hasMouseFocus(m);
-
 		auto font = m.getCurrentFont();
 		if (customFont) {
 			font = font;

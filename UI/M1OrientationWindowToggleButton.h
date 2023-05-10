@@ -18,20 +18,17 @@ public:
     }
     
     void internalDraw(Murka & m) {
-        MurkaContext& ctx = m.currentContext;
-
-        bool inside = ctx.isHovered() * !areInteractiveChildrenHovered(ctx) * hasMouseFocus(m);
-        hovered = inside;
+        hovered = inside();
         
-        m.setColor(40 + 15 * inside,
-                   40 + 15 * inside,
-                   40 + 15 * inside, 255);
+        m.setColor(40 + 15 * inside(),
+                   40 + 15 * inside(),
+                   40 + 15 * inside(), 255);
         m.enableFill();
         m.drawRectangle(0, 0, shape.size.x, shape.size.y);
 
-        m.setColor(110 + 200 * inside,
-                   110 + 200 * inside,
-                   110 + 200 * inside, 255);
+        m.setColor(110 + 200 * inside(),
+                   110 + 200 * inside(),
+                   110 + 200 * inside(), 255);
         m.disableFill();
         m.drawRectangle(0, 0, shape.size.x, shape.size.y);
         
@@ -47,7 +44,7 @@ public:
                          2);
         }
         
-        if (inside && ctx.mouseDownPressed[0]) {
+        if (inside() && mouseDownPressed(0)) {
             onClickCallback(*this);
         }
     }
