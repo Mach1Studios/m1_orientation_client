@@ -16,11 +16,19 @@ struct M1OrientationClientWindowDeviceSlot {
     std::function<void(int)> onClickCallback = [](int){};
 };
 
+
+
 class M1OrientationClientWindow : public murka::View<M1OrientationClientWindow> {
 public:
     M1OrientationClientWindow() {
         millisOnStart = juce::Time::currentTimeMillis();
     }
+
+	std::string formatFloatWithLeadingZeros(float value) {
+		std::ostringstream oss;
+		oss << std::fixed << std::setfill('0') << std::setw(2) << value;
+		return oss.str();
+	}
     
     void internalDraw(Murka & m) {
         m.setColor(40,
@@ -107,13 +115,19 @@ public:
                     })
                     .setHighlighted(trackRoll)
                     .draw();
-            }
+
+
+					m.drawString(formatFloatWithLeadingZeros(yaw), 2, shape.size.y - 72 + 30);
+					m.drawString(formatFloatWithLeadingZeros(pitch), 2 + yprToggleWidth * 1, shape.size.y - 72 + 30);
+					m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2, shape.size.y - 72 + 30);
+			}
         }
     }
     
     void startRefreshing() {
         millisWhenRefreshingStarted = juce::Time::currentTimeMillis();
         refreshing = true;
+		onRefreshCallback();
     }
     
     bool refreshing = true;
@@ -135,6 +149,11 @@ public:
         return *this;
     }
     
+	M1OrientationClientWindow& onRefreshClicked(std::function<void()> callback) {
+		onRefreshCallback = callback;
+		return *this;
+	}
+
     M1OrientationClientWindow& onDisconnectClicked(std::function<void()> callback) {
         disconnectClickedCallback = callback;
         // TODO: close window
@@ -156,19 +175,30 @@ public:
         return *this;
     }
 
+	M1OrientationClientWindow& withYPR(float yaw, float pitch, float roll) {
+		this->yaw = yaw;
+		this->pitch = pitch;
+		this->roll = roll;
+		return *this;
+	}
+
     bool trackYaw;
     bool trackPitch;
     bool trackRoll;
     std::pair<int, int> yawRange;
     std::pair<int, int> pitchRange;
     std::pair<int, int> rollRange;
+	float yaw;
+	float pitch;
+	float roll;
 
     std::function<void(int)> yprSwitchesClickedCallback;
     std::function<void()> disconnectClickedCallback;
     std::vector<M1OrientationClientWindowDeviceSlot> deviceSlots;
     
-    std::function<void()> onClickOutsideCallback = [](){};
-    
+	std::function<void()> onClickOutsideCallback = []() {};
+	std::function<void()> onRefreshCallback = []() {};
+	
     MurImage icon;
     
     bool initialized = false;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+
 #include "M1OrientationTypes.h"
 #include "M1OrientationSettings.h"
 
@@ -39,9 +40,10 @@ public:
 
     bool init(int serverPort) override;
 
-    void command_refreshDevices();
-    void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);
-    void command_setTrackingYawEnabled(bool enable);
+	void command_refreshDevices();
+	void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);
+	void command_disconnect();
+	void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
     void command_setFrameRate(float frameRate);

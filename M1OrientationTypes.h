@@ -44,11 +44,12 @@ struct M1OrientationTrackingResult
 };
 
 enum M1OrientationDeviceType {
-    M1OrientationManagerDeviceTypeNone = 0,
+	M1OrientationManagerDeviceTypeEmulator = -1,
+	M1OrientationManagerDeviceTypeNone = 0,
     M1OrientationManagerDeviceTypeSerial,
     M1OrientationManagerDeviceTypeBLE,
     M1OrientationManagerDeviceTypeOSC,
-    M1OrientationManagerDeviceTypeCamera,
+	M1OrientationManagerDeviceTypeCamera,
 };
 
 enum M1OrientationStatusType {
@@ -70,7 +71,7 @@ public:
         batteryPercentage = batteryPercentage_;
     }
     
-    bool notConnectable = false;
+	bool notConnectable = false;
     bool newErrorToParse = false;
     std::string error = "";
 

@@ -1,14 +1,26 @@
 #include "M1OrientationOSCClient.h"
 
+#include <iostream>
+#include <thread>
+#include <chrono>
+
 void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message) {
     if (message.getAddressPattern() == "/connectedToServer") {
         connectedToServer = true;
     }
     else if (message.getAddressPattern() == "/getDevices") {
         devices.clear();
-        for (int i = 0; i < message.size(); i+=2) {
-            devices.push_back({ message[i + 0].getString().toStdString(), (enum M1OrientationDeviceType)message[i + 1].getInt32(), message[i + 2].getString().toStdString() });
-        }
+
+		int i = 0;
+		while(i < message.size()) {
+			std::string deviceName = message[i++].getString().toStdString();
+			enum M1OrientationDeviceType deviceType = (enum M1OrientationDeviceType)message[i++].getInt32();
+			std::string deviceAddress = message[i++].getString().toStdString();
+			bool hasStrength = (message[i++].getInt32() == 1);
+			int deviceStrength = deviceStrength = message[i++].getInt32();
+
+			devices.push_back(M1OrientationDeviceInfo(deviceName, deviceType, deviceAddress, hasStrength ? deviceStrength : false));
+		}
     }
     else if (message.getAddressPattern() == "/getCurrentDevice") {
         currentDevice = { message[0].getString().toStdString(), (enum M1OrientationDeviceType)message[1].getInt32(), message[2].getString().toStdString() };
@@ -153,11 +165,19 @@ bool M1OrientationOSCClient::init(int serverPort) {
                 // juce::ChildProcess().start("C:/windows/system32/notepad.exe");
             }
 
-            // add client to server
-            juce::OSCMessage msg("/addClient");
-            msg.addInt32(clientPort);
-            send(msg);
+			std::thread([&]() {
+				while (!connectedToServer)
+				{
+					// add client to server
+					juce::OSCMessage msg("/addClient");
+					msg.addInt32(clientPort);
+					send(msg);
 
+					// sleep for 30 milliseconds
+					std::this_thread::sleep_for(std::chrono::milliseconds(30));
+				}
+			}).detach();
+ 
             return true;
         }
     }
@@ -167,7 +187,12 @@ bool M1OrientationOSCClient::init(int serverPort) {
 
 void M1OrientationOSCClient::command_refreshDevices()
 {
-    send("/refreshDevices");
+	send("/refreshDevices");
+}
+
+void M1OrientationOSCClient::command_disconnect()
+{
+	send("/disconnect");
 }
 
 std::vector<M1OrientationDeviceInfo> M1OrientationOSCClient::getDevices() {
