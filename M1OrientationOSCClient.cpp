@@ -166,15 +166,25 @@ bool M1OrientationOSCClient::init(int serverPort) {
             }
 
 			std::thread([&]() {
-				while (!connectedToServer)
+				while (true)
 				{
-					// add client to server
-					juce::OSCMessage msg("/addClient");
-					msg.addInt32(clientPort);
-					send(msg);
+					if (!connectedToServer) {
+						// add client to server
+						juce::OSCMessage msg("/addClient");
+						msg.addInt32(this->clientPort);
+						send(msg);
+					} 
+					else {
+						juce::DatagramSocket socket(false);
+						socket.setEnablePortReuse(false);
+						if (socket.bindToPort(this->serverPort)) {
+							socket.shutdown();
 
-					// sleep for 30 milliseconds
-					std::this_thread::sleep_for(std::chrono::milliseconds(30));
+							connectedToServer = false;
+						}
+					}
+
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				}
 			}).detach();
  
