@@ -175,6 +175,7 @@ bool M1OrientationOSCClient::init(int serverPort) {
 						send(msg);
 					} 
 					else {
+						// check connection
 						juce::DatagramSocket socket(false);
 						socket.setEnablePortReuse(false);
 						if (socket.bindToPort(this->serverPort)) {

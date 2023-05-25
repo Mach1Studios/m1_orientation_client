@@ -39,8 +39,8 @@ public:
         } else {
             // TODO: show monitor yaw iconology?
             m.setColor(220, 220, 220, 255);
-            m.drawCircle(shape.size.x / 2 + cos(degToRad(gimmickAngleDegrees)) * (shape.size.x - 5) / 2,
-                         shape.size.y / 2 + sin(degToRad(gimmickAngleDegrees)) * (shape.size.y - 5) / 2,
+            m.drawCircle(shape.size.x / 2 + cos(degToRad(gimmickAngleDegrees - 90)) * (shape.size.x - 5) / 2,
+                         shape.size.y / 2 + sin(degToRad(gimmickAngleDegrees - 90)) * (shape.size.y - 5) / 2,
                          2);
         }
         
