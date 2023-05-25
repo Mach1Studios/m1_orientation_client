@@ -47,7 +47,7 @@ public:
                     icon.loadFromRawData(BinaryData::wifi_icon_png, BinaryData::wifi_icon_pngSize);
                     iconLoaded = true;
                 } else {
-                    std::cout << "UNKNOWN ICON TYPE" << std::endl;
+                    //std::cout << "UNKNOWN ICON TYPE" << std::endl;
                 }
             }
             m.drawImage(icon, 5, 5, shape.size.y - 10, shape.size.y - 10);
