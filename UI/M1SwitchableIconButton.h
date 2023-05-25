@@ -34,12 +34,20 @@ public:
                 if (iconKind == "bt") {
                     icon.loadFromRawData(BinaryData::bluetooth_icon_png, BinaryData::bluetooth_icon_pngSize);
                     iconLoaded = true;
-                } else
-                if (iconKind == "wifi") {
+                }
+                else if (iconKind == "usb") {
+                    icon.loadFromRawData(BinaryData::usb_icon_png, BinaryData::usb_icon_pngSize);
+                    iconLoaded = true;
+                }
+                else if (iconKind == "camera") {
+                    icon.loadFromRawData(BinaryData::camera_icon_png, BinaryData::camera_icon_pngSize);
+                    iconLoaded = true;
+                }
+                else if (iconKind == "wifi") {
                     icon.loadFromRawData(BinaryData::wifi_icon_png, BinaryData::wifi_icon_pngSize);
                     iconLoaded = true;
                 } else {
-                    std::cout << "UNKNOWN ICON TYPE";
+                    std::cout << "UNKNOWN ICON TYPE" << std::endl;
                 }
             }
             m.drawImage(icon, 5, 5, shape.size.y - 10, shape.size.y - 10);

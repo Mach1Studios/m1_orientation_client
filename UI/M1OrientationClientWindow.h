@@ -16,8 +16,6 @@ struct M1OrientationClientWindowDeviceSlot {
     std::function<void(int)> onClickCallback = [](int){};
 };
 
-
-
 class M1OrientationClientWindow : public murka::View<M1OrientationClientWindow> {
 public:
     M1OrientationClientWindow() {
@@ -76,7 +74,7 @@ public:
                     withCaption(deviceSlots[i].deviceName)
                     .setHighlighted(deviceSlots[i].highlighted)
                     .withIconKind(deviceSlots[i].icon)
-                    .withFontSize(10)
+                    .withFontSize(9)
                     .onClick([&](M1SwitchableIconButton& b) {
                         deviceSlots[b.elementIndex].onClickCallback(b.elementIndex);
                     })
@@ -95,32 +93,33 @@ public:
                 
                 m.prepare<M1SwitchableIconButton>({2, shape.size.y - 72, yprToggleWidth, 25})
                     .withBorders()
-                    .withCaption("Track Yaw").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(0);
+                    .withCaption("Y").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(0);
                     })
                     .setHighlighted(trackYaw)
                     .draw();
 
-
                 m.prepare<M1SwitchableIconButton>({2 + yprToggleWidth * 1, shape.size.y - 72, yprToggleWidth, 25})
                     .withBorders()
-                    .withCaption("Track Pitch").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(1);
+                    .withCaption("P").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(1);
                     })
                     .setHighlighted(trackPitch)
                     .draw();
 
-
                 m.prepare<M1SwitchableIconButton>({2 + yprToggleWidth * 2, shape.size.y - 72, yprToggleWidth, 25})
                     .withBorders()
-                    .withCaption("Track Roll").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(2);
+                    .withCaption("R").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(2);
                     })
                     .setHighlighted(trackRoll)
                     .draw();
-
 
 					m.drawString(formatFloatWithLeadingZeros(yaw), 2, shape.size.y - 72 + 30);
 					m.drawString(formatFloatWithLeadingZeros(pitch), 2 + yprToggleWidth * 1, shape.size.y - 72 + 30);
 					m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2, shape.size.y - 72 + 30);
 			}
+            if (showOscSettings) {
+                // if OSC active then show UI for changing the input port and other settings
+                
+            }
         }
     }
     
@@ -203,5 +202,6 @@ public:
     
     bool initialized = false;
     bool showSettings = false;
+    bool showOscSettings = false;
     bool enabled = true;
 };
