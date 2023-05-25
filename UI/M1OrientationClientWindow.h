@@ -62,7 +62,7 @@ public:
             }
         } else {
             // Drawing a window
-            m.prepare<M1SwitchableIconButton>({5, 5, shape.size.x - 10, 35}).
+            m.prepare<M1SwitchableIconButton>({5, 5, shape.size.x - 10, 25}).
                 withCaption("Refresh").withBorders().onClick(
                         [&](M1SwitchableIconButton& b) {
                             startRefreshing();
@@ -91,21 +91,21 @@ public:
                 
                 int yprToggleWidth = int(float(shape.size.x - 10) / 3.0);
                 
-                m.prepare<M1SwitchableIconButton>({2, shape.size.y - 72, yprToggleWidth, 25})
+                m.prepare<M1SwitchableIconButton>({5, shape.size.y - 72, yprToggleWidth, 25})
                     .withBorders()
                     .withCaption("Y").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(0);
                     })
                     .setHighlighted(trackYaw)
                     .draw();
 
-                m.prepare<M1SwitchableIconButton>({2 + yprToggleWidth * 1, shape.size.y - 72, yprToggleWidth, 25})
+                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 1, shape.size.y - 72, yprToggleWidth, 25})
                     .withBorders()
                     .withCaption("P").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(1);
                     })
                     .setHighlighted(trackPitch)
                     .draw();
 
-                m.prepare<M1SwitchableIconButton>({2 + yprToggleWidth * 2, shape.size.y - 72, yprToggleWidth, 25})
+                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 2, shape.size.y - 72, yprToggleWidth, 25})
                     .withBorders()
                     .withCaption("R").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(2);
                     })
