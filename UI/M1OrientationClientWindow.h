@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <sstream>
 #include "MurkaView.h"
 #include "MurkaBasicWidgets.h"
 #include "M1SwitchableIconButton.h"
@@ -24,6 +25,7 @@ public:
 
 	std::string formatFloatWithLeadingZeros(float value) {
 		std::ostringstream oss;
+        oss.precision(2); // forces float to only use 2 floating digits
 		oss << std::fixed << std::setfill('0') << std::setw(2) << value;
 		return oss.str();
 	}
@@ -58,15 +60,15 @@ public:
             auto secondsPassedSinceRefreshStarted = float(juce::Time::currentTimeMillis() - millisWhenRefreshingStarted) / 1000.0;
             if (secondsPassedSinceRefreshStarted > 2) {
                 refreshing = false;
-                std::cout << "Refreshing stopped";
+                //std::cout << "Refreshing stopped" << std::endl;
             }
         } else {
             // Drawing a window
             m.prepare<M1SwitchableIconButton>({5, 5, shape.size.x - 10, 25}).
-                withCaption("Refresh").withBorders().onClick(
+                withCaption("REFRESH").withBorders().onClick(
                         [&](M1SwitchableIconButton& b) {
                             startRefreshing();
-                        }).withFontSize(15).draw();
+                        }).withFontSize(12).draw();
             
             // Drawing devices
             for (int i = 0; i < deviceSlots.size(); i++) {
@@ -74,11 +76,12 @@ public:
                     withCaption(deviceSlots[i].deviceName)
                     .setHighlighted(deviceSlots[i].highlighted)
                     .withIconKind(deviceSlots[i].icon)
-                    .withFontSize(9)
+                    .withFontSize(8)
                     .onClick([&](M1SwitchableIconButton& b) {
                         deviceSlots[b.elementIndex].onClickCallback(b.elementIndex);
                     })
                     .withElementIndex(deviceSlots[i].index)
+                    .withBorders()
                     .draw();
             }
             
@@ -86,7 +89,7 @@ public:
             if (showSettings) {
                 m.prepare<M1SwitchableIconButton>({2, shape.size.y - 100, shape.size.x - 4, 25})
                     .withBorders()
-                    .withCaption("Disconnect").withFontSize(12).onClick([&](M1SwitchableIconButton& b){ disconnectClickedCallback(); })
+                    .withCaption("DISCONNECT").withFontSize(12).onClick([&](M1SwitchableIconButton& b){ disconnectClickedCallback(); })
                     .draw();
                 
                 int yprToggleWidth = int(float(shape.size.x - 10) / 3.0);
@@ -112,13 +115,14 @@ public:
                     .setHighlighted(trackRoll)
                     .draw();
 
-					m.drawString(formatFloatWithLeadingZeros(yaw), 2, shape.size.y - 72 + 30);
-					m.drawString(formatFloatWithLeadingZeros(pitch), 2 + yprToggleWidth * 1, shape.size.y - 72 + 30);
-					m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2, shape.size.y - 72 + 30);
+                    // TODO: properly center these
+					m.drawString(formatFloatWithLeadingZeros(yaw), 2 + + yprToggleWidth/4, shape.size.y - 72 + 30);
+					m.drawString(formatFloatWithLeadingZeros(pitch), 2 + yprToggleWidth * 1 + yprToggleWidth/4, shape.size.y - 72 + 30);
+					m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2 + yprToggleWidth/4, shape.size.y - 72 + 30);
 			}
             if (showOscSettings) {
                 // if OSC active then show UI for changing the input port and other settings
-                
+                // TODO: Add OSC port changing UI here
             }
         }
     }

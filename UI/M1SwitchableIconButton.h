@@ -50,8 +50,8 @@ public:
                     //std::cout << "UNKNOWN ICON TYPE" << std::endl;
                 }
             }
-            m.drawImage(icon, 5, 5, shape.size.y - 10, shape.size.y - 10);
-            m.prepare<M1Label>({shape.size.y, 5, shape.size.x - shape.size.y - 10, shape.size.y - 10}).withText(caption).withTextAlignment(TEXT_CENTER).draw();
+            m.drawImage(icon, 5, 5, shape.size.y - 12.5, shape.size.y - 12.5);
+            m.prepare<M1Label>({shape.size.y - 10, 7.5, shape.size.x - shape.size.y - 10, shape.size.y - 10}).withText(caption).withTextAlignment(TEXT_CENTER).draw();
         } else {
             m.prepare<M1Label>({5, 5, shape.size.x - 10, shape.size.y - 10}).withText(caption).withTextAlignment(TEXT_CENTER).draw();
         }
@@ -98,7 +98,7 @@ public:
         return *this;
     }
 
-    int fontSize = 10; 
+    int fontSize = 8; // TODO: make this change from external
     bool drawBorders = false;
     int elementIndex = -1;
     bool highlighted = false;
