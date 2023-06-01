@@ -60,6 +60,8 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
         } else {
             currentPlayheadPositionInSeconds = message[0].getFloat32();
         }
+    } else {
+        // TODO: error handling for false returns
     }
 }
 
@@ -73,6 +75,10 @@ bool M1OrientationOSCClient::send(juce::OSCMessage& msg) {
     if (sender.connect("127.0.0.1", serverPort)) {
         sender.send(msg);
         return true;
+    }
+    // TODO: if this send returns false, check for reconnection state
+    if (!connectedToServer) {
+        
     }
     return false;
 }
@@ -198,7 +204,7 @@ bool M1OrientationOSCClient::init(int serverPort) {
 
 void M1OrientationOSCClient::command_refreshDevices()
 {
-	send("/refreshDevices");
+    send("/refreshDevices");
 }
 
 void M1OrientationOSCClient::command_disconnect()
