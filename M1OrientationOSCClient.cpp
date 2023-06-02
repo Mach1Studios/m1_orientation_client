@@ -76,9 +76,9 @@ bool M1OrientationOSCClient::send(juce::OSCMessage& msg) {
         sender.send(msg);
         return true;
     }
-    // TODO: if this send returns false, check for reconnection state
+    // if this send returns false, check for reconnection state
     if (!connectedToServer) {
-        
+        // TODO: This is an error, if we are sending messages but missing the server we should try to reconnect here
     }
     return false;
 }
@@ -147,6 +147,8 @@ void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, 
 }
 
 bool M1OrientationOSCClient::init(int serverPort) {
+    // TODO: Add UI feedback for this process to stop user from selecting another device during connection
+    
     // choose random port
     int port = 4000;
     for (int i = 0; i < 100; i++) {
@@ -167,6 +169,7 @@ bool M1OrientationOSCClient::init(int serverPort) {
             if (socket.bindToPort(serverPort)) {
                 socket.shutdown();
 
+                // TODO: Finish implementation for starting server if missing
                 // start server 
                 // juce::ChildProcess().start("C:/windows/system32/notepad.exe");
             }
@@ -190,15 +193,12 @@ bool M1OrientationOSCClient::init(int serverPort) {
 							connectedToServer = false;
 						}
 					}
-
 					std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				}
 			}).detach();
- 
             return true;
         }
     }
-
     return false;
 }
 
