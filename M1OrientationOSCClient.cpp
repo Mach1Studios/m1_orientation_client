@@ -24,6 +24,11 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
     }
     else if (message.getAddressPattern() == "/getCurrentDevice") {
         currentDevice = { message[0].getString().toStdString(), (enum M1OrientationDeviceType)message[1].getInt32(), message[2].getString().toStdString() };
+        if ((enum M1OrientationDeviceType)message[1].getInt32() != M1OrientationManagerDeviceTypeNone) {
+            // Got current device
+        } else {
+            // ERROR: We returned an inappropriate device type
+        }
     }
     else if (message.getAddressPattern() == "/getOrientation") {
         orientation.setYPR({ message[0].getFloat32(), message[1].getFloat32(), message[2].getFloat32() });
@@ -43,6 +48,9 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
 
         if (statusCallback) {
             statusCallback(success, text);
+            
+            // TODO: Clean up flow to not require this additional check
+            command_requestCurrentDevice(); // Additional check for device connected, sometimes this mismatches without this additional call
         }
     }
     // Playhead Timecode
@@ -218,7 +226,7 @@ M1OrientationDeviceInfo M1OrientationOSCClient::getCurrentDevice() {
 }
 
 void M1OrientationOSCClient::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
-    if (getCurrentDevice() != device) {
+    if (currentDevice != device) {
         juce::OSCMessage msg("/startTrackingUsingDevice");
         msg.addString(device.getDeviceName());
         msg.addInt32(device.getDeviceType());
@@ -233,9 +241,14 @@ void M1OrientationOSCClient::command_startTrackingUsingDevice(M1OrientationDevic
     }
 }
 
+void M1OrientationOSCClient::command_requestCurrentDevice() {
+    juce::OSCMessage msg("/requestCurrentDevice");
+    send(msg);
+}
+
 void M1OrientationOSCClient::close() {
     // Send a message to remove the client from server list
-    juce::OSCMessage msg("/disconnect_client");
+    juce::OSCMessage msg("/removeClient");
     msg.addInt32(this->clientPort);
     send(msg);
     

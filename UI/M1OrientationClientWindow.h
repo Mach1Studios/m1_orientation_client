@@ -116,9 +116,9 @@ public:
                     .draw();
 
                     // TODO: properly center these
-					m.drawString(formatFloatWithLeadingZeros(yaw), 2 + yprToggleWidth/4, shape.size.y - 48 + 30);
-					m.drawString(formatFloatWithLeadingZeros(pitch), 2 + yprToggleWidth * 1 + yprToggleWidth/4, shape.size.y - 48 + 30);
-					m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2 + yprToggleWidth/4, shape.size.y - 48 + 30);
+					m.drawString(formatFloatWithLeadingZeros(yaw), 2 + yprToggleWidth/4 + 2, shape.size.y - 48 + 30);
+					m.drawString(formatFloatWithLeadingZeros(pitch), 2 + yprToggleWidth * 1 + yprToggleWidth/4 + 2, shape.size.y - 48 + 30);
+					m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2 + yprToggleWidth/4 + 2, shape.size.y - 48 + 30);
 			}
             if (showOscSettings) {
                 // if OSC active then show UI for changing the input port and other settings
