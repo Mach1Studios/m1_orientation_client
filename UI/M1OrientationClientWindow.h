@@ -87,28 +87,28 @@ public:
             
             // Drawing settings if settings panel is enabled
             if (showSettings) {
-                m.prepare<M1SwitchableIconButton>({2, shape.size.y - 100, shape.size.x - 4, 25})
+                m.prepare<M1SwitchableIconButton>({2, shape.size.y - 75, shape.size.x - 4, 25})
                     .withBorders()
                     .withCaption("DISCONNECT").withFontSize(12).onClick([&](M1SwitchableIconButton& b){ disconnectClickedCallback(); })
                     .draw();
                 
                 int yprToggleWidth = int(float(shape.size.x - 10) / 3.0);
                 
-                m.prepare<M1SwitchableIconButton>({5, shape.size.y - 72, yprToggleWidth, 25})
+                m.prepare<M1SwitchableIconButton>({5, shape.size.y - 48, yprToggleWidth, 25})
                     .withBorders()
                     .withCaption("Y").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(0);
                     })
                     .setHighlighted(trackYaw)
                     .draw();
 
-                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 1, shape.size.y - 72, yprToggleWidth, 25})
+                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 1, shape.size.y - 48, yprToggleWidth, 25})
                     .withBorders()
                     .withCaption("P").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(1);
                     })
                     .setHighlighted(trackPitch)
                     .draw();
 
-                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 2, shape.size.y - 72, yprToggleWidth, 25})
+                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 2, shape.size.y - 48, yprToggleWidth, 25})
                     .withBorders()
                     .withCaption("R").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(2);
                     })
@@ -116,9 +116,9 @@ public:
                     .draw();
 
                     // TODO: properly center these
-					m.drawString(formatFloatWithLeadingZeros(yaw), 2 + + yprToggleWidth/4, shape.size.y - 72 + 30);
-					m.drawString(formatFloatWithLeadingZeros(pitch), 2 + yprToggleWidth * 1 + yprToggleWidth/4, shape.size.y - 72 + 30);
-					m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2 + yprToggleWidth/4, shape.size.y - 72 + 30);
+					m.drawString(formatFloatWithLeadingZeros(yaw), 2 + yprToggleWidth/4, shape.size.y - 48 + 30);
+					m.drawString(formatFloatWithLeadingZeros(pitch), 2 + yprToggleWidth * 1 + yprToggleWidth/4, shape.size.y - 48 + 30);
+					m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2 + yprToggleWidth/4, shape.size.y - 48 + 30);
 			}
             if (showOscSettings) {
                 // if OSC active then show UI for changing the input port and other settings
@@ -159,7 +159,6 @@ public:
 
     M1OrientationClientWindow& onDisconnectClicked(std::function<void()> callback) {
         disconnectClickedCallback = callback;
-        // TODO: close window
         return *this;
     }
 
