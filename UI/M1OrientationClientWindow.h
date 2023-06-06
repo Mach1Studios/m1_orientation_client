@@ -6,6 +6,7 @@
 #include "MurkaView.h"
 #include "MurkaBasicWidgets.h"
 #include "M1SwitchableIconButton.h"
+#include "M1TextField.h"
 
 using namespace murka;
 
@@ -84,9 +85,23 @@ public:
                     .withBorders()
                     .draw();
             }
-            
+                        
             // Drawing settings if settings panel is enabled
             if (showSettings) {
+                
+                // if OSC active then show UI for changing the input port and other settings
+                if (showOscSettings) {
+                    m.drawString("OSC PORT: ", 2, shape.size.y - 100);
+                    
+                    m.prepare<M1TextField>({shape.size.x/2, shape.size.y - 100, shape.size.x/2, 25})
+                        .controlling(&oscDevicePort)
+                        .draw();
+//                    if (oscPortField.changed) {
+//                        // sends an port change to server for listening for osc inputs
+//                        command_setOscDevicePort(oscDevicePort);
+//                    }
+                }
+
                 m.prepare<M1SwitchableIconButton>({2, shape.size.y - 75, shape.size.x - 4, 25})
                     .withBorders()
                     .withCaption("DISCONNECT").withFontSize(12).onClick([&](M1SwitchableIconButton& b){ disconnectClickedCallback(); })
@@ -120,10 +135,6 @@ public:
 					m.drawString(formatFloatWithLeadingZeros(pitch), 2 + yprToggleWidth * 1 + yprToggleWidth/4 + 2, shape.size.y - 48 + 30);
 					m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2 + yprToggleWidth/4 + 2, shape.size.y - 48 + 30);
 			}
-            if (showOscSettings) {
-                // if OSC active then show UI for changing the input port and other settings
-                // TODO: Add OSC port changing UI here
-            }
         }
     }
     
@@ -146,6 +157,11 @@ public:
         this->showSettings = showSettings;
         return *this;
     }
+    
+    M1OrientationClientWindow& withOscSettingsEnabled(bool showOscSettings) {
+        this->showOscSettings = showOscSettings;
+        return *this;
+    }
 
     M1OrientationClientWindow& withDeviceList(std::vector<M1OrientationClientWindowDeviceSlot> slots) {
         deviceSlots = slots;
@@ -164,6 +180,16 @@ public:
 
     M1OrientationClientWindow& onYPRSwitchesClicked(std::function<void(int)> callback) {
         yprSwitchesClickedCallback = callback;
+        return *this;
+    }
+    
+    M1OrientationClientWindow& withOscDevicePort(int port) {
+        oscDevicePort = port;
+        return *this;
+    }
+    
+    M1OrientationClientWindow& onOscDevicePortChanged(std::function<void(int)> callback) {
+        oscDevicePortChangedCallback = callback;
         return *this;
     }
     
@@ -194,6 +220,8 @@ public:
 	float pitch;
 	float roll;
 
+    int oscDevicePort;
+    std::function<void(int)> oscDevicePortChangedCallback;
     std::function<void(int)> yprSwitchesClickedCallback;
     std::function<void()> disconnectClickedCallback;
     std::vector<M1OrientationClientWindowDeviceSlot> deviceSlots;

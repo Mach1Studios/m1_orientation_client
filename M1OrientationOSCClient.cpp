@@ -49,6 +49,10 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
         if (statusCallback) {
             statusCallback(success, text, connectedDeviceName, connectedDeviceType, connectedDeviceAddress);
             currentDevice = { connectedDeviceName, (enum M1OrientationDeviceType)connectedDeviceType, connectedDeviceAddress };
+            if ((enum M1OrientationDeviceType)connectedDeviceType == M1OrientationManagerDeviceTypeOSC) {
+                // grab the current osc listening port for the osc input type
+                oscDevicePort = std::stoi(connectedDeviceAddress);
+            }
         }
     }
     // Playhead Timecode
@@ -66,6 +70,9 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
         } else {
             currentPlayheadPositionInSeconds = message[0].getFloat32();
         }
+    }
+    else if (message.getAddressPattern() == "/getOscDevicePort") {
+        oscDevicePort = message[0].getInt32();
     } else {
         // TODO: error handling for false returns
     }
@@ -120,6 +127,12 @@ void M1OrientationOSCClient::command_setFrameRate(float frameRate) {
 void M1OrientationOSCClient::command_setPlayheadPositionInSeconds(float playheadPositionInSeconds) {
     juce::OSCMessage msg("/setPlayheadPosition");
     msg.addFloat32(playheadPositionInSeconds);
+    send(msg);
+}
+
+void M1OrientationOSCClient::command_setOscDevicePort(int port) {
+    juce::OSCMessage msg("/setOscDevicePort");
+    msg.addInt32(port);
     send(msg);
 }
 

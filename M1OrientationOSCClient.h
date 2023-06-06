@@ -16,6 +16,7 @@ class M1OrientationOSCClient :
 
     M1OrientationDeviceInfo currentDevice;
     std::vector<M1OrientationDeviceInfo> devices;
+    int oscDevicePort;
 
     Orientation orientation;
     bool bTrackingYawEnabled = true;
@@ -48,6 +49,7 @@ public:
     void command_setTrackingRollEnabled(bool enable);
     void command_setFrameRate(float frameRate);
     void command_setPlayheadPositionInSeconds(float playheadPositionInSeconds);
+    void command_setOscDevicePort(int port);
 
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getCurrentDevice();
