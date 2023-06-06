@@ -124,6 +124,14 @@ public:
         }
     };
     
+    bool operator==(const M1OrientationDeviceInfo& rhs) {
+        return ((name == rhs.name) && (address == rhs.address));
+    }
+    
+    bool operator!=(const M1OrientationDeviceInfo& rhs) {
+        return ((name != rhs.name) || (address != rhs.address));
+    }
+    
 private:
     std::string name = "";
     M1OrientationDeviceType type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeNone;

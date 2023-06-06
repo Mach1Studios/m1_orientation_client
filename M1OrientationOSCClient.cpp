@@ -24,6 +24,11 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
     }
     else if (message.getAddressPattern() == "/getCurrentDevice") {
         currentDevice = { message[0].getString().toStdString(), (enum M1OrientationDeviceType)message[1].getInt32(), message[2].getString().toStdString() };
+        if ((enum M1OrientationDeviceType)message[1].getInt32() != M1OrientationManagerDeviceTypeNone) {
+            // Got current device
+        } else {
+            // TODO: ERROR: We returned an inappropriate device type
+        }
     }
     else if (message.getAddressPattern() == "/getOrientation") {
         orientation.setYPR({ message[0].getFloat32(), message[1].getFloat32(), message[2].getFloat32() });
@@ -43,6 +48,9 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
 
         if (statusCallback) {
             statusCallback(success, text);
+            
+            // TODO: remove this request and instead have the statusCallback include the connected current device
+            command_requestCurrentDevice(); // Additional check for device connected, sometimes this mismatches without this additional call
         }
     }
     // Playhead Timecode
@@ -60,6 +68,8 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
         } else {
             currentPlayheadPositionInSeconds = message[0].getFloat32();
         }
+    } else {
+        // TODO: error handling for false returns
     }
 }
 
@@ -73,6 +83,10 @@ bool M1OrientationOSCClient::send(juce::OSCMessage& msg) {
     if (sender.connect("127.0.0.1", serverPort)) {
         sender.send(msg);
         return true;
+    }
+    // if this send returns false, check for reconnection state
+    if (!connectedToServer) {
+        // TODO: This is an error, if we are sending messages but missing the server we should try to reconnect here
     }
     return false;
 }
@@ -141,6 +155,8 @@ void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, 
 }
 
 bool M1OrientationOSCClient::init(int serverPort) {
+    // TODO: Add UI feedback for this process to stop user from selecting another device during connection
+    
     // choose random port
     int port = 4000;
     for (int i = 0; i < 100; i++) {
@@ -161,49 +177,49 @@ bool M1OrientationOSCClient::init(int serverPort) {
             if (socket.bindToPort(serverPort)) {
                 socket.shutdown();
 
+                // TODO: Finish implementation for starting server if missing
                 // start server 
                 // juce::ChildProcess().start("C:/windows/system32/notepad.exe");
             }
 
 			std::thread([&]() {
-				while (true)
-				{
+				while (true) {
 					if (!connectedToServer) {
 						// add client to server
 						juce::OSCMessage msg("/addClient");
 						msg.addInt32(this->clientPort);
 						send(msg);
-					} 
-					else {
+					} else {
 						// check connection
 						juce::DatagramSocket socket(false);
 						socket.setEnablePortReuse(false);
 						if (socket.bindToPort(this->serverPort)) {
 							socket.shutdown();
-
 							connectedToServer = false;
 						}
 					}
-
 					std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				}
 			}).detach();
- 
             return true;
         }
     }
-
     return false;
 }
 
 void M1OrientationOSCClient::command_refreshDevices()
 {
-	send("/refreshDevices");
+    if (connectedToServer) {
+        send("/refreshDevices");
+    } else {
+        // TODO: figure out reconnecting to server?
+        //m1OrientationOSCClient.init(6345);
+    }
 }
 
 void M1OrientationOSCClient::command_disconnect()
 {
-	send("/disconnect");
+    send("/disconnect");
 }
 
 std::vector<M1OrientationDeviceInfo> M1OrientationOSCClient::getDevices() {
@@ -215,14 +231,32 @@ M1OrientationDeviceInfo M1OrientationOSCClient::getCurrentDevice() {
 }
 
 void M1OrientationOSCClient::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
-    juce::OSCMessage msg("/startTrackingUsingDevice");
-    msg.addString(device.getDeviceName());
-    msg.addInt32(device.getDeviceType());
-    msg.addString(device.getDeviceAddress());
+    if (currentDevice != device) {
+        juce::OSCMessage msg("/startTrackingUsingDevice");
+        msg.addString(device.getDeviceName());
+        msg.addInt32(device.getDeviceType());
+        msg.addString(device.getDeviceAddress());
+        if (send(msg)) {
+            currentDevice = device;
+        } else {
+            // TODO: ERROR: did not finish message to server
+        }
+    } else {
+        // already connected to this device
+    }
+}
+
+void M1OrientationOSCClient::command_requestCurrentDevice() {
+    juce::OSCMessage msg("/requestCurrentDevice");
     send(msg);
 }
 
 void M1OrientationOSCClient::close() {
+    // Send a message to remove the client from server list
+    juce::OSCMessage msg("/removeClient");
+    msg.addInt32(this->clientPort);
+    send(msg);
+    
     receiver.removeListener(this);
     receiver.disconnect();
 }
