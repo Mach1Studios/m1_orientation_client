@@ -27,7 +27,7 @@ class M1OrientationOSCClient :
     float frameRate;
     int HH, MM, SS, FS;
 
-    std::function<void(bool success, std::string message)> statusCallback = nullptr;
+    std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback = nullptr;
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
 
@@ -48,7 +48,6 @@ public:
     void command_setTrackingRollEnabled(bool enable);
     void command_setFrameRate(float frameRate);
     void command_setPlayheadPositionInSeconds(float playheadPositionInSeconds);
-    void command_requestCurrentDevice();
 
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getCurrentDevice();
@@ -62,7 +61,7 @@ public:
     float getPlayheadPositionInSeconds();
     
     bool isConnectedToServer();
-    void setStatusCallback(std::function<void(bool success, std::string message)> callback);
+    void setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback);
 
     void close();
 };

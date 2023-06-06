@@ -11,24 +11,20 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
     else if (message.getAddressPattern() == "/getDevices") {
         devices.clear();
 
-		int i = 0;
-		while(i < message.size()) {
-			std::string deviceName = message[i++].getString().toStdString();
-			enum M1OrientationDeviceType deviceType = (enum M1OrientationDeviceType)message[i++].getInt32();
-			std::string deviceAddress = message[i++].getString().toStdString();
-			bool hasStrength = (message[i++].getInt32() == 1);
-			int deviceStrength = deviceStrength = message[i++].getInt32();
+        int i = 0;
+        while(i < message.size()) {
+            std::string deviceName = message[i++].getString().toStdString();
+            enum M1OrientationDeviceType deviceType = (enum M1OrientationDeviceType)message[i++].getInt32();
+            std::string deviceAddress = message[i++].getString().toStdString();
+            bool hasStrength = (message[i++].getInt32() == 1);
+            int deviceStrength = deviceStrength = message[i++].getInt32();
 
-			devices.push_back(M1OrientationDeviceInfo(deviceName, deviceType, deviceAddress, hasStrength ? deviceStrength : false));
-		}
+            devices.push_back(M1OrientationDeviceInfo(deviceName, deviceType, deviceAddress, hasStrength ? deviceStrength : false));
+        }
     }
     else if (message.getAddressPattern() == "/getCurrentDevice") {
+        // TODO: Should device be found from vector of devices instead of this?
         currentDevice = { message[0].getString().toStdString(), (enum M1OrientationDeviceType)message[1].getInt32(), message[2].getString().toStdString() };
-        if ((enum M1OrientationDeviceType)message[1].getInt32() != M1OrientationManagerDeviceTypeNone) {
-            // Got current device
-        } else {
-            // TODO: ERROR: We returned an inappropriate device type
-        }
     }
     else if (message.getAddressPattern() == "/getOrientation") {
         orientation.setYPR({ message[0].getFloat32(), message[1].getFloat32(), message[2].getFloat32() });
@@ -45,12 +41,14 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
     else if (message.getAddressPattern() == "/getStatus") {
         bool success = message[0].getInt32();
         std::string text = message[1].getString().toStdString();
+        std::string connectedDeviceName = message[2].getString().toStdString();
+        int connectedDeviceType = message[3].getInt32();
+        std::string connectedDeviceAddress = message[4].getString().toStdString();
 
+        // TODO: Should device be found from vector of devices instead of this?
         if (statusCallback) {
-            statusCallback(success, text);
-            
-            // TODO: remove this request and instead have the statusCallback include the connected current device
-            command_requestCurrentDevice(); // Additional check for device connected, sometimes this mismatches without this additional call
+            statusCallback(success, text, connectedDeviceName, connectedDeviceType, connectedDeviceAddress);
+            currentDevice = { connectedDeviceName, (enum M1OrientationDeviceType)connectedDeviceType, connectedDeviceAddress };
         }
     }
     // Playhead Timecode
@@ -149,7 +147,7 @@ bool M1OrientationOSCClient::isConnectedToServer() {
     return connectedToServer;
 }
 
-void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, std::string message)> callback)
+void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback)
 {
     this->statusCallback = callback;
 }
@@ -178,29 +176,29 @@ bool M1OrientationOSCClient::init(int serverPort) {
                 socket.shutdown();
 
                 // TODO: Finish implementation for starting server if missing
-                // start server 
+                // start server
                 // juce::ChildProcess().start("C:/windows/system32/notepad.exe");
             }
 
-			std::thread([&]() {
-				while (true) {
-					if (!connectedToServer) {
-						// add client to server
-						juce::OSCMessage msg("/addClient");
-						msg.addInt32(this->clientPort);
-						send(msg);
-					} else {
-						// check connection
-						juce::DatagramSocket socket(false);
-						socket.setEnablePortReuse(false);
-						if (socket.bindToPort(this->serverPort)) {
-							socket.shutdown();
-							connectedToServer = false;
-						}
-					}
-					std::this_thread::sleep_for(std::chrono::milliseconds(100));
-				}
-			}).detach();
+            std::thread([&]() {
+                while (true) {
+                    if (!connectedToServer) {
+                        // add client to server
+                        juce::OSCMessage msg("/addClient");
+                        msg.addInt32(this->clientPort);
+                        send(msg);
+                    } else {
+                        // check connection
+                        juce::DatagramSocket socket(false);
+                        socket.setEnablePortReuse(false);
+                        if (socket.bindToPort(this->serverPort)) {
+                            socket.shutdown();
+                            connectedToServer = false;
+                        }
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+            }).detach();
             return true;
         }
     }
@@ -244,11 +242,6 @@ void M1OrientationOSCClient::command_startTrackingUsingDevice(M1OrientationDevic
     } else {
         // already connected to this device
     }
-}
-
-void M1OrientationOSCClient::command_requestCurrentDevice() {
-    juce::OSCMessage msg("/requestCurrentDevice");
-    send(msg);
 }
 
 void M1OrientationOSCClient::close() {
