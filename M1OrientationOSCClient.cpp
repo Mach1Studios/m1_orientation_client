@@ -49,7 +49,7 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
         if (statusCallback) {
             statusCallback(success, text);
             
-            // TODO: Clean up flow to not require this additional check
+            // TODO: remove this request and instead have the statusCallback include the connected current device
             command_requestCurrentDevice(); // Additional check for device connected, sometimes this mismatches without this additional call
         }
     }
