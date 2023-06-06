@@ -14,7 +14,6 @@ bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsF
                 juce::JUCEApplicationBase::quit();
                 }))
         );
-
         return false;
     }
     else {
@@ -32,11 +31,8 @@ bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsF
                     juce::JUCEApplicationBase::quit();
                     }))
             );
-
             return false;
         }
-
     }
-
     return true;
 }

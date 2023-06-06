@@ -27,7 +27,7 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
         if ((enum M1OrientationDeviceType)message[1].getInt32() != M1OrientationManagerDeviceTypeNone) {
             // Got current device
         } else {
-            // ERROR: We returned an inappropriate device type
+            // TODO: ERROR: We returned an inappropriate device type
         }
     }
     else if (message.getAddressPattern() == "/getOrientation") {
@@ -209,7 +209,12 @@ bool M1OrientationOSCClient::init(int serverPort) {
 
 void M1OrientationOSCClient::command_refreshDevices()
 {
-    send("/refreshDevices");
+    if (connectedToServer) {
+        send("/refreshDevices");
+    } else {
+        // TODO: figure out reconnecting to server?
+        //m1OrientationOSCClient.init(6345);
+    }
 }
 
 void M1OrientationOSCClient::command_disconnect()
@@ -234,7 +239,7 @@ void M1OrientationOSCClient::command_startTrackingUsingDevice(M1OrientationDevic
         if (send(msg)) {
             currentDevice = device;
         } else {
-            // ERROR: did not finish message to server
+            // TODO: ERROR: did not finish message to server
         }
     } else {
         // already connected to this device
