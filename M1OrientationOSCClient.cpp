@@ -154,7 +154,6 @@ void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, 
 
 bool M1OrientationOSCClient::init(int serverPort, int watcherPort) {
     // TODO: Add UI feedback for this process to stop user from selecting another device during connection
-
 	// check server is running
 	{
 		juce::DatagramSocket socket(false);
@@ -163,10 +162,8 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort) {
 			socket.shutdown();
 
 			// run watcher
-
 		}
 	}
-
 
     // choose random port
     int port = 4000;
