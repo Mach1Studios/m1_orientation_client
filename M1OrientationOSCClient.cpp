@@ -182,17 +182,6 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort) {
             this->clientPort = port + i;
             this->serverPort = serverPort;
 
-            // check server is running
-            juce::DatagramSocket socket(false);
-            socket.setEnablePortReuse(false);
-            if (socket.bindToPort(serverPort)) {
-                socket.shutdown();
-
-                // TODO: Finish implementation for starting server if missing
-                // start server
-                // juce::ChildProcess().start("C:/windows/system32/notepad.exe");
-            }
-
             std::thread([&]() {
                 while (true) {
                     if (!connectedToServer) {
