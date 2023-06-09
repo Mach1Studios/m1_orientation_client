@@ -38,7 +38,7 @@ public:
 
     ~M1OrientationOSCClient();
 
-    bool init(int serverPort) override;
+    bool init(int serverPort, int watcherPort) override;
 
 	void command_refreshDevices();
 	void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);

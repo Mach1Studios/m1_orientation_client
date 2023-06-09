@@ -18,9 +18,10 @@ bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsF
     }
     else {
         juce::var mainVar = juce::JSON::parse(juce::File(jsonSettingsFilePath));
-        int serverPort = mainVar["serverPort"];
+		int serverPort = mainVar["serverPort"];
+		int watcherPort = mainVar["watcherPort"];
 
-        if (!init(serverPort)) {
+        if (!init(serverPort, watcherPort)) {
             juce::AlertWindow::showMessageBoxAsync(
                 juce::AlertWindow::WarningIcon,
                 "Warning",
