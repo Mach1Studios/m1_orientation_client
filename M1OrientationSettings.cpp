@@ -5,7 +5,7 @@ bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsF
     juce::File settingsFile = juce::File(jsonSettingsFilePath);
     if (!settingsFile.exists()) {
         juce::AlertWindow::showMessageBoxAsync(
-            juce::AlertWindow::WarningIcon,
+            juce::AlertWindow::NoIcon,
             "Warning",
             "Settings file doesn't exist",
             "",
