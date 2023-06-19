@@ -81,8 +81,12 @@ bool M1OrientationOSCClient::send(juce::OSCMessage& msg) {
     if (sender.connect("127.0.0.1", serverPort)) {
         sender.send(msg);
         return true;
+    } else {
+        // if this send returns false, check for reconnection state
+        // TODO: This is an error, if we are sending messages but missing the server we should try to reconnect here
+
     }
-    // if this send returns false, check for reconnection state
+
     if (!connectedToServer) {
         // TODO: This is an error, if we are sending messages but missing the server we should try to reconnect here
     }
@@ -160,8 +164,19 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort) {
 		socket.setEnablePortReuse(false);
 		if (socket.bindToPort(watcherPort)) {
 			socket.shutdown();
+            // run process M1-OrientationManager-Wacther from the same folder
+            juce::File executableFile = juce::File::getSpecialLocation(juce::File::invokedExecutableFile);
 
-			// run watcher
+#ifdef JUCE_WINDOWS
+            juce::File appDirectory = executableFile.getParentDirectory();
+            juce::File exeFile = appDirectory.getChildFile("M1-OrientationManager-Watcher.exe");
+#else
+            juce::File appDirectory = executableFile.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory();
+            juce::File exeFile = appDirectory.getChildFile("M1-OrientationManager-Watcher");
+#endif
+            DBG("Starting M1-OrientationManager-Watcher...");
+            DBG(exeFile.getFullPathName());
+            watcherProcess.start(exeFile.getFullPathName());
 		}
 	}
 
