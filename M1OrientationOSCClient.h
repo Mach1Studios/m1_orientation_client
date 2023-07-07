@@ -50,6 +50,7 @@ public:
     void command_setTrackingRollEnabled(bool enable);
     void command_setFrameRate(float frameRate);
     void command_setPlayheadPositionInSeconds(float playheadPositionInSeconds);
+    void command_recenter();
 
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getCurrentDevice();

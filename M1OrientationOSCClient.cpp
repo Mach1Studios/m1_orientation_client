@@ -127,6 +127,10 @@ void M1OrientationOSCClient::command_setPlayheadPositionInSeconds(float playhead
     send(msg);
 }
 
+void M1OrientationOSCClient::command_recenter() {
+    send("/disconnect");
+}
+
 Orientation M1OrientationOSCClient::getOrientation() {
     return orientation;
 }
