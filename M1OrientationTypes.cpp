@@ -109,6 +109,18 @@ M1OrientationYPR Orientation::getYPR() {
     return orientationYPR;
 }
 
+M1OrientationYPR Orientation::getNormalised(M1OrientationYPR orientation) {
+    M1OrientationYPR normalised_orientation;
+    normalised_orientation.yaw = (float)juce::jmap(orientation.yaw, (float)orientation.yaw_min , (float)orientation.yaw_max, (float)0.0, (float)1.0);
+    normalised_orientation.pitch = (float)juce::jmap(orientation.pitch, (float)orientation.pitch_min , (float)orientation.pitch_max, (float)0.0, (float)1.0);
+    normalised_orientation.roll = (float)juce::jmap(orientation.roll, (float)orientation.roll_min , (float)orientation.roll_max, (float)0.0, (float)1.0);
+    return normalised_orientation;
+}
+
+M1OrientationYPR Orientation::getNormalised(M1OrientationQuat orientation) {
+    // TODO: finish this implementation
+}
+
 M1OrientationQuat Orientation::getQuat() {
     return orientationQuat;
 }

@@ -32,6 +32,8 @@ public:
     void setQuat(M1OrientationQuat orientation);
 
     M1OrientationYPR getYPR();
+    M1OrientationYPR getNormalised(M1OrientationYPR orientation);
+    M1OrientationYPR getNormalised(M1OrientationQuat orientation);
     M1OrientationQuat getQuat();
 
     void resetOrientation();

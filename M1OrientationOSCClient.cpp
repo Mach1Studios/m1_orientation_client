@@ -66,6 +66,17 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
         } else {
             currentPlayheadPositionInSeconds = message[0].getFloat32();
         }
+    }
+    else if (message.getAddressPattern() == "/panner/port") {
+        // registering new panner instance
+        // protect port creation to only messages from panners
+        auto port = message[0].getInt32();
+
+        if (std::find(pannersPorts.begin(), pannersPorts.end(),port) == pannersPorts.end()) {
+            pannersPorts.push_back(port);
+            pannerSenders.push_back(new juce::OSCSender());
+            pannerSenders.back()->connect("127.0.0.1", port); // connect to that newly discovered panner locally
+        }
     } else {
         // TODO: error handling for false returns
     }
@@ -84,7 +95,6 @@ bool M1OrientationOSCClient::send(juce::OSCMessage& msg) {
     } else {
         // if this send returns false, check for reconnection state
         // TODO: This is an error, if we are sending messages but missing the server we should try to reconnect here
-
     }
 
     if (!connectedToServer) {
@@ -96,7 +106,7 @@ bool M1OrientationOSCClient::send(juce::OSCMessage& msg) {
 M1OrientationOSCClient::~M1OrientationOSCClient() {
     close();
 }
-
+    
 void M1OrientationOSCClient::command_setTrackingYawEnabled(bool enable) {
     juce::OSCMessage msg("/setTrackingYawEnabled");
     msg.addInt32(enable);
@@ -113,6 +123,14 @@ void M1OrientationOSCClient::command_setTrackingRollEnabled(bool enable) {
     juce::OSCMessage msg("/setTrackingRollEnabled");
     msg.addInt32(enable);
     send(msg);
+}
+
+void M1OrientationOSCClient::command_setMonitorYPR(float yaw, float pitch, float roll, int mode = 0) {
+    // It is expected to send the orientation to the monitor, let the monitor process its orientation and return it here for reporting to other plugin instances
+    monitor_yaw = yaw;
+    monitor_pitch = pitch;
+    monitor_roll = roll;
+    monitor_mode = mode;
 }
 
 void M1OrientationOSCClient::command_setFrameRate(float frameRate) {

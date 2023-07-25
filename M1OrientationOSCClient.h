@@ -7,7 +7,7 @@
 
 class M1OrientationOSCClient : 
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
-    public M1OrientationManagerOSCSettings
+    public M1OrientationManagerOSCSettings, juce::Timer
 {
     juce::ChildProcess watcherProcess;
 
@@ -24,6 +24,8 @@ class M1OrientationOSCClient :
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
     bool bTracking = false;
+    float monitor_yaw, monitor_pitch, monitor_roll;
+    int monitor_mode = 0;
     
     float currentPlayheadPositionInSeconds;
     float frameRate;
@@ -32,39 +34,54 @@ class M1OrientationOSCClient :
     std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback = nullptr;
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
-
     bool send(std::string str);
     bool send(juce::OSCMessage& msg);
 
 public:
-
     ~M1OrientationOSCClient();
 
     bool init(int serverPort, int watcherPort) override;
 
+    // Commands from a client to the server
 	void command_refreshDevices();
 	void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);
 	void command_disconnect();
 	void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
+    void command_setMonitorYPR(float yaw, float pitch, float roll, int mode);
     void command_setFrameRate(float frameRate);
     void command_setPlayheadPositionInSeconds(float playheadPositionInSeconds);
     void command_recenter();
 
+    // Functions from the server to the clients
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getCurrentDevice();
-    
     Orientation getOrientation();
     bool getTrackingYawEnabled();
     bool getTrackingPitchEnabled();
     bool getTrackingRollEnabled();
-
+    
     // Master Timecode and Playhead position
     float getPlayheadPositionInSeconds();
     
+    // Panner tracking
+    std::vector<int> pannersPorts;
+    std::vector<juce::OSCSender*> pannerSenders;
+    void timerCallback() override {
+        if (pannerSenders.size() > 0) {
+            for (auto &i: pannerSenders) {
+                juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitorMode"));
+                m.addInt32(monitor_mode);
+                m.addFloat32(monitor_yaw); // expected normalised
+                m.addFloat32(monitor_pitch); // expected normalised
+                i->send(m);
+            }
+        }
+    }
+    
+    // Connection handling
     bool isConnectedToServer();
     void setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback);
-
     void close();
 };
