@@ -7,7 +7,7 @@
 
 class M1OrientationOSCClient : 
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
-    public M1OrientationManagerOSCSettings, juce::Timer
+    public M1OrientationManagerOSCSettings
 {
     juce::ChildProcess watcherProcess;
 
@@ -24,8 +24,6 @@ class M1OrientationOSCClient :
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
     bool bTracking = false;
-    float monitor_yaw, monitor_pitch, monitor_roll;
-    int monitor_mode = 0;
     
     float currentPlayheadPositionInSeconds;
     float frameRate;
@@ -49,7 +47,7 @@ public:
 	void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
-    void command_setMonitorYPR(float yaw, float pitch, float roll, int mode);
+    void command_setMonitorYPR(int mode, float yaw, float pitch, float roll);
     void command_setFrameRate(float frameRate);
     void command_setPlayheadPositionInSeconds(float playheadPositionInSeconds);
     void command_recenter();
@@ -64,21 +62,6 @@ public:
     
     // Master Timecode and Playhead position
     float getPlayheadPositionInSeconds();
-    
-    // Panner tracking
-    std::vector<int> pannersPorts;
-    std::vector<juce::OSCSender*> pannerSenders;
-    void timerCallback() override {
-        if (pannerSenders.size() > 0) {
-            for (auto &i: pannerSenders) {
-                juce::OSCMessage m = juce::OSCMessage(juce::OSCAddressPattern("/monitorMode"));
-                m.addInt32(monitor_mode);
-                m.addFloat32(monitor_yaw); // expected normalised
-                m.addFloat32(monitor_pitch); // expected normalised
-                i->send(m);
-            }
-        }
-    }
     
     // Connection handling
     bool isConnectedToServer();

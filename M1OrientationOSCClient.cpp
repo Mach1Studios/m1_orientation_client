@@ -66,17 +66,6 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
         } else {
             currentPlayheadPositionInSeconds = message[0].getFloat32();
         }
-    }
-    else if (message.getAddressPattern() == "/panner/port") {
-        // registering new panner instance
-        // protect port creation to only messages from panners
-        auto port = message[0].getInt32();
-
-        if (std::find(pannersPorts.begin(), pannersPorts.end(),port) == pannersPorts.end()) {
-            pannersPorts.push_back(port);
-            pannerSenders.push_back(new juce::OSCSender());
-            pannerSenders.back()->connect("127.0.0.1", port); // connect to that newly discovered panner locally
-        }
     } else {
         // TODO: error handling for false returns
     }
@@ -125,12 +114,14 @@ void M1OrientationOSCClient::command_setTrackingRollEnabled(bool enable) {
     send(msg);
 }
 
-void M1OrientationOSCClient::command_setMonitorYPR(float yaw, float pitch, float roll, int mode = 0) {
+void M1OrientationOSCClient::command_setMonitorYPR(int mode = 0, float yaw = 0, float pitch = 0, float roll = 0) {
     // It is expected to send the orientation to the monitor, let the monitor process its orientation and return it here for reporting to other plugin instances
-    monitor_yaw = yaw;
-    monitor_pitch = pitch;
-    monitor_roll = roll;
-    monitor_mode = mode;
+    juce::OSCMessage msg("/setMonitorYPR");
+    msg.addInt32(mode);
+    msg.addFloat32(yaw);
+    msg.addFloat32(pitch);
+    msg.addFloat32(roll);
+    send(msg);
 }
 
 void M1OrientationOSCClient::command_setFrameRate(float frameRate) {
