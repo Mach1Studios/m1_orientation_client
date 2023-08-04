@@ -1,7 +1,7 @@
 #include <JuceHeader.h>
 #include "M1OrientationSettings.h"
 
-bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsFilePath) {
+bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsFilePath, bool useWatcher = false) {
     juce::File settingsFile = juce::File(jsonSettingsFilePath);
     if (!settingsFile.exists()) {
         juce::AlertWindow::showMessageBoxAsync(
@@ -17,11 +17,12 @@ bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsF
         return false;
     }
     else {
+        // Found the settings.json
         juce::var mainVar = juce::JSON::parse(juce::File(jsonSettingsFilePath));
 		int serverPort = mainVar["serverPort"];
 		int watcherPort = mainVar["watcherPort"];
 
-        if (!init(serverPort, watcherPort)) {
+        if (!init(serverPort, watcherPort, useWatcher)) {
             juce::AlertWindow::showMessageBoxAsync(
                 juce::AlertWindow::WarningIcon,
                 "Warning",

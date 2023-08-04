@@ -169,29 +169,38 @@ void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, 
     this->statusCallback = callback;
 }
 
-bool M1OrientationOSCClient::init(int serverPort, int watcherPort) {
+bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatcher = false) {
     // TODO: Add UI feedback for this process to stop user from selecting another device during connection
-	// check server is running
-	{
-		juce::DatagramSocket socket(false);
-		socket.setEnablePortReuse(false);
-		if (socket.bindToPort(watcherPort)) {
-			socket.shutdown();
-            // run process M1-OrientationManager-Wacther from the same folder
-            juce::File executableFile = juce::File::getSpecialLocation(juce::File::invokedExecutableFile);
+    
+    // Using `currentApplicationFile` to be safe for both plugins and apps on all OS targets
+    //juce::File pluginExe = juce::File::getSpecialLocation(juce::File::currentApplicationFile);
+    //juce::File appDirectory = pluginExe.getParentDirectory();
+    
+    // Using common support files installation location
+    juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
 
-#ifdef JUCE_WINDOWS
-            juce::File appDirectory = executableFile.getParentDirectory();
-            juce::File exeFile = appDirectory.getChildFile("M1-OrientationManager-Watcher.exe");
-#else
-            juce::File appDirectory = executableFile.getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory();
-            juce::File exeFile = appDirectory.getChildFile("M1-OrientationManager-Watcher");
-#endif
-            DBG("Starting M1-OrientationManager-Watcher...");
-            DBG(exeFile.getFullPathName());
-            watcherProcess.start(exeFile.getFullPathName());
-		}
-	}
+    // check server is running
+    if (useWatcher) {
+        juce::DatagramSocket socket(false);
+        socket.setEnablePortReuse(false);
+        if (socket.bindToPort(watcherPort)) {
+            socket.shutdown();
+            
+            // run process M1-SysytemWacther
+            std::string watcherExe;
+            if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
+                // test for any windows OS
+                watcherExe = (m1SupportDirectory.getFullPathName()+"/Mach1/M1-SystemWatcher.exe").toStdString();
+            } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
+                // test for any mac OS
+                watcherExe = (m1SupportDirectory.getFullPathName()+"/Application Support/Mach1/M1-SystemWatcher").toStdString();
+            } else {
+                watcherExe = (m1SupportDirectory.getFullPathName()+"/Mach1/M1-SystemWatcher").toStdString();
+            }
+            DBG("Starting M1-SystemWatcher: " + watcherExe);
+            watcherProcess.start(watcherExe);
+        }
+    }
 
     // choose random port
     int port = 4000;
@@ -238,7 +247,10 @@ void M1OrientationOSCClient::command_refreshDevices()
         send("/refreshDevices");
     } else {
         // TODO: figure out reconnecting to server?
-        //m1OrientationOSCClient.init(6345);
+        // TODO: make this file path search for `Mach1` dir
+        // We will assume the folders are properly created during the installation step
+        //std::string settingsFilePath = (juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory).getFullPathName()+"/Application Support/Mach1/settings.json").toStdString();
+        //m1OrientationOSCClient.initFromSettings(settingsFilePath, true);
     }
 }
 

@@ -5,8 +5,8 @@
 #include "M1OrientationTypes.h"
 #include "M1OrientationSettings.h"
 
-class M1OrientationOSCClient : 
-    private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>, 
+class M1OrientationOSCClient :
+    private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>,
     public M1OrientationManagerOSCSettings
 {
     juce::ChildProcess watcherProcess;
@@ -38,13 +38,14 @@ class M1OrientationOSCClient :
 public:
     ~M1OrientationOSCClient();
 
-    bool init(int serverPort, int watcherPort) override;
+    // setup the server and watcher connections, the watcher is off by default
+    bool init(int serverPort, int watcherPort, bool useWatcher) override;
 
     // Commands from a client to the server
-	void command_refreshDevices();
-	void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);
-	void command_disconnect();
-	void command_setTrackingYawEnabled(bool enable);
+    void command_refreshDevices();
+    void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);
+    void command_disconnect();
+    void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
     void command_setMonitorYPR(int mode, float yaw, float pitch, float roll);
