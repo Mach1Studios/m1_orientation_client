@@ -187,18 +187,18 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
             socket.shutdown();
             
             // run process M1-SysytemWacther
-            std::string watcherExe;
-            if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-                // test for any windows OS
-                watcherExe = (m1SupportDirectory.getFullPathName()+"/Mach1/M1-SystemWatcher.exe").toStdString();
-            } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
+            juce::File watcherExe;
+            if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
                 // test for any mac OS
-                watcherExe = (m1SupportDirectory.getFullPathName()+"/Application Support/Mach1/M1-SystemWatcher").toStdString();
+                watcherExe = m1SupportDirectory.getChildFile("Application Support").getChildFile("Mach1").getChildFile("M1-SystemWatcher");
+            } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
+                // test for any windows OS
+                watcherExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("M1-SystemWatcher.exe");
             } else {
-                watcherExe = (m1SupportDirectory.getFullPathName()+"/Mach1/M1-SystemWatcher").toStdString();
+                watcherExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("M1-SystemWatcher");
             }
-            DBG("Starting M1-SystemWatcher: " + watcherExe);
-            watcherProcess.start(watcherExe);
+            DBG("Starting M1-SystemWatcher: " + watcherExe.getFullPathName());
+            watcherProcess.start(watcherExe.getFullPathName().quoted());
         }
     }
 
