@@ -247,10 +247,6 @@ void M1OrientationOSCClient::command_refreshDevices()
         send("/refreshDevices");
     } else {
         // TODO: figure out reconnecting to server?
-        // TODO: make this file path search for `Mach1` dir
-        // We will assume the folders are properly created during the installation step
-        //std::string settingsFilePath = (juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory).getFullPathName()+"/Application Support/Mach1/settings.json").toStdString();
-        //m1OrientationOSCClient.initFromSettings(settingsFilePath, true);
     }
 }
 
