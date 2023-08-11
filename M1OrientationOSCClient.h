@@ -9,8 +9,6 @@ class M1OrientationOSCClient :
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>,
     public M1OrientationManagerOSCSettings
 {
-    juce::ChildProcess watcherProcess;
-
     juce::OSCReceiver receiver;
     int serverPort = 0;
     int clientPort = 0;

@@ -186,19 +186,57 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
         if (socket.bindToPort(watcherPort)) {
             socket.shutdown();
             
-            // run process M1-SysytemWacther
-            juce::File watcherExe;
-            if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-                // test for any mac OS
-                watcherExe = m1SupportDirectory.getChildFile("Application Support").getChildFile("Mach1").getChildFile("M1-SystemWatcher");
-            } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-                // test for any windows OS
+            // We will assume the folders are properly created during the installation step
+            // Using common support files installation location
+            juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
+            juce::File watcherExe; // for linux and win
+            juce::ChildProcess watcherExeProcess; // for linux and win
+
+            if ((juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_7) ||
+                (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_8) ||
+                (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_9)) { // test for mac OS 10.7-10.9
+                // load process M1-SystemWatcher
+                std::string load_command = "launchctl load gui/$UID /Library/LaunchAgents/com.mach1.watcher.plist";
+                DBG("Executing: " + load_command);
+                system(load_command.c_str());
+                // start process M1-SystemWatcher
+                std::string command = "launchctl start gui/$UID/com.mach1.watcher";
+                DBG("Executing: " + command);
+                system(command.c_str());
+            } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) { // test for any other mac OS
+                // load process M1-SystemWatcher
+                std::string load_command = "launchctl bootstrap gui/$UID /Library/LaunchAgents/com.mach1.watcher.plist";
+                DBG("Executing: " + load_command);
+                system(load_command.c_str());
+                // start process M1-SystemWatcher
+                std::string command = "launchctl kickstart -p gui/$UID/com.mach1.watcher";
+                DBG("Executing: " + command);
+                system(command.c_str());
+            } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) { // test for any windows OS
                 watcherExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("M1-SystemWatcher.exe");
+                juce::StringArray arguments;
+                arguments.add(watcherExe.getFullPathName().quoted());
+                DBG("Starting M1-SystemWatcher: " + watcherExe.getFullPathName());
+                if (watcherExeProcess.start(arguments)) {
+                    DBG("Started M1-SystemWatcher");
+                } else {
+                    // Failed to start the process
+                    DBG("Failed to start M1-SystemWatcher");
+                    exit(1);
+                }
             } else {
                 watcherExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("M1-SystemWatcher");
+                juce::StringArray arguments;
+                arguments.add(watcherExe.getFullPathName().quoted());
+                DBG("Starting M1-SystemWatcher: " + watcherExe.getFullPathName());
+                if (watcherExeProcess.start(arguments)) {
+                    DBG("Started M1-SystemWatcher");
+                } else {
+                    // Failed to start the process
+                    DBG("Failed to start M1-SystemWatcher");
+                    exit(1);
+                }
             }
-            DBG("Starting M1-SystemWatcher: " + watcherExe.getFullPathName());
-            watcherProcess.start(watcherExe.getFullPathName().quoted());
         }
     }
 
