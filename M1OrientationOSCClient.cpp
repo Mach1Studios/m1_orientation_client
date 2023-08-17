@@ -197,21 +197,21 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
                 (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_9)) {
                 // MacOS 10.7-10.9, launchd v1.0
                 // load process M1-SystemWatcher
-                std::string load_command = "launchctl load -w /Library/LaunchAgents/com.mach1.watcher.plist";
+                std::string load_command = "launchctl load -w /Library/LaunchAgents/com.mach1.spatial.watcher.plist";
                 DBG("Executing: " + load_command);
                 system(load_command.c_str());
                 // start process M1-SystemWatcher
-                std::string command = "launchctl start com.mach1.watcher";
+                std::string command = "launchctl start com.mach1.spatial.watcher";
                 DBG("Executing: " + command);
                 system(command.c_str());
             } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
                 // All newer MacOS, launchd v2.0
                 // load process M1-SystemWatcher
-                std::string load_command = "launchctl bootstrap gui/$UID /Library/LaunchAgents/com.mach1.watcher.plist";
+                std::string load_command = "launchctl bootstrap gui/$UID /Library/LaunchAgents/com.mach1.spatial.watcher.plist";
                 DBG("Executing: " + load_command);
                 system(load_command.c_str());
                 // start process M1-SystemWatcher
-                std::string command = "launchctl kickstart -p gui/$UID/com.mach1.watcher";
+                std::string command = "launchctl kickstart -p gui/$UID/com.mach1.spatial.watcher";
                 DBG("Executing: " + command);
                 system(command.c_str());
             } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
