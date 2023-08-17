@@ -8,9 +8,9 @@
 struct M1OrientationYPR {
     float yaw = 0.0f, pitch = 0.0f, roll = 0.0f;
     float yaw_min = -180.0f, pitch_min = -180.0f, roll_min = -180.0f;
-    float yaw_max = 180.0f, pitch_max = 180.0f, roll_max = 180.0f;
-    float custom_output_yaw = 0.0f, custom_output_pitch = 0.0f, custom_output_roll = 0.0f;
+    float yaw_max = 180, pitch_max = 180.0f, roll_max = 180.0f;
     enum AngleType {
+        // default construction as DEGREES
         DEGREES = (int) 0,
         RADIANS = (int) 1,
         NORMALED = (int) 2
@@ -28,13 +28,17 @@ class Orientation {
     M1OrientationQuat orientationQuat;
 
 public:
+    // setting absolute orientation values
     void setYPR(M1OrientationYPR orientation);
     void setQuat(M1OrientationQuat orientation);
-
+    // offsetting or adding to existing orientation values
+    void offsetYPR(M1OrientationYPR offset);
+    void offsetQuat(M1OrientationQuat offset);
+    // getting orientation
     M1OrientationYPR getYPR();
     M1OrientationYPR getNormalised(M1OrientationYPR orientation);
-    M1OrientationYPR getNormalised(M1OrientationQuat orientation);
     M1OrientationQuat getQuat();
+    M1OrientationQuat getNormalised(M1OrientationQuat orientation);
 
     void resetOrientation();
 };
