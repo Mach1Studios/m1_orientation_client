@@ -7,8 +7,8 @@
 
 struct M1OrientationYPR {
     float yaw = 0.0f, pitch = 0.0f, roll = 0.0f;
-    float yaw_min = -180.0f, pitch_min = -180.0f, roll_min = -180.0f;
-    float yaw_max = 180, pitch_max = 180.0f, roll_max = 180.0f;
+    float yaw_min = 0.0f, pitch_min = -180.0f, roll_min = -180.0f;
+    float yaw_max = 360, pitch_max = 180.0f, roll_max = 180.0f;
     enum AngleType {
         // default construction as DEGREES
         DEGREES = (int) 0,
