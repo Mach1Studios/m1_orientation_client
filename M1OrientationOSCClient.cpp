@@ -261,21 +261,25 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
 
             std::thread([&]() {
                 while (true) {
-                    if (!connectedToServer) {
-                        // add client to server
-                        juce::OSCMessage msg("/addClient");
-                        msg.addInt32(this->clientPort);
-                        send(msg);
-                    } else {
-                        // check connection
-                        juce::DatagramSocket socket(false);
-                        socket.setEnablePortReuse(false);
-                        if (socket.bindToPort(this->serverPort)) {
-                            socket.shutdown();
-                            connectedToServer = false;
+                    // test to skip this loop due to improper parsing of port number
+                    // this likely is just a debugger catching the wrong instance
+                    if ((this->clientPort > 100 && this->clientPort < 65535) && (this->serverPort > 100 && this->serverPort < 65535)) {
+                        if (!connectedToServer) {
+                            // add client to server
+                            juce::OSCMessage msg("/addClient");
+                            msg.addInt32(this->clientPort);
+                            send(msg);
+                        } else {
+                            // check connection
+                            juce::DatagramSocket socket(false);
+                            socket.setEnablePortReuse(false);
+                            if (socket.bindToPort(this->serverPort)) {
+                                socket.shutdown();
+                                connectedToServer = false;
+                            }
                         }
+                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     }
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
             }).detach();
             return true;
