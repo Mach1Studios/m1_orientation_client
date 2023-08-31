@@ -21,7 +21,6 @@ class M1OrientationOSCClient :
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
-    bool bTracking = false;
     
     float currentPlayheadPositionInSeconds;
     float frameRate;

@@ -5,46 +5,55 @@
 #include <map>
 #include <variant>
 
+// All orientation is calculated internally as degree YPR which is used to set the quaternion
+// TODO: update internal math to use normal and radians only for YPR
+// All getters just convert from the internal calculations
+
 struct M1OrientationYPR {
     float yaw = 0.0f, pitch = 0.0f, roll = 0.0f;
-    float yaw_min = 0.0f, pitch_min = -180.0f, roll_min = -180.0f;
-    float yaw_max = 360, pitch_max = 180.0f, roll_max = 180.0f;
+    float yaw_min = -1.0f, pitch_min = -1.0f, roll_min = -1.0f;
+    float yaw_max =  1.0f, pitch_max =  1.0f, roll_max =  1.0f;
     enum AngleType {
-        // default construction as DEGREES
-        DEGREES = (int) 0,
-        RADIANS = (int) 1,
-        NORMALED = (int) 2
+        // default construction as signed normalled
+        SIGNED_NORMALLED   = (int) 0, // -1.0   -> 1.0
+        UNSIGNED_NORMALLED = (int) 1, // 0.0    -> 1.0
+        DEGREES            = (int) 2, // -180.0 -> 180.0
+        RADIANS            = (int) 3  // -PI    -> PI
     } angleType;
 };
 
 struct M1OrientationQuat {
     float w = 1.0f, x = 0.0f, y = 0.0f, z = 0.0f; // Used for getting/reading processed values
-    float wIn = 1.0f, xIn = 0.0f, yIn = 0.0f, zIn = 0.0f; // Used for setting new input values
+    float wIn = 1.0f, xIn = 0.0f, yIn = 0.0f, zIn = 0.0f; // Used for setting/writing new values
     float wb = 1.0f, xb = 0.0f, yb = 0.0f, zb = 0.0f; // Used for resets
 };
 
 class Orientation {
-    M1OrientationYPR orientationYPR;
-    M1OrientationQuat orientationQuat;
-
 public:
     // setting absolute orientation values
-    void setYPR(M1OrientationYPR orientation);
+    void setYPR(M1OrientationYPR orientation); // use AngleType enum to determine how to set
     void setQuat(M1OrientationQuat orientation);
     // offsetting or adding to existing orientation values
     void offsetYPR(M1OrientationYPR offset);
     void offsetQuat(M1OrientationQuat offset);
     // getting orientation
-    M1OrientationYPR getYPR();
-    M1OrientationYPR getNormalised(M1OrientationYPR orientation);
+    M1OrientationYPR getYPRasUnsignedNormalled();
+    M1OrientationYPR getYPRasSignedNormalled();
+    M1OrientationYPR getYPRinDegrees();
+    M1OrientationYPR getYPRinRadians();
+    M1OrientationYPR getUnsignedNormalled(M1OrientationYPR orientation);
     M1OrientationQuat getQuat();
-    M1OrientationQuat getNormalised(M1OrientationQuat orientation);
-
+    M1OrientationQuat getNormalled(M1OrientationQuat orientation);
     void resetOrientation();
+    
+private:
+    // Use getters and setters only
+    M1OrientationYPR orientationYPR;
+    M1OrientationQuat orientationQuat;
+    
 };
 
-struct M1OrientationTrackingResult
-{
+struct M1OrientationTrackingResult {
     Orientation currentOrientation;
     bool success;
 };
@@ -56,6 +65,7 @@ enum M1OrientationDeviceType {
     M1OrientationManagerDeviceTypeBLE,
     M1OrientationManagerDeviceTypeOSC,
 	M1OrientationManagerDeviceTypeCamera,
+    M1OrientationManagerDeviceTypeFusion, // TODO: Add Camera + [any] type
 };
 
 enum M1OrientationStatusType {
