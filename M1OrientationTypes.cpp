@@ -178,8 +178,7 @@ M1OrientationYPR Orientation::getYPRinDegrees() {
     if (orientationYPR.angleType == M1OrientationYPR::AngleType::SIGNED_NORMALLED) {
         // TODO: test this
     } else {
-        setYPR(orientationYPR);
-        tempOrientation = orientationYPR; // sets and converts back to signed normalled
+        tempOrientation = getYPRasSignedNormalled(); // sets and converts back to signed normalled
     }
     tempOrientation.yaw = (float)juce::jmap(orientationYPR.yaw, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
     tempOrientation.pitch = (float)juce::jmap(orientationYPR.pitch, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
@@ -192,8 +191,7 @@ M1OrientationYPR Orientation::getYPRinRadians() {
     if (orientationYPR.angleType == M1OrientationYPR::AngleType::SIGNED_NORMALLED) {
         // TODO: test this
     } else {
-        setYPR(orientationYPR);
-        tempOrientation = orientationYPR; // sets and converts back to signed normalled
+        tempOrientation = getYPRasSignedNormalled(); // sets and converts back to signed normalled
     }
     tempOrientation.yaw = (float)juce::jmap(orientationYPR.yaw, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
     tempOrientation.pitch = (float)juce::jmap(orientationYPR.pitch, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
