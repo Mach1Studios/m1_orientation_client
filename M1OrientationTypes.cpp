@@ -57,7 +57,7 @@ void Orientation::setYPR(M1OrientationYPR orientation) {
     orientationYPR.yaw_min = -1.0f, orientationYPR.pitch_min = -1.0f, orientationYPR.roll_min = -1.0f;
     orientationYPR.yaw_max = 1.0f, orientationYPR.pitch_max = 1.0f, orientationYPR.roll_max = 1.0f;
 
-    // Below converts YPR NORMALLED -> YPR RADIANS -> Quat
+    // Below converts YPR SIGNED NORMALLED -> YPR RADIANS -> Quat
     // It is better to avoid this function and stick to updating quat and calculating best YPR
     // Note:
     //   Skipping the setQuat() call and calculating the output directly
@@ -180,9 +180,9 @@ M1OrientationYPR Orientation::getYPRinDegrees() {
     } else {
         tempOrientation = getYPRasSignedNormalled(); // sets and converts back to signed normalled
     }
-    tempOrientation.yaw = (float)juce::jmap(orientationYPR.yaw, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
-    tempOrientation.pitch = (float)juce::jmap(orientationYPR.pitch, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
-    tempOrientation.roll = (float)juce::jmap(orientationYPR.roll, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
+    tempOrientation.yaw = (float)juce::jmap(orientationYPR.yaw, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
+    tempOrientation.pitch = (float)juce::jmap(orientationYPR.pitch, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
+    tempOrientation.roll = (float)juce::jmap(orientationYPR.roll, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
     return tempOrientation;
 }
 
@@ -193,9 +193,9 @@ M1OrientationYPR Orientation::getYPRinRadians() {
     } else {
         tempOrientation = getYPRasSignedNormalled(); // sets and converts back to signed normalled
     }
-    tempOrientation.yaw = (float)juce::jmap(orientationYPR.yaw, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
-    tempOrientation.pitch = (float)juce::jmap(orientationYPR.pitch, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
-    tempOrientation.roll = (float)juce::jmap(orientationYPR.roll, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
+    tempOrientation.yaw = (float)juce::jmap(orientationYPR.yaw, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
+    tempOrientation.pitch = (float)juce::jmap(orientationYPR.pitch, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
+    tempOrientation.roll = (float)juce::jmap(orientationYPR.roll, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
     return tempOrientation;
 }
 
