@@ -30,7 +30,12 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
         if (message.size() == 3){
             /// WARNING: ONLY SEND SIGNED NORMALLED ORIENTATION VALUES
             /// -1.0 -> 1.0
-            orientation.setYPR({ message[0].getFloat32(), message[1].getFloat32(), message[2].getFloat32() });
+            M1OrientationYPR incomingOrientation;
+            incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
+            incomingOrientation.yaw = message[0].getFloat32();
+            incomingOrientation.pitch = message[1].getFloat32();
+            incomingOrientation.roll = message[2].getFloat32();
+            orientation.setYPR(incomingOrientation);
         } else if (message.size() == 4){
         // quat input
             orientation.setQuat({ message[0].getFloat32(), message[1].getFloat32(), message[2].getFloat32(), message[3].getFloat32() });
