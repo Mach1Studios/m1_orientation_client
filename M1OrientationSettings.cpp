@@ -11,8 +11,8 @@ bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsF
             "",
             nullptr,
             juce::ModalCallbackFunction::create(([&](int result) {
-                juce::JUCEApplicationBase::quit();
-                }))
+               //juce::JUCEApplicationBase::quit();
+            }))
         );
         return false;
     }
@@ -30,8 +30,8 @@ bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsF
                 "",
                 nullptr,
                 juce::ModalCallbackFunction::create(([&](int result) {
-                    juce::JUCEApplicationBase::quit();
-                    }))
+                    //juce::JUCEApplicationBase::quit();
+			    }))
             );
             return false;
         }
