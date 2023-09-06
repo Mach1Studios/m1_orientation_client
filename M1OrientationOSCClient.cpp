@@ -191,6 +191,30 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
     //juce::File pluginExe = juce::File::getSpecialLocation(juce::File::currentApplicationFile);
     //juce::File appDirectory = pluginExe.getParentDirectory();
     
+    // If a sibling OrientationManager is found then we skip past the services section as this overrides for easy local usage
+    juce::File siblingOrientationManager;
+    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
+        siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("M1-OrientationManager.exe");
+    } else {
+        siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("M1-OrientationManager");
+    }
+
+    if (siblingOrientationManager.exists()) {
+        // directly launching orientation manager because we are in local usage or debug mode
+        juce::ChildProcess exeProcess;
+        juce::StringArray arguments;
+        arguments.add(siblingOrientationManager.getFullPathName().quoted());
+        arguments.add("--no-gui");
+        DBG("Starting M1-OrientationManager: " + siblingOrientationManager.getFullPathName().quoted());
+        if (exeProcess.start(arguments)) {
+            DBG("Started M1-OrientationManager");
+        } else {
+            // Failed to start the process
+            DBG("Failed to start M1-OrientationManager");
+            exit(1);
+        }
+    }
+    
     // Using common support files installation location
     juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
 
@@ -206,7 +230,7 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
             juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
             juce::File watcherExe; // for linux and win
             juce::ChildProcess watcherExeProcess; // for linux and win
-
+            
             if ((juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_7) ||
                 (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_8) ||
                 (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_9)) {
