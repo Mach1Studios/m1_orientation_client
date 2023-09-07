@@ -62,6 +62,7 @@ public:
         } else {
             // Drawing the window
             float offsetY = 5;
+            float oscSettingsOffsetY;
             
             m.prepare<M1SwitchableIconButton>({5, offsetY, shape.size.x - 10, 25}).
                 withCaption("REFRESH").withBorders().onClick(
@@ -73,7 +74,7 @@ public:
             
             // Drawing devices
             for (int i = 0; i < deviceSlots.size(); i++) {
-                m.prepare<M1SwitchableIconButton>({2, offsetY, shape.size.x - 4, 30}).
+                m.prepare<M1SwitchableIconButton>({2, offsetY + (30 * i), shape.size.x - 4, 30}).
                     withCaption(deviceSlots[i].deviceName)
                     .setHighlighted(deviceSlots[i].highlighted)
                     .withIconKind(deviceSlots[i].icon)
@@ -84,51 +85,18 @@ public:
                     .withElementIndex(deviceSlots[i].index)
                     .withBorders()
                     .draw();
-                
-                offsetY += 30 * i;
+                if (deviceSlots[i].deviceName == "OSC Input") {
+                    // set where we will display the OSC settings under the OSC device
+                    oscSettingsOffsetY = offsetY + (30 * i) + 30;
+                    offsetY += 30; // offset the next slot if this happens
+                }
             }
             
+            // increment up the offset height by number of devices
+            offsetY += 30 * deviceSlots.size(); // addds one more slot space for next element
+
             // Drawing settings if settings panel is enabled
             if (showSettings) {
-                
-                if (showOscSettings) {
-                    // if OSC active then show UI for changing the input address/port/address_patter
-                    
-                    offsetY += 30;
-                    
-                    // IP & PORT BOX
-                    m.setColor(40, 40, 40, 255);
-                    m.enableFill();
-                    m.drawRectangle(5, offsetY, shape.size.x - 10, 25);
-                    m.disableFill();
-                                        
-                    // INPUT IP PORT TEXTFIELD
-                    m.setColor(110, 110, 110, 255);
-                    auto& ip_port_field = m.prepare<murka::TextField>({shape.size.x - 10 + 5, offsetY, (shape.size.x * 0.33) - 10, 25}).onlyAllowNumbers(true).controlling(&requested_osc_port);
-                    ip_port_field.widgetBgColor.a = 0;
-                    ip_port_field.drawBounds = false;
-                    ip_port_field.hint = "OSC PORT";
-                    ip_port_field.draw();
-                        
-                    offsetY += 30;
-
-                    // INPUT MSG ADDRESS PATTERN TEXTFIELD
-                    m.setColor(40, 40, 40, 255);
-                    m.enableFill();
-                    m.drawRectangle(5, offsetY, shape.size.x - 10, 25);
-                    m.disableFill();
-                    
-                    m.setColor(110, 110, 110, 255);
-                    auto& msg_address_pattern_field = m.prepare<murka::TextField>({5, offsetY, shape.size.x - 10, 25}).onlyAllowNumbers(false).controlling(&requested_osc_msg_address);
-                    msg_address_pattern_field.widgetBgColor.a = 0;
-                    msg_address_pattern_field.drawBounds = false;
-                    msg_address_pattern_field.hint = "OSC ADDRESS PATTERN";
-                    msg_address_pattern_field.draw();
-                    
-                    if (ip_port_field.editingFinished || msg_address_pattern_field.editingFinished) {
-                        oscSettingsChangedCallback(requested_osc_port, requested_osc_msg_address);
-                    }
-                }
                 
                 m.prepare<M1SwitchableIconButton>({2, shape.size.y - 75, shape.size.x - 4, 25})
                     .withBorders()
@@ -162,6 +130,38 @@ public:
 					m.drawString(formatFloatWithLeadingZeros(yaw), 2 + yprToggleWidth/4 + 2, shape.size.y - 20);
 					m.drawString(formatFloatWithLeadingZeros(pitch), 2 + yprToggleWidth * 1 + yprToggleWidth/4 + 2, shape.size.y - 20);
 					m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2 + yprToggleWidth/4 + 2, shape.size.y - 20);
+                
+                if (showOscSettings) {
+                    // if OSC active then show UI for changing the input address/port/address_patter
+
+                    int oscDivWidth = int(float(shape.size.x) / 3.0);
+
+                    m.setColor(78, 78, 78, 255);
+                    m.enableFill();
+                    m.drawRectangle(2, oscSettingsOffsetY, shape.size.x - 4, 30);
+                    m.disableFill();
+                    
+                    // INPUT MSG ADDRESS PATTERN TEXTFIELD
+                    auto& msg_address_pattern_field = m.prepare<murka::TextField>({2, oscSettingsOffsetY, (oscDivWidth * 2) - 4, 30}).onlyAllowNumbers(false).controlling(&requested_osc_msg_address);
+                    msg_address_pattern_field.drawBounds = true;
+                    msg_address_pattern_field.widgetBgColor = {0.3, 0.3, 0.3};
+                    msg_address_pattern_field.hint = "OSC ADDRESS PATTERN";
+                    msg_address_pattern_field.draw();
+
+                    // INPUT IP PORT TEXTFIELD
+                    auto& ip_port_field = m.prepare<murka::TextField>({2 + oscDivWidth * 2, oscSettingsOffsetY, oscDivWidth - 4, 30}).onlyAllowNumbers(true).controlling(&requested_osc_port);
+                    ip_port_field.clampNumber = true;
+                    ip_port_field.minNumber = 100;
+                    ip_port_field.maxNumber = 65535;
+                    ip_port_field.drawBounds = true;
+                    ip_port_field.widgetBgColor = {0.3, 0.3, 0.3};
+                    ip_port_field.hint = "OSC PORT";
+                    ip_port_field.draw();
+                    
+                    if (ip_port_field.editingFinished || msg_address_pattern_field.editingFinished) {
+                        oscSettingsChangedCallback(requested_osc_port, requested_osc_msg_address);
+                    }
+                }
 			}
         }
     }
