@@ -21,18 +21,32 @@ std::map<enum M1OrientationStatusType, std::string> M1OrientationStatusTypeName 
 void Orientation::setYPR(M1OrientationYPR orientation) {
     if (orientation.angleType == M1OrientationYPR::AngleType::DEGREES) {
         // normalize
-        if ((orientationYPR.yaw >= 360. || orientation.yaw < 0) || orientationYPR.yaw_max == 360.) {
-            // check we are a remainder of 180 and shift the remainder to the negative half
-            orientationYPR.yaw = std::fmod(orientationYPR.yaw, 180.0f) - 180.0f;
+        if (orientation.yaw_min == -180.0f) {
+            if (orientation.yaw <= -180.0f) {
+                // check we are a remainder of 180 and shift the remainder to the negative half
+                orientation.yaw = std::fmod(orientation.yaw, -180.0f);
+            }
+            if (orientation.yaw >= 0.0f) {
+                orientation.yaw = std::fmod(orientation.yaw, 180.0f);
+            }
+        } else if (orientation.yaw_max == 360.0f) {
+            // check we are a remainder of 360 and shift to -180 -> 180
+            orientation.yaw = std::fmod(orientation.yaw, 360.0f) - 180.0f;
+        } else {
+            // assume min/max were not set
+            if ((orientation.yaw >= 360. || orientation.yaw < 0) || orientation.yaw_max == 360.) {
+                // check we are a remainder of 180 and shift the remainder to the negative half
+                orientation.yaw = std::fmod(orientation.yaw, 180.0f) - 180.0f;
+            }
         }
         orientationYPR.yaw = (float)juce::jmap(orientation.yaw, (float)-180.0, (float)180.0, (float)-1.0, (float)1.0);
         orientationYPR.pitch = (float)juce::jmap(orientation.pitch, (float)-180.0, (float)180.0, (float)-1.0, (float)1.0);
         orientationYPR.roll = (float)juce::jmap(orientation.roll, (float)-180.0, (float)180.0, (float)-1.0, (float)1.0);
         
     } else if (orientation.angleType == M1OrientationYPR::AngleType::RADIANS) {
-        if ((orientationYPR.yaw >= juce::MathConstants<float>::twoPi || orientation.yaw < 0) || orientationYPR.yaw_max == juce::MathConstants<float>::twoPi) {
+        if ((orientation.yaw >= juce::MathConstants<float>::twoPi || orientation.yaw < 0) || orientation.yaw_max == juce::MathConstants<float>::twoPi) {
             // check we are a remainder of PI and shift the remainder to the negative half
-            orientationYPR.yaw = std::fmod(orientationYPR.yaw, juce::MathConstants<float>::pi) - juce::MathConstants<float>::pi;
+            orientation.yaw = std::fmod(orientation.yaw, juce::MathConstants<float>::pi) - juce::MathConstants<float>::pi;
         }
         orientationYPR.yaw = (float)juce::jmap(orientation.yaw, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi, (float)-1.0, (float)1.0);
         orientationYPR.pitch = (float)juce::jmap(orientation.pitch, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi, (float)-1.0, (float)1.0);
