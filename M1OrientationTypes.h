@@ -90,6 +90,9 @@ public:
 	bool notConnectable = false;
     bool newErrorToParse = false;
     std::string error = "";
+    // osc specific
+    int osc_port = 9901;
+    std::string osc_msg_addr_pttrn = "/orientation";
 
     std::string getDeviceName(){
         return name;

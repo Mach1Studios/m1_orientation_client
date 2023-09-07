@@ -63,11 +63,9 @@ public:
     std::function<void(M1OrientationWindowToggleButton&)> onClickCallback = [](M1OrientationWindowToggleButton& b){};
     
     MurImage icon;
-    
     bool showGimmick = false;
     double gimmickAngleDegrees = 0;
     bool initialized = false;
-    
     bool enabled = true;
     bool hovered = false;
 };

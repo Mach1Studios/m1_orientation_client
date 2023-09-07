@@ -104,10 +104,7 @@ public:
     bool highlighted = false;
     std::string iconKind = "";
     std::string caption = "default";
-    
     MurImage icon;
-    
     bool iconLoaded = false;
-    
     bool enabled = true;
 };

@@ -129,6 +129,13 @@ void M1OrientationOSCClient::command_setTrackingRollEnabled(bool enable) {
     send(msg);
 }
 
+void M1OrientationOSCClient::command_updateOscDevice(int new_osc_port, std::string new_osc_addr_pattrn) {
+    juce::OSCMessage msg("/setOscDeviceSettings");
+    msg.addInt32(new_osc_port);
+    msg.addString(new_osc_addr_pattrn);
+    send(msg);
+}
+
 void M1OrientationOSCClient::command_setMonitorYPR(int mode = 0, float yaw = 0, float pitch = 0, float roll = 0) {
     // It is expected to send the orientation to the monitor, let the monitor process its orientation and return it here for reporting to other plugin instances
     juce::OSCMessage msg("/setMonitorYPR");
