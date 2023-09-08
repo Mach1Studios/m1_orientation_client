@@ -167,7 +167,8 @@ M1OrientationYPR Orientation::getYPRasUnsignedNormalled() {
         // TODO: test this
         tempOrientation = orientationYPR;
     } else {
-        tempOrientation.yaw = (float)juce::jmap(orientationYPR.yaw, (float)orientationYPR.yaw_min, (float)orientationYPR.yaw_max, (float)0.0, (float)1.0);
+        // shift yaw negative range to make 0deg = 0norm
+        tempOrientation.yaw = (float)juce::jmap(orientationYPR.yaw + std::abs((float)orientationYPR.yaw_min), (float)orientationYPR.yaw_min, (float)orientationYPR.yaw_max, (float)0.0, (float)1.0);
         tempOrientation.pitch = (float)juce::jmap(orientationYPR.pitch, (float)orientationYPR.pitch_min, (float)orientationYPR.pitch_max, (float)0.0, (float)1.0);
         tempOrientation.roll = (float)juce::jmap(orientationYPR.roll, (float)orientationYPR.roll_min, (float)orientationYPR.roll_max, (float)0.0, (float)1.0);
         // skip setting min/max values since we will discard offset
