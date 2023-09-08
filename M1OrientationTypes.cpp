@@ -152,6 +152,8 @@ void Orientation::setQuat(M1OrientationQuat orientation) {
         orientationYPR.pitch = p / juce::MathConstants<float>::pi;
         orientationYPR.roll = r / juce::MathConstants<float>::pi;
         orientationYPR.angleType = M1OrientationYPR::AngleType::SIGNED_NORMALLED;
+        orientationYPR.yaw_min = -1.0f, orientationYPR.pitch_min = -1.0f, orientationYPR.roll_min = -1.0f;
+        orientationYPR.yaw_max = 1.0f, orientationYPR.pitch_max = 1.0f, orientationYPR.roll_max = 1.0f;
     }
 }
 
