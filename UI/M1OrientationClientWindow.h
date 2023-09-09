@@ -105,25 +105,46 @@ public:
                 
                 int yprToggleWidth = int(float(shape.size.x - 10) / 3.0);
                 
-                m.prepare<M1SwitchableIconButton>({5, shape.size.y - 48, yprToggleWidth, 25})
+                m.prepare<M1SwitchableIconButton>({5, shape.size.y - 78, yprToggleWidth, 25})
                     .withBorders()
                     .withCaption("Y").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(0);
                     })
                     .setHighlighted(trackYaw)
                     .draw();
 
-                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 1, shape.size.y - 48, yprToggleWidth, 25})
+                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 1, shape.size.y - 78, yprToggleWidth, 25})
                     .withBorders()
                     .withCaption("P").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(1);
                     })
                     .setHighlighted(trackPitch)
                     .draw();
 
-                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 2, shape.size.y - 48, yprToggleWidth, 25})
+                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 2, shape.size.y - 78, yprToggleWidth, 25})
                     .withBorders()
                     .withCaption("R").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ yprSwitchesClickedCallback(2);
                     })
                     .setHighlighted(trackRoll)
+                    .draw();
+                
+                m.prepare<M1SwitchableIconButton>({5, shape.size.y - 48, yprToggleWidth, 25})
+                    .withBorders()
+                    .withCaption("-").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ bTrackingYawInversed = !bTrackingYawInversed;
+                    })
+                    .setHighlighted(bTrackingYawInversed || trackYaw)
+                    .draw();
+
+                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 1, shape.size.y - 48, yprToggleWidth, 25})
+                    .withBorders()
+                    .withCaption("-").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ bTrackingPitchInversed = !bTrackingPitchInversed;
+                    })
+                    .setHighlighted(bTrackingPitchInversed || trackPitch)
+                    .draw();
+
+                m.prepare<M1SwitchableIconButton>({5 + yprToggleWidth * 2, shape.size.y - 48, yprToggleWidth, 25})
+                    .withBorders()
+                    .withCaption("-").withFontSize(8).onClick([&](M1SwitchableIconButton& b){ bTrackingRollInversed = !bTrackingRollInversed;
+                    })
+                    .setHighlighted(bTrackingRollInversed || trackRoll)
                     .draw();
 
                     // TODO: properly center these
@@ -243,6 +264,12 @@ public:
 	float pitch;
 	float roll;
 
+    // inverse switches
+    // kept locally so that clients can individually apply these
+    bool bTrackingYawInversed = false;
+    bool bTrackingPitchInversed = false;
+    bool bTrackingRollInversed = false;
+    
     std::function<void(int)> yprSwitchesClickedCallback;
     std::function<void()> disconnectClickedCallback;
     std::function<void(int, std::string)> oscSettingsChangedCallback;
