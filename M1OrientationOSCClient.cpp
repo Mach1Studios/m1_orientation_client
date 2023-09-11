@@ -44,6 +44,9 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
             DBG("Error: Undefined orientation message size:"+std::to_string(message.size()));
         }
     }
+    else if (message.getAddressPattern() == "/monitor-disable") {
+        plugin_disable = message[0].getInt32();
+    }
     else if (message.getAddressPattern() == "/getTrackingYawEnabled") {
         bTrackingYawEnabled = message[0].getInt32();
     }
@@ -314,6 +317,9 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
                             // add client to server
                             juce::OSCMessage msg("/addClient");
                             msg.addInt32(this->clientPort);
+                            if (bClientIsSingleInstanceCritical) {
+                                msg.addString("m1-monitor");
+                            }
                             send(msg);
                         } else {
                             // check connection
@@ -376,6 +382,9 @@ void M1OrientationOSCClient::close() {
     // Send a message to remove the client from server list
     juce::OSCMessage msg("/removeClient");
     msg.addInt32(this->clientPort);
+    if (bClientIsSingleInstanceCritical) {
+        msg.addString("m1-monitor");
+    }
     send(msg);
     
     receiver.removeListener(this);

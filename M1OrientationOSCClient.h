@@ -64,6 +64,8 @@ public:
     
     // Connection handling
     bool isConnectedToServer();
+    bool bClientIsSingleInstanceCritical = false; // use this to flag if we need to count instances
+    bool plugin_disable = false;
     void setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback);
     void close();
 };
