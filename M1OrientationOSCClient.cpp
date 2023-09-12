@@ -201,9 +201,9 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
     // If a sibling OrientationManager is found then we skip past the services section as this overrides for easy local usage
     juce::File siblingOrientationManager;
     if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-        siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("M1-OrientationManager.exe");
+        siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("m1-orientationmanager.exe");
     } else {
-        siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("M1-OrientationManager");
+        siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("m1-orientationmanager");
     }
 
     if (siblingOrientationManager.exists()) {
@@ -212,12 +212,12 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
         juce::StringArray arguments;
         arguments.add(siblingOrientationManager.getFullPathName().quoted());
         arguments.add("--no-gui");
-        DBG("Starting M1-OrientationManager: " + siblingOrientationManager.getFullPathName().quoted());
+        DBG("Starting m1-orientationmanager: " + siblingOrientationManager.getFullPathName().quoted());
         if (exeProcess.start(arguments)) {
-            DBG("Started M1-OrientationManager");
+            DBG("Started m1-orientationmanager");
         } else {
             // Failed to start the process
-            DBG("Failed to start M1-OrientationManager");
+            DBG("Failed to start m1-orientationmanager");
             exit(1);
         }
     }
@@ -242,49 +242,49 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
                 (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_8) ||
                 (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_9)) {
                 // MacOS 10.7-10.9, launchd v1.0
-                // load process M1-SystemWatcher
-                std::string load_command = "launchctl load -w /Library/LaunchAgents/com.mach1.spatial.watcher.plist";
+                // load process m1-systemwatcher
+                std::string load_command = "launchctl load -w /Library/LaunchDaemons/com.mach1.spatial.watcher.plist";
                 DBG("Executing: " + load_command);
                 system(load_command.c_str());
-                // start process M1-SystemWatcher
+                // start process m1-systemwatcher
                 std::string command = "launchctl start com.mach1.spatial.watcher";
                 DBG("Executing: " + command);
                 system(command.c_str());
             } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
                 // All newer MacOS, launchd v2.0
-                // load process M1-SystemWatcher
-                std::string load_command = "launchctl bootstrap gui/$UID /Library/LaunchAgents/com.mach1.spatial.watcher.plist";
+                // load process m1-systemwatcher
+                std::string load_command = "launchctl bootstrap gui/$UID /Library/LaunchDaemons/com.mach1.spatial.watcher.plist";
                 DBG("Executing: " + load_command);
                 system(load_command.c_str());
-                // start process M1-SystemWatcher
+                // start process m1-systemwatcher
                 std::string command = "launchctl kickstart -p gui/$UID/com.mach1.spatial.watcher";
                 DBG("Executing: " + command);
                 system(command.c_str());
             } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
                 // Any windows OS
                 // TODO: migrate to Windows Service Manager
-                watcherExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("M1-SystemWatcher.exe");
+                watcherExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("m1-systemwatcher.exe");
                 juce::StringArray arguments;
                 arguments.add(watcherExe.getFullPathName().quoted());
-                DBG("Starting M1-SystemWatcher: " + watcherExe.getFullPathName());
+                DBG("Starting m1-systemwatcher: " + watcherExe.getFullPathName());
                 if (watcherExeProcess.start(arguments)) {
-                    DBG("Started M1-SystemWatcher");
+                    DBG("Started m1-systemwatcher");
                 } else {
                     // Failed to start the process
-                    DBG("Failed to start M1-SystemWatcher");
+                    DBG("Failed to start m1-systemwatcher");
                     exit(1);
                 }
             } else {
                 // TODO: factor out linux using systemd service
-                watcherExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("M1-SystemWatcher");
+                watcherExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("m1-systemwatcher");
                 juce::StringArray arguments;
                 arguments.add(watcherExe.getFullPathName().quoted());
-                DBG("Starting M1-SystemWatcher: " + watcherExe.getFullPathName());
+                DBG("Starting m1-systemwatcher: " + watcherExe.getFullPathName());
                 if (watcherExeProcess.start(arguments)) {
-                    DBG("Started M1-SystemWatcher");
+                    DBG("Started m1-systemwatcher");
                 } else {
                     // Failed to start the process
-                    DBG("Failed to start M1-SystemWatcher");
+                    DBG("Failed to start m1-systemwatcher");
                     exit(1);
                 }
             }
