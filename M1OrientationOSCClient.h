@@ -84,8 +84,8 @@ public:
         
         // pings and keeps m1-orientationmanager to restart orientation server if there is an issue
         DBG("TIMER[0]: " + std::to_string(currentTime - watchDogPingTime));
-        if (currentTime > watchDogPingTime && currentTime - watchDogPingTime > 1000) {
-            watchDogPingTime = juce::Time::currentTimeMillis() + 15000; // push time check for 10 seconds to wait for service restart
+        if (currentTime > watchDogPingTime && currentTime - watchDogPingTime > 10000) {
+            watchDogPingTime = juce::Time::currentTimeMillis() + 15000; // push time check for 15 seconds to wait for service restart
             // restart the server
             killProcessByName("m1-orientationmanager"); // TODO: pass which orientation manager we are using
             startOrientationManager();
