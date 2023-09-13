@@ -75,17 +75,19 @@ public:
     void close();
     
     void timerCallback() override {
+        // TODO: use service to analyze the std--out//std--err on the daemon and remove this watchdog
+
         juce::int64 currentTime = juce::Time::currentTimeMillis();
 
-        // TIMER = m1-orientationmanager ping timer
+        // TIMER 0 = m1-orientationmanager ping timer
         // this is used to blindly check if the m1-orientationmanager has crashed and attempt to relaunch it
         
-        // pings and keeps m1-orientationmanager alive
+        // pings and keeps m1-orientationmanager to restart orientation server if there is an issue
         DBG("TIMER[0]: " + std::to_string(currentTime - watchDogPingTime));
         if (currentTime > watchDogPingTime && currentTime - watchDogPingTime > 1000) {
             watchDogPingTime = juce::Time::currentTimeMillis() + 15000; // push time check for 10 seconds to wait for service restart
             // restart the server
-            killProcessByName("m1-orientationmanager");
+            killProcessByName("m1-orientationmanager"); // TODO: pass which orientation manager we are using
             startOrientationManager();
         }
     }

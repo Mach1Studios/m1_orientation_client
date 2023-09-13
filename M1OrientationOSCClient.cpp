@@ -366,6 +366,7 @@ void M1OrientationOSCClient::startOrientationManager() {
             std::string command = "launchctl start com.mach1.spatial.orientationmanager";
             DBG("Executing: " + command);
             system(command.c_str());
+            
         } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
             // All newer MacOS, launchd v2.0
             // load process m1-orientationmanager
@@ -376,6 +377,7 @@ void M1OrientationOSCClient::startOrientationManager() {
             std::string command = "launchctl kickstart -p gui/$UID/com.mach1.spatial.orientationmanager";
             DBG("Executing: " + command);
             system(command.c_str());
+            
         } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
             // Any windows OS
             // TODO: migrate to Windows Service Manager
@@ -391,6 +393,7 @@ void M1OrientationOSCClient::startOrientationManager() {
                 DBG("Failed to start the m1-orientationmanager");
                 exit(1);
             }
+            
         } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Linux)) {
             // TODO: factor out linux using systemd service
 
