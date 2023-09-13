@@ -7,12 +7,19 @@
 
 class M1OrientationOSCClient :
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>,
+    private juce::Timer,
     public M1OrientationManagerOSCSettings
 {
     juce::OSCReceiver receiver;
     int serverPort = 0;
     int clientPort = 0;
     bool connectedToServer = false;
+    void startOrientationManager();
+    void killProcessByName(const char *name);
+    int activeClientCounter = 1; // default with 1 so we do not auto shutdown on launch
+    juce::int64 watchDogPingTime = 0;
+    // run process m1-orientationmanager.exe from the same folder
+    juce::ChildProcess orientationManagerProcess;
 
     M1OrientationDeviceInfo currentDevice;
     std::vector<M1OrientationDeviceInfo> devices;
@@ -36,7 +43,7 @@ public:
     ~M1OrientationOSCClient();
 
     // setup the server and watcher connections, the watcher is off by default
-    bool init(int serverPort, int watcherPort, bool useWatcher) override;
+    bool init(int serverPort) override;
 
     // Commands from a client to the server
     void command_refreshDevices();
@@ -66,4 +73,20 @@ public:
     bool isConnectedToServer();
     void setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback);
     void close();
+    
+    void timerCallback() override {
+        juce::int64 currentTime = juce::Time::currentTimeMillis();
+
+        // TIMER = m1-orientationmanager ping timer
+        // this is used to blindly check if the m1-orientationmanager has crashed and attempt to relaunch it
+        
+        // pings and keeps m1-orientationmanager alive
+        DBG("TIMER[0]: " + std::to_string(currentTime - watchDogPingTime));
+        if (currentTime > watchDogPingTime && currentTime - watchDogPingTime > 1000) {
+            watchDogPingTime = juce::Time::currentTimeMillis() + 15000; // push time check for 10 seconds to wait for service restart
+            // restart the server
+            killProcessByName("m1-orientationmanager");
+            startOrientationManager();
+        }
+    }
 };
