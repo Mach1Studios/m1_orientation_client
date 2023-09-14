@@ -93,12 +93,14 @@ bool M1OrientationOSCClient::send(std::string str) {
 
 bool M1OrientationOSCClient::send(juce::OSCMessage& msg) {
     juce::OSCSender sender;
-    if (sender.connect("127.0.0.1", serverPort)) {
-        sender.send(msg);
-        return true;
-    } else {
-        // if this send returns false, check for reconnection state
-        // TODO: This is an error, if we are sending messages but missing the server we should try to reconnect here
+    if ((serverPort > 100 && serverPort < 65535) && (serverPort > 100 && serverPort < 65535)) {
+        if (sender.connect("127.0.0.1", serverPort)) {
+            sender.send(msg);
+            return true;
+        } else {
+            // if this send returns false, check for reconnection state
+            // TODO: This is an error, if we are sending messages but missing the server we should try to reconnect here
+        }
     }
 
     if (!connectedToServer) {
