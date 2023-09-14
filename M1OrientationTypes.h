@@ -11,18 +11,19 @@
 
 struct M1OrientationYPR {
     float yaw = 0.0f, pitch = 0.0f, roll = 0.0f;
-    float yaw_min = -1.0f, pitch_min = -1.0f, roll_min = -1.0f;
-    float yaw_max =  1.0f, pitch_max =  1.0f, roll_max =  1.0f;
+    float yaw_min = 0.0f, pitch_min = 0.0f, roll_min = 0.0f;
+    float yaw_max = 1.0f, pitch_max = 1.0f, roll_max = 1.0f;
     enum AngleType {
         // default construction as signed normalled
-        SIGNED_NORMALLED   = (int) 0, // -1.0   -> 1.0
-        UNSIGNED_NORMALLED = (int) 1, // 0.0    -> 1.0
+        UNSIGNED_NORMALLED = (int) 0, // 0.0    -> 1.0
+        SIGNED_NORMALLED   = (int) 1, // -1.0   -> 1.0
         DEGREES            = (int) 2, // -180.0 -> 180.0
         RADIANS            = (int) 3  // -PI    -> PI
     } angleType;
 };
 
 struct M1OrientationQuat {
+    // TODO: add getter/setter for in/out flow
     float w = 1.0f, x = 0.0f, y = 0.0f, z = 0.0f; // Used for getting/reading processed values
     float wIn = 1.0f, xIn = 0.0f, yIn = 0.0f, zIn = 0.0f; // Used for setting/writing new values
     float wb = 1.0f, xb = 0.0f, yb = 0.0f, zb = 0.0f; // Used for resets
@@ -34,8 +35,8 @@ public:
     void setYPR(M1OrientationYPR orientation); // use AngleType enum to determine how to set
     void setQuat(M1OrientationQuat orientation);
     // offsetting or adding to existing orientation values
-    void offsetYPR(M1OrientationYPR offset);
-    void offsetQuat(M1OrientationQuat offset);
+    void offsetYPR(M1OrientationYPR offset_delta);
+    void offsetQuat(M1OrientationQuat offset_delta);
     // getting orientation
     M1OrientationYPR getYPRasUnsignedNormalled();
     M1OrientationYPR getYPRasSignedNormalled();
