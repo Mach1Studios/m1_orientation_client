@@ -238,10 +238,15 @@ M1OrientationYPR Orientation::getYPRinRadians() {
 
 M1OrientationYPR Orientation::getUnsignedNormalled(M1OrientationYPR orientation) {
     M1OrientationYPR normalised_orientation;
-    normalised_orientation.angleType = M1OrientationYPR::UNSIGNED_NORMALLED;
+    
+//    if (std::fmod(orientation.yaw + std::abs(orientation.yaw_min), std::abs(orientation.yaw_min) + orientation.yaw_max) - std::abs(orientation.yaw_min));
+//    if (std::fmod(orientation.pitch + std::abs(orientation.pitch_min), std::abs(orientation.pitch_min) + orientation.pitch_max) - std::abs(orientation.pitch_min));
+//    if (std::fmod(orientation.roll + std::abs(orientation.roll_min), std::abs(orientation.roll_min) + orientation.roll_max) - std::abs(orientation.roll_min));
+
     normalised_orientation.yaw = (float)juce::jmap(orientation.yaw, (float)orientation.yaw_min , (float)orientation.yaw_max, (float)0.0, (float)1.0);
     normalised_orientation.pitch = (float)juce::jmap(orientation.pitch, (float)orientation.pitch_min , (float)orientation.pitch_max, (float)0.0, (float)1.0);
     normalised_orientation.roll = (float)juce::jmap(orientation.roll, (float)orientation.roll_min , (float)orientation.roll_max, (float)0.0, (float)1.0);
+    normalised_orientation.angleType = M1OrientationYPR::UNSIGNED_NORMALLED;
     return normalised_orientation;
 }
 
