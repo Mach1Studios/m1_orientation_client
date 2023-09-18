@@ -23,12 +23,12 @@ void Orientation::setYPR(M1OrientationYPR orientation) {
     // without first setting the min/max values so they can be
     // transformed into UNSIGNED_NORMALLED
     // Please set the angleType and appropriate min/max values!
-    //assert(orientation.angleType != M1OrientationYPR::AngleType::UNSIGNED_NORMALLED &&
+    //assert(orientation.angleType != M1OrientationYPR::UNSIGNED_NORMALLED &&
     //       (orientation.yaw_min == 0.0f && orientation.yaw_max == 1.0f) ||
     //       (orientation.pitch_min == 0.0f && orientation.pitch_max == 1.0f) ||
     //       (orientation.roll_min == 0.0f && orientation.roll_max == 1.0f));
     
-    if (orientation.angleType == M1OrientationYPR::AngleType::DEGREES) {
+    if ((int)orientation.angleType == (int)M1OrientationYPR::DEGREES) {
         // normalize
         if (orientation.yaw_min == -180.0f) {
             if (orientation.yaw <= -180.0f) {
@@ -48,25 +48,25 @@ void Orientation::setYPR(M1OrientationYPR orientation) {
                 orientation.yaw = std::fmod(orientation.yaw, 180.0f) - 180.0f;
             }
         }
-        orientationYPR.yaw = (float)juce::jmap(orientation.yaw, (float)-180.0, (float)180.0, (float)0.0, (float)1.0);
-        orientationYPR.pitch = (float)juce::jmap(orientation.pitch, (float)-180.0, (float)180.0, (float)0.0, (float)1.0);
-        orientationYPR.roll = (float)juce::jmap(orientation.roll, (float)-180.0, (float)180.0, (float)0.0, (float)1.0);
+        orientationYPR.yaw = (float)juce::jmap(orientation.yaw, -180.0f, 180.0f, 0.0f, 1.0f);
+        orientationYPR.pitch = (float)juce::jmap(orientation.pitch, -180.0f, 180.0f, 0.0f, 1.0f);
+        orientationYPR.roll = (float)juce::jmap(orientation.roll, -180.0f, 180.0f, 0.0f, 1.0f);
         
-    } else if (orientation.angleType == M1OrientationYPR::AngleType::RADIANS) {
+    } else if ((int)orientation.angleType == (int)M1OrientationYPR::RADIANS) {
         if ((orientation.yaw >= juce::MathConstants<float>::twoPi || orientation.yaw < 0) || orientation.yaw_max == juce::MathConstants<float>::twoPi) {
             // check we are a remainder of PI and shift the remainder to the negative half
             orientation.yaw = std::fmod(orientation.yaw, juce::MathConstants<float>::pi) - juce::MathConstants<float>::pi;
         }
-        orientationYPR.yaw = (float)juce::jmap(orientation.yaw, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi, (float)0.0, (float)1.0);
-        orientationYPR.pitch = (float)juce::jmap(orientation.pitch, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi, (float)0.0, (float)1.0);
-        orientationYPR.roll = (float)juce::jmap(orientation.roll, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi, (float)0.0, (float)1.0);
+        orientationYPR.yaw = (float)juce::jmap(orientation.yaw, orientation.yaw_min, orientation.yaw_max, 0.0f, 1.0f);
+        orientationYPR.pitch = (float)juce::jmap(orientation.pitch, -juce::MathConstants<float>::pi, juce::MathConstants<float>::pi, 0.0f, 1.0f);
+        orientationYPR.roll = (float)juce::jmap(orientation.roll, -juce::MathConstants<float>::pi, juce::MathConstants<float>::pi, 0.0f, 1.0f);
         
-    } else if (orientation.angleType == M1OrientationYPR::AngleType::SIGNED_NORMALLED) {
-        orientationYPR.yaw = (float)juce::jmap(orientation.yaw, (float)-1.0, (float)1.0, (float)0.0, (float)1.0);
-        orientationYPR.pitch = (float)juce::jmap(orientation.pitch, (float)-1.0, (float)1.0, (float)0.0, (float)1.0);
-        orientationYPR.roll = (float)juce::jmap(orientation.roll, (float)-1.0, (float)1.0, (float)0.0, (float)1.0);
+    } else if ((int)orientation.angleType == (int)M1OrientationYPR::SIGNED_NORMALLED) {
+        orientationYPR.yaw = (float)juce::jmap(orientation.yaw, orientation.yaw_min, orientation.yaw_max, 0.0f, 1.0f);
+        orientationYPR.pitch = (float)juce::jmap(orientation.pitch, -1.0f, 1.0f, 0.0f, 1.0f);
+        orientationYPR.roll = (float)juce::jmap(orientation.roll, -1.0f, 1.0f, 0.0f, 1.0f);
         
-    } else if (orientation.angleType == M1OrientationYPR::AngleType::UNSIGNED_NORMALLED) {
+    } else if ((int)orientation.angleType == (int)M1OrientationYPR::UNSIGNED_NORMALLED) {
         // TODO: test this
         orientationYPR = orientation;
         
@@ -76,7 +76,7 @@ void Orientation::setYPR(M1OrientationYPR orientation) {
     }
     
     // update the struct now that the value is normalized
-    orientationYPR.angleType == M1OrientationYPR::UNSIGNED_NORMALLED;
+    orientationYPR.angleType = M1OrientationYPR::UNSIGNED_NORMALLED;
     orientationYPR.yaw_min = 0.0f, orientationYPR.pitch_min = 0.0f, orientationYPR.roll_min = 0.0f;
     orientationYPR.yaw_max = 1.0f, orientationYPR.pitch_max = 1.0f, orientationYPR.roll_max = 1.0f;
 
@@ -85,9 +85,31 @@ void Orientation::setYPR(M1OrientationYPR orientation) {
     // Note:
     //   Skipping the setQuat() call and calculating the output directly
     
-    float yaw = (juce::MathConstants<float>::twoPi * orientationYPR.yaw) - juce::MathConstants<float>::pi;
-    float pitch = (juce::MathConstants<float>::twoPi * orientationYPR.pitch) - juce::MathConstants<float>::pi;
-    float roll = (juce::MathConstants<float>::twoPi * orientationYPR.roll) - juce::MathConstants<float>::pi;
+    float yaw = 0.0f, pitch = 0.0f, roll = 0.0f;
+    // shifting to signed normalled for calculation
+    if (orientationYPR.yaw >= 0.0f && orientationYPR.yaw <= 1.0f) {
+        if (orientationYPR.yaw > 0.5f) {
+            yaw = juce::MathConstants<float>::pi * (orientationYPR.yaw - 1.0f);
+        } else {
+            yaw = (juce::MathConstants<float>::pi * orientationYPR.yaw);
+        }
+    }
+    
+    if (orientationYPR.pitch >= 0.0f && orientationYPR.pitch <= 1.0f) {
+        if (orientationYPR.pitch > 0.5f) {
+            pitch = juce::MathConstants<float>::pi * (orientationYPR.pitch - 1.0f);
+        } else {
+            pitch = (juce::MathConstants<float>::pi * orientationYPR.pitch);
+        }
+    }
+    
+    if (orientationYPR.roll >= 0.0f && orientationYPR.roll <= 1.0f) {
+        if (orientationYPR.roll > 0.5f) {
+            roll = juce::MathConstants<float>::pi * (orientationYPR.roll - 1.0f);
+        } else {
+            roll = (juce::MathConstants<float>::pi * orientationYPR.roll);
+        }
+    }
     
     orientationQuat.w = cos((roll) / 2) * cos((pitch) / 2) * cos((yaw) / 2) + sin((roll) / 2) * sin((pitch) / 2) * sin((yaw) / 2);
     orientationQuat.x = sin((roll) / 2) * cos((pitch) / 2) * cos((yaw) / 2) - cos((roll) / 2) * sin((pitch) / 2) * sin((yaw) / 2);
@@ -99,18 +121,32 @@ void Orientation::offsetYPR(M1OrientationYPR offset_delta) {
     // this function assumes an orientation offset delta and apply it safely
     // if you hit this assert its because you are trying to apply an offset that isnt
     // unsigned normalled and potentially not a calculated angle delta
-    //assert(offset_delta.angleType != M1OrientationYPR::AngleType::UNSIGNED_NORMALLED);
+
+    if ((int)offset_delta.angleType == (int)M1OrientationYPR::SIGNED_NORMALLED) {
+        // continue to process
+    } else if (offset_delta.angleType == M1OrientationYPR::DEGREES || offset_delta.angleType == M1OrientationYPR::RADIANS) {
+        offset_delta.yaw = (float)juce::jmap(offset_delta.yaw, offset_delta.yaw_min, offset_delta.yaw_max, -1.0f, 1.0f);
+        offset_delta.pitch = (float)juce::jmap(offset_delta.pitch, offset_delta.pitch_min, offset_delta.pitch_max, -1.0f, 1.0f);
+        offset_delta.roll = (float)juce::jmap(offset_delta.roll, offset_delta.roll_min, offset_delta.roll_max, -1.0f, 1.0f);
+        offset_delta.angleType = M1OrientationYPR::SIGNED_NORMALLED;
+        offset_delta.yaw_min = -1.0f, offset_delta.pitch_min = -1.0f, offset_delta.roll_min = -1.0f;
+        offset_delta.yaw_max =  1.0f, offset_delta.pitch_max =  1.0f, offset_delta.roll_max =  1.0f;
+    }
     
-    M1OrientationYPR currentOrientation = getYPRasUnsignedNormalled();
-    
-    M1OrientationYPR resultingOrientation;
-    resultingOrientation.angleType = M1OrientationYPR::UNSIGNED_NORMALLED;
-    orientationYPR.yaw_min = 0.0f, orientationYPR.pitch_min = 0.0f, orientationYPR.roll_min = 0.0f;
-    orientationYPR.yaw_max = 1.0f, orientationYPR.pitch_max = 1.0f, orientationYPR.roll_max = 1.0f;
-    resultingOrientation.yaw = std::fmod(currentOrientation.yaw + offset_delta.yaw, 1.0f);
-    resultingOrientation.pitch = std::fmod(currentOrientation.yaw + offset_delta.pitch, 1.0f);
-    resultingOrientation.roll = std::fmod(currentOrientation.yaw + offset_delta.roll, 1.0f);
-    setYPR(resultingOrientation);
+    if ((int)offset_delta.angleType != (int)M1OrientationYPR::UNSIGNED_NORMALLED) {
+        // process if we are not unsigned
+        M1OrientationYPR currentOrientation = getYPRasSignedNormalled();
+        
+        M1OrientationYPR resultingOrientation; // constructs as unsigned normalled
+        resultingOrientation = getUnsignedNormalled(currentOrientation + offset_delta);
+        resultingOrientation.angleType = M1OrientationYPR::UNSIGNED_NORMALLED;
+        resultingOrientation.yaw = std::fmod(resultingOrientation.yaw, 1.0f);
+        resultingOrientation.pitch = std::fmod(resultingOrientation.pitch, 1.0f);
+        resultingOrientation.roll = std::fmod(resultingOrientation.roll, 1.0f);
+        setYPR(resultingOrientation);
+    } else {
+        DBG("Warning: Tried to offset with unsigned values!");
+    }
 }
 
 void Orientation::setQuat(M1OrientationQuat orientation) {
@@ -163,7 +199,7 @@ void Orientation::setQuat(M1OrientationQuat orientation) {
     orientationYPR.yaw = (orientationYPR.yaw + 1.0f) / 2;
     orientationYPR.pitch =  (orientationYPR.pitch + 1.0f) / 2;
     orientationYPR.roll =  (orientationYPR.roll + 1.0f) / 2;
-    orientationYPR.angleType = M1OrientationYPR::AngleType::UNSIGNED_NORMALLED;
+    orientationYPR.angleType = M1OrientationYPR::UNSIGNED_NORMALLED;
     orientationYPR.yaw_min = 0.0f, orientationYPR.pitch_min = 0.0f, orientationYPR.roll_min = 0.0f;
     orientationYPR.yaw_max = 1.0f, orientationYPR.pitch_max = 1.0f, orientationYPR.roll_max = 1.0f;
 }
@@ -183,7 +219,7 @@ void Orientation::offsetQuat(M1OrientationQuat offset_delta) {
 
 M1OrientationYPR Orientation::getYPRasUnsignedNormalled() {
     M1OrientationYPR tempOrientation;
-    if (orientationYPR.angleType == M1OrientationYPR::AngleType::UNSIGNED_NORMALLED) {
+    if (orientationYPR.angleType == M1OrientationYPR::UNSIGNED_NORMALLED) {
         // TODO: test this
         tempOrientation = orientationYPR;
     } else {
@@ -198,7 +234,7 @@ M1OrientationYPR Orientation::getYPRasUnsignedNormalled() {
 
 M1OrientationYPR Orientation::getYPRasSignedNormalled() {
     M1OrientationYPR tempOrientation;
-    if (orientationYPR.angleType == M1OrientationYPR::AngleType::SIGNED_NORMALLED) {
+    if (orientationYPR.angleType == M1OrientationYPR::SIGNED_NORMALLED) {
         // TODO: test this
         tempOrientation = orientationYPR;
     } else {
@@ -212,45 +248,53 @@ M1OrientationYPR Orientation::getYPRasSignedNormalled() {
 
 M1OrientationYPR Orientation::getYPRinDegrees() {
     M1OrientationYPR tempOrientation;
-    if (orientationYPR.angleType == M1OrientationYPR::AngleType::SIGNED_NORMALLED) {
+    if (orientationYPR.angleType == M1OrientationYPR::SIGNED_NORMALLED) {
         // TODO: test this
+        tempOrientation = orientationYPR;
     } else {
         tempOrientation = getYPRasSignedNormalled(); // sets and converts back to signed normalled
     }
-    tempOrientation.yaw = (float)juce::jmap(orientationYPR.yaw, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
-    tempOrientation.pitch = (float)juce::jmap(orientationYPR.pitch, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
-    tempOrientation.roll = (float)juce::jmap(orientationYPR.roll, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
+    tempOrientation.yaw = (float)juce::jmap(tempOrientation.yaw, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
+    tempOrientation.pitch = (float)juce::jmap(tempOrientation.pitch, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
+    tempOrientation.roll = (float)juce::jmap(tempOrientation.roll, (float)-1.0, (float)1.0, (float)-180.0, (float)180.0);
     return tempOrientation;
 }
 
 M1OrientationYPR Orientation::getYPRinRadians() {
     M1OrientationYPR tempOrientation;
-    if (orientationYPR.angleType == M1OrientationYPR::AngleType::SIGNED_NORMALLED) {
+    if (orientationYPR.angleType == M1OrientationYPR::SIGNED_NORMALLED) {
         // TODO: test this
+        tempOrientation = orientationYPR;
     } else {
         tempOrientation = getYPRasSignedNormalled(); // sets and converts back to signed normalled
     }
-    tempOrientation.yaw = (float)juce::jmap(orientationYPR.yaw, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
-    tempOrientation.pitch = (float)juce::jmap(orientationYPR.pitch, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
-    tempOrientation.roll = (float)juce::jmap(orientationYPR.roll, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
+    tempOrientation.yaw = (float)juce::jmap(tempOrientation.yaw, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
+    tempOrientation.pitch = (float)juce::jmap(tempOrientation.pitch, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
+    tempOrientation.roll = (float)juce::jmap(tempOrientation.roll, (float)-1.0, (float)1.0, (float)-juce::MathConstants<float>::pi, (float)juce::MathConstants<float>::pi);
     return tempOrientation;
 }
 
-M1OrientationYPR Orientation::getUnsignedNormalled(M1OrientationYPR orientation) {
-    M1OrientationYPR normalised_orientation;
-    
-//    if (std::fmod(orientation.yaw + std::abs(orientation.yaw_min), std::abs(orientation.yaw_min) + orientation.yaw_max) - std::abs(orientation.yaw_min));
-//    if (std::fmod(orientation.pitch + std::abs(orientation.pitch_min), std::abs(orientation.pitch_min) + orientation.pitch_max) - std::abs(orientation.pitch_min));
-//    if (std::fmod(orientation.roll + std::abs(orientation.roll_min), std::abs(orientation.roll_min) + orientation.roll_max) - std::abs(orientation.roll_min));
+M1OrientationQuat Orientation::getQuat() {
+    return orientationQuat;
+}
 
-    normalised_orientation.yaw = (float)juce::jmap(orientation.yaw, (float)orientation.yaw_min , (float)orientation.yaw_max, (float)0.0, (float)1.0);
-    normalised_orientation.pitch = (float)juce::jmap(orientation.pitch, (float)orientation.pitch_min , (float)orientation.pitch_max, (float)0.0, (float)1.0);
-    normalised_orientation.roll = (float)juce::jmap(orientation.roll, (float)orientation.roll_min , (float)orientation.roll_max, (float)0.0, (float)1.0);
+void Orientation::resetOrientation() {
+    M1OrientationYPR zeroed;
+    setYPR(zeroed);
+}
+
+M1OrientationYPR getUnsignedNormalled(M1OrientationYPR orientation) {
+    M1OrientationYPR normalised_orientation;
+    normalised_orientation.yaw = (float)juce::jmap(orientation.yaw, orientation.yaw_min , orientation.yaw_max, 0.0f, 1.0f);
+    normalised_orientation.pitch = (float)juce::jmap(orientation.pitch, orientation.pitch_min , orientation.pitch_max, 0.0f, 1.0f);
+    normalised_orientation.roll = (float)juce::jmap(orientation.roll, orientation.roll_min , orientation.roll_max, 0.0f, 1.0f);
     normalised_orientation.angleType = M1OrientationYPR::UNSIGNED_NORMALLED;
+    normalised_orientation.yaw_min = 0.0f, normalised_orientation.pitch_min = 0.0f, normalised_orientation.roll_min = 0.0f;
+    normalised_orientation.yaw_max = 1.0f, normalised_orientation.pitch_max = 1.0f, normalised_orientation.roll_max = 1.0f;
     return normalised_orientation;
 }
 
-M1OrientationQuat Orientation::getNormalled(M1OrientationQuat orientation) {
+M1OrientationQuat getNormalled(M1OrientationQuat orientation) {
     // if set with `In` values, use them instead
     if (orientation.w != orientation.wIn) orientation.w = orientation.wIn;
     if (orientation.x != orientation.wIn) orientation.x = orientation.xIn;
@@ -263,19 +307,4 @@ M1OrientationQuat Orientation::getNormalled(M1OrientationQuat orientation) {
     orientation.y /= magnitude;
     orientation.z /= magnitude;
     return orientation;
-}
-
-M1OrientationQuat Orientation::getQuat() {
-    return orientationQuat;
-}
-
-void Orientation::resetOrientation() {
-    M1OrientationQuat quat = getQuat();
-    
-    quat.wb = quat.w;
-    quat.xb = quat.x;
-    quat.yb = quat.y;
-    quat.zb = quat.z;
-    
-    setQuat(quat);
 }

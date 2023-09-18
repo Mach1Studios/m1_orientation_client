@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <string>
 #include <vector>
 #include <map>
@@ -11,15 +12,45 @@
 
 struct M1OrientationYPR {
     float yaw = 0.0f, pitch = 0.0f, roll = 0.0f;
-    float yaw_min = 0.0f, pitch_min = 0.0f, roll_min = 0.0f;
-    float yaw_max = 1.0f, pitch_max = 1.0f, roll_max = 1.0f;
+    float yaw_min = -1.0f, pitch_min = -1.0f, roll_min = -1.0f;
+    float yaw_max =  1.0f, pitch_max =  1.0f, roll_max =  1.0f;
     enum AngleType {
         // default construction as signed normalled
-        UNSIGNED_NORMALLED = (int) 0, // 0.0    -> 1.0
-        SIGNED_NORMALLED   = (int) 1, // -1.0   -> 1.0
+        SIGNED_NORMALLED   = (int) 0, // -1.0   -> 1.0
+        UNSIGNED_NORMALLED = (int) 1, // 0.0    -> 1.0
         DEGREES            = (int) 2, // -180.0 -> 180.0
         RADIANS            = (int) 3  // -PI    -> PI
     } angleType;
+    
+    // used to add two rotations together
+    M1OrientationYPR& operator +(const M1OrientationYPR& a) {
+        // add together and keep within set bounds
+        yaw = std::fmod((yaw + a.yaw), yaw_max - yaw_min);
+        pitch = std::fmod((pitch + a.pitch), pitch_max - pitch_min);
+        roll = std::fmod((roll + a.roll), roll_max - roll_min);
+        return *this;
+    }
+    
+    // used to find the delta of two rotations
+    M1OrientationYPR& operator -(const M1OrientationYPR& a) {
+        // subtract together and keep within set bounds
+        yaw = std::fmod((yaw - a.yaw), yaw_max - yaw_min);
+        pitch = std::fmod((pitch - a.pitch), pitch_max - pitch_min);
+        roll = std::fmod((roll - a.roll), roll_max - roll_min);
+        return *this;
+    }
+    
+    M1OrientationYPR& update_yaw(float yaw) {
+        this->yaw = yaw;
+    }
+    
+    M1OrientationYPR& update_pitch(float pitch) {
+        this->pitch = pitch;
+    }
+    
+    M1OrientationYPR& update_roll(float roll) {
+        this->roll = roll;
+    }
 };
 
 struct M1OrientationQuat {
@@ -42,17 +73,19 @@ public:
     M1OrientationYPR getYPRasSignedNormalled();
     M1OrientationYPR getYPRinDegrees();
     M1OrientationYPR getYPRinRadians();
-    M1OrientationYPR getUnsignedNormalled(M1OrientationYPR orientation);
     M1OrientationQuat getQuat();
-    M1OrientationQuat getNormalled(M1OrientationQuat orientation);
     void resetOrientation();
+    void recenter();
     
 private:
     // Use getters and setters only
     M1OrientationYPR orientationYPR;
     M1OrientationQuat orientationQuat;
-    
 };
+
+// orientation transform functions
+M1OrientationYPR getUnsignedNormalled(M1OrientationYPR orientation);
+M1OrientationQuat getNormalled(M1OrientationQuat orientation);
 
 struct M1OrientationTrackingResult {
     Orientation currentOrientation;
