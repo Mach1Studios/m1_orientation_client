@@ -9,9 +9,6 @@ using namespace murka;
 
 class M1OrientationWindowToggleButton : public murka::View<M1OrientationWindowToggleButton> {
 public:
-    float degToRad(double deg) {
-        return deg * (juce::MathConstants<float>::pi / 180);
-    }
     
     M1OrientationWindowToggleButton() {
         icon.loadFromRawData(BinaryData::tech_support_icon_png, BinaryData::tech_support_icon_pngSize);
@@ -39,8 +36,8 @@ public:
         } else {
             // TODO: show monitor yaw iconology?
             m.setColor(220, 220, 220, 255);
-            m.drawCircle(shape.size.x / 2 + cos(degToRad(gimmickAngleDegrees - 90)) * (shape.size.x - 5) / 2,
-                         shape.size.y / 2 + sin(degToRad(gimmickAngleDegrees - 90)) * (shape.size.y - 5) / 2,
+            m.drawCircle(shape.size.x / 2 + cos(juce::degreesToRadians(gimmickAngleDegrees - 90)) * (shape.size.x - 5) / 2,
+                         shape.size.y / 2 + sin(juce::degreesToRadians(gimmickAngleDegrees - 90)) * (shape.size.y - 5) / 2,
                          2);
         }
         
