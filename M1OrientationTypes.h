@@ -26,20 +26,22 @@ struct M1OrientationYPR {
     // used to add two rotations together
     M1OrientationYPR& operator +(const M1OrientationYPR& a) {
         // add together and keep within set bounds
-        yaw = std::fmod((yaw + a.yaw), yaw_max - yaw_min);
-        pitch = std::fmod((pitch + a.pitch), pitch_max - pitch_min);
-        roll = std::fmod((roll + a.roll), roll_max - roll_min);
-        return *this;
+		M1OrientationYPR result = *this;
+		result.yaw = std::fmod((yaw + a.yaw), yaw_max - yaw_min);
+		result.pitch = std::fmod((pitch + a.pitch), pitch_max - pitch_min);
+		result.roll = std::fmod((roll + a.roll), roll_max - roll_min);
+        return result;
     }
     
     // used to find the delta of two rotations
     M1OrientationYPR& operator -(const M1OrientationYPR& a) {
         // subtract together and keep within set bounds
-        yaw = std::fmod((yaw - a.yaw), yaw_max - yaw_min);
-        pitch = std::fmod((pitch - a.pitch), pitch_max - pitch_min);
-        roll = std::fmod((roll - a.roll), roll_max - roll_min);
-        return *this;
-    }
+		M1OrientationYPR result = *this;
+		result.yaw = std::fmod((yaw - a.yaw), yaw_max - yaw_min);
+		result.pitch = std::fmod((pitch - a.pitch), pitch_max - pitch_min);
+		result.roll = std::fmod((roll - a.roll), roll_max - roll_min);
+		return result;
+	}
     
     M1OrientationYPR& update_yaw(float yaw) {
         this->yaw = yaw;
