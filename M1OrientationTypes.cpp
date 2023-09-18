@@ -89,6 +89,8 @@ void Orientation::offsetYPR(M1OrientationYPR offset_delta) {
     // this function assumes an orientation offset delta and apply it safely
     // if you hit this assert its because you are trying to apply an offset that isnt
     // unsigned normalled and potentially not a calculated angle delta
+    
+    // Warning: shift all offsets to signed so that 0 is center of rotations
 
     if ((int)offset_delta.angleType == (int)M1OrientationYPR::SIGNED_NORMALLED) {
         // continue to process
@@ -111,7 +113,7 @@ void Orientation::offsetYPR(M1OrientationYPR offset_delta) {
         resultingOrientation.yaw = std::fmod(resultingOrientation.yaw, 1.0f);
         resultingOrientation.pitch = std::fmod(resultingOrientation.pitch, 1.0f);
         resultingOrientation.roll = std::fmod(resultingOrientation.roll, 1.0f);
-        setYPR(resultingOrientation);
+        setYPR(resultingOrientation); // apply to orientation
     } else {
         DBG("Warning: Tried to offset with unsigned values!");
     }

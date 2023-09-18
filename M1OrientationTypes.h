@@ -6,9 +6,9 @@
 #include <map>
 #include <variant>
 
-// All orientation is calculated internally as degree YPR which is used to set the quaternion
-// TODO: update internal math to use normal and radians only for YPR
+// All orientation is calculated internally as signed normalled YPR which is used to set the quaternion
 // All getters just convert from the internal calculations
+// It is recommended to not use UNSIGNED_NORMALLED as there can be confusion about what 0 represents
 
 struct M1OrientationYPR {
     float yaw = 0.0f, pitch = 0.0f, roll = 0.0f;
