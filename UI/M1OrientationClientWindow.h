@@ -45,32 +45,24 @@ public:
         }
         
         m.enableFill();
-        if (refreshing) {
-            auto secondsPassed = float(juce::Time::currentTimeMillis() - millisOnStart) / 1000.0;
-            for (int i = 0; i < 3; i++) {
-                m.drawCircle(shape.size.x / 2 + (shape.size.x / 4) * cos(cos(secondsPassed + 3.14 * 0.5 * float(i)) * 10),
-                             shape.size.y / 2 + (shape.size.x / 4) * sin(cos(secondsPassed + 3.14 * 0.5 * float(i)) * 10), 5);
-            }
-            
-            // Fake refresh
-            
-            auto secondsPassedSinceRefreshStarted = float(juce::Time::currentTimeMillis() - millisWhenRefreshingStarted) / 1000.0;
-            if (secondsPassedSinceRefreshStarted > 2) {
-                refreshing = false;
-                //std::cout << "Refreshing stopped" << std::endl;
-            }
-        } else {
+//        if (refreshing) {
+//            auto secondsPassed = float(juce::Time::currentTimeMillis() - millisOnStart) / 1000.0;
+//            for (int i = 0; i < 3; i++) {
+//                m.drawCircle(shape.size.x / 2 + (shape.size.x / 4) * cos(cos(secondsPassed + 3.14 * 0.5 * float(i)) * 10),
+//                             shape.size.y / 2 + (shape.size.x / 4) * sin(cos(secondsPassed + 3.14 * 0.5 * float(i)) * 10), 5);
+//            }
+//
+//            // Fake refresh
+//
+//            auto secondsPassedSinceRefreshStarted = float(juce::Time::currentTimeMillis() - millisWhenRefreshingStarted) / 1000.0;
+//            if (secondsPassedSinceRefreshStarted > 2) {
+//                refreshing = false;
+//                //std::cout << "Refreshing stopped" << std::endl;
+//            }
+//        } else {
             // Drawing the window
             float offsetY = 5;
             float oscSettingsOffsetY;
-            
-            m.prepare<M1SwitchableIconButton>({5, offsetY, shape.size.x - 10, 25}).
-                withCaption("REFRESH").withBorders().onClick(
-                        [&](M1SwitchableIconButton& b) {
-                            startRefreshing();
-                        }).withFontSize(12).draw();
-            
-            offsetY += 35;
             
             // Drawing devices
             for (int i = 0; i < deviceSlots.size(); i++) {
@@ -163,7 +155,6 @@ public:
                     }
                 }
 			}
-        }
     }
     
     void startRefreshing() {
