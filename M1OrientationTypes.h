@@ -11,9 +11,13 @@
 // It is recommended to not use UNSIGNED_NORMALLED as there can be confusion about what 0 represents
 
 struct M1OrientationYPR {
+    // used for reading the orientation setting absolute rotations
     float yaw = 0.0f, pitch = 0.0f, roll = 0.0f;
+    
+    // used for calculators to change format of YPR
     float yaw_min = -1.0f, pitch_min = -1.0f, roll_min = -1.0f;
     float yaw_max =  1.0f, pitch_max =  1.0f, roll_max =  1.0f;
+    
     enum AngleType {
         // default construction as signed normalled
         SIGNED_NORMALLED   = (int) 0, // -1.0   -> 1.0
@@ -21,7 +25,6 @@ struct M1OrientationYPR {
         DEGREES            = (int) 2, // -180.0 -> 180.0
         RADIANS            = (int) 3  // -PI    -> PI
     } angleType;
-    
     
     // used to add two rotations together
     M1OrientationYPR& operator +(const M1OrientationYPR& a) {
@@ -43,24 +46,25 @@ struct M1OrientationYPR {
 		return result;
 	}
     
-    M1OrientationYPR& update_yaw(float yaw) {
+    void setYaw(float yaw) {
         this->yaw = yaw;
     }
     
-    M1OrientationYPR& update_pitch(float pitch) {
+    void setPitch(float pitch) {
         this->pitch = pitch;
     }
     
-    M1OrientationYPR& update_roll(float roll) {
+    void setRoll(float roll) {
         this->roll = roll;
     }
 
 };
 
 struct M1OrientationQuat {
+    // TODO: setters and getters
     float w = 1.0f, x = 0.0f, y = 0.0f, z = 0.0f; // Used for getting/reading processed values
     float wIn = 1.0f, xIn = 0.0f, yIn = 0.0f, zIn = 0.0f; // Used for setting/writing new values
-    float wb = 1.0f, xb = 0.0f, yb = 0.0f, zb = 0.0f; // Used for resets
+    float wb = 1.0f, xb = 0.0f, yb = 0.0f, zb = 0.0f; // Used for resets and shifts
 };
 
 class Orientation {
@@ -71,11 +75,15 @@ public:
     // offsetting or adding to existing orientation values
     void offsetYPR(M1OrientationYPR offset);
     void offsetQuat(M1OrientationQuat offset);
+    // set the YPR style in type and range
+    void setYPR_type(M1OrientationYPR::AngleType type);
+    void setYPR_range(float min_yaw, float min_pitch, float min_roll, float max_yaw, float max_pitch, float max_roll);
+    
     // getting orientation
     M1OrientationYPR getYPRasUnsignedNormalled();
     M1OrientationYPR getYPRasSignedNormalled();
-    M1OrientationYPR getYPRinDegrees();
-    M1OrientationYPR getYPRinRadians();
+    M1OrientationYPR getYPRasDegrees();
+    M1OrientationYPR getYPRasRadians();
     M1OrientationQuat getQuat();
     void resetOrientation();
     void recenter();
@@ -83,10 +91,12 @@ public:
 private:
     // Use getters and setters only
     M1OrientationYPR orientationYPR;
+    M1OrientationYPR shiftYPR; // used to shift and reset orientation in YPR
     M1OrientationQuat orientationQuat;
 };
 
 // orientation transform functions
+M1OrientationYPR getSignedNormalled(M1OrientationYPR orientation);
 M1OrientationYPR getUnsignedNormalled(M1OrientationYPR orientation);
 M1OrientationQuat getNormalled(M1OrientationQuat orientation);
 
