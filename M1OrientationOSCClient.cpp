@@ -283,7 +283,7 @@ bool M1OrientationOSCClient::init(int serverPort) {
             startOrientationManager();
             watchDogPingTime = juce::Time::currentTimeMillis();
             // starts the m1-orientationmanager ping timer
-            startTimer(100);
+            startTimer(500);
             
             return true;
         }
