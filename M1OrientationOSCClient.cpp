@@ -8,8 +8,6 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
     
     // watch dog
     if (message.getAddressPattern() == "/Mach1/ActiveClients") {
-        // restart the ping timer because we received a ping
-        watchDogPingTime = juce::Time::currentTimeMillis();
 
         if (message.size() > 0) {
             activeClientCounter = message[0].getInt32();
@@ -208,39 +206,7 @@ void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, 
 }
 
 bool M1OrientationOSCClient::init(int serverPort) {
-    // TODO: Add UI feedback for this process to stop user from selecting another device during connection
     
-    // Using `currentApplicationFile` to be safe for both plugins and apps on all OS targets
-    //juce::File pluginExe = juce::File::getSpecialLocation(juce::File::currentApplicationFile);
-    //juce::File appDirectory = pluginExe.getParentDirectory();
-    
-    // If a sibling OrientationManager is found then we skip past the services section as this overrides for easy local usage
-    juce::File siblingOrientationManager;
-    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-        siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("m1-orientationmanager.exe");
-    } else {
-        siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("m1-orientationmanager");
-    }
-
-    if (siblingOrientationManager.exists()) {
-        // directly launching orientation manager because we are in local usage or debug mode
-        juce::ChildProcess exeProcess;
-        juce::StringArray arguments;
-        arguments.add(siblingOrientationManager.getFullPathName().quoted());
-        arguments.add("--no-gui");
-        DBG("Starting m1-orientationmanager: " + siblingOrientationManager.getFullPathName().quoted());
-        if (exeProcess.start(arguments)) {
-            DBG("Started m1-orientationmanager");
-        } else {
-            // Failed to start the process
-            DBG("Failed to start m1-orientationmanager");
-            exit(1);
-        }
-    }
-    
-    // Using common support files installation location
-    juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
-
     // choose random port
     int port = 4000;
     for (int i = 0; i < 100; i++) {
@@ -278,13 +244,6 @@ bool M1OrientationOSCClient::init(int serverPort) {
                     }
                 }
             }).detach();
-            
-            // start the watch dog and m1-orientationmanager app
-            startOrientationManager();
-            watchDogPingTime = juce::Time::currentTimeMillis();
-            // starts the m1-orientationmanager ping timer
-            startTimer(500);
-            
             return true;
         }
     }
@@ -337,135 +296,4 @@ void M1OrientationOSCClient::close() {
     
     receiver.removeListener(this);
     receiver.disconnect();
-}
-
-// m1-orientationmanager related functions
-
-void M1OrientationOSCClient::startOrientationManager() {
-    
-    // Create a DatagramSocket to check the availability of port serverPort
-    juce::DatagramSocket socket(false);
-    socket.setEnablePortReuse(false);
-    if (socket.bindToPort(serverPort)) {
-        socket.shutdown();
-        
-        // If a sibling OrientationManager is found then we skip past the services section as this overrides for easy local usage
-        juce::File siblingOrientationManager;
-        if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-            siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("m1-orientationmanager.exe");
-        } else {
-            siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("m1-orientationmanager");
-        }
-
-        if (siblingOrientationManager.exists()) {
-            /// MANAGED BY LOCAL FOUND EXE
-
-            // directly launching orientation manager because we are in local usage or debug mode
-            juce::ChildProcess exeProcess;
-            juce::StringArray arguments;
-            arguments.add(siblingOrientationManager.getFullPathName().quoted());
-            arguments.add("--no-gui");
-            DBG("Starting m1-orientationmanager: " + siblingOrientationManager.getFullPathName().quoted());
-            if (exeProcess.start(arguments)) {
-                DBG("Started m1-orientationmanager");
-            } else {
-                // Failed to start the process
-                DBG("Failed to start m1-orientationmanager");
-                exit(1);
-            }
-        } else {
-            /// MANAGED BY SERVICES
-            
-            // We will assume the folders are properly created during the installation step
-            // Using common support files installation location
-            juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
-            juce::File orientationManagerExe; // for linux and win
-            
-            if ((juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_7) ||
-                (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_8) ||
-                (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_9)) {
-                // MacOS 10.7-10.9, launchd v1.0
-                // load process m1-orientationmanager
-                std::string load_command = "launchctl load -w /Library/LaunchDaemons/com.mach1.spatial.orientationmanager.plist";
-                DBG("Executing: " + load_command);
-                system(load_command.c_str());
-                // start process m1-orientationmanager
-                std::string command = "launchctl start com.mach1.spatial.orientationmanager";
-                DBG("Executing: " + command);
-                system(command.c_str());
-                
-            } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-                // All newer MacOS, launchd v2.0
-                // load process m1-orientationmanager
-                std::string load_command = "launchctl bootstrap gui/$UID /Library/LaunchDaemons/com.mach1.spatial.orientationmanager.plist";
-                DBG("Executing: " + load_command);
-                system(load_command.c_str());
-                // start process m1-orientationmanager
-                std::string command = "launchctl kickstart -p gui/$UID/com.mach1.spatial.orientationmanager";
-                DBG("Executing: " + command);
-                system(command.c_str());
-                
-            } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-                // Any windows OS
-                // TODO: migrate to Windows Service Manager
-                orientationManagerExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("m1-orientationmanager.exe");
-                juce::StringArray arguments;
-                arguments.add(orientationManagerExe.getFullPathName().quoted());
-                arguments.add("--no-gui");
-                DBG("Starting m1-orientationmanager: " + orientationManagerExe.getFullPathName());
-                if (orientationManagerProcess.start(arguments)) {
-                    DBG("Started m1-orientationmanager server");
-                } else {
-                    // Failed to start the process
-                    DBG("Failed to start the m1-orientationmanager");
-                    exit(1);
-                }
-                
-            } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Linux)) {
-                // TODO: factor out linux using systemd service
-
-            } else {
-                orientationManagerExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("m1-orientationmanager");
-                juce::StringArray arguments;
-                arguments.add(orientationManagerExe.getFullPathName().quoted());
-                arguments.add("--no-gui");
-                DBG("Starting m1-orientationmanager: " + orientationManagerExe.getFullPathName());
-                if (orientationManagerProcess.start(arguments)) {
-                    DBG("Started m1-orientationmanager server");
-                } else {
-                    // Failed to start the process
-                    DBG("Failed to start the m1-orientationmanager");
-                    exit(1);
-                }
-            }
-        }
-    }
-}
-
-void M1OrientationOSCClient::killProcessByName(const char *name)
-{
-    std::string service_name;
-    if (std::string(name) == "m1-orientationmanager") {
-        // for launchctl we need to use the service name instead of the executable name
-        service_name = "com.mach1.spatial.orientationmanager";
-    }
-    
-    DBG("Killing "+std::string(name)+"...");
-    
-    std::string command;
-    if ((juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_7) ||
-        (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_8) ||
-        (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_9)) {
-        // MacOS 10.7-10.9, launchd v1.0
-        command =  "launchctl unload -w /Library/LaunchDaemons/"+service_name+".plist";
-    } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-        // All newer MacOS, launchd v2.0
-        command = "launchctl kill 9 gui/$UID/"+service_name;
-    } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-        command = "taskkill /IM "+std::string(name)+" /F";
-    } else {
-        command = "pkill "+std::string(name);
-    }
-    DBG("Executing: " + command);
-    system(command.c_str());
 }
