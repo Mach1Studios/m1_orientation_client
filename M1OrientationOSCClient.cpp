@@ -138,10 +138,17 @@ void M1OrientationOSCClient::command_updateOscDevice(int new_osc_port, std::stri
     send(msg);
 }
 
-void M1OrientationOSCClient::command_setMonitorYPR(int mode = 0, float yaw = 0, float pitch = 0, float roll = 0) {
+void M1OrientationOSCClient::command_setMonitorMode(int mode = 0) {
     // It is expected to send the orientation to the monitor, let the monitor process its orientation and return it here for reporting to other plugin instances
-    juce::OSCMessage msg("/setMonitorYPR");
+    juce::OSCMessage msg("/setMonitorMode");
     msg.addInt32(mode);
+    send(msg);
+}
+
+void M1OrientationOSCClient::command_setOffsetYPR(float yaw = 0, float pitch = 0, float roll = 0) {
+    // Use this to instruct a client to add its orientation for calculation in another client
+    // Master orientation of all clients should be calculated on server side
+    juce::OSCMessage msg("/setOffsetYPR");
     msg.addFloat32(yaw);
     msg.addFloat32(pitch);
     msg.addFloat32(roll);

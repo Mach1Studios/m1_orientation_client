@@ -46,7 +46,8 @@ public:
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
     void command_updateOscDevice(int port, std::string addr_pttrn);
-    void command_setMonitorYPR(int mode, float yaw, float pitch, float roll);
+    void command_setMonitorMode(int mode);
+    void command_setOffsetYPR(float yaw, float pitch, float roll);
     void command_setFrameRate(float frameRate);
     void command_setPlayheadPositionInSeconds(float playheadPositionInSeconds);
     void command_recenter();
