@@ -12,8 +12,6 @@ class M1OrientationOSCClient :
     juce::OSCReceiver receiver;
     int serverPort = 0;
     int clientPort = 0;
-    int client_id = 0;
-    bool connectedToServer = false;
 
     M1OrientationDeviceInfo currentDevice;
     std::vector<M1OrientationDeviceInfo> devices;
@@ -36,6 +34,9 @@ class M1OrientationOSCClient :
 public:
     ~M1OrientationOSCClient();
 
+    int client_id = 0;
+    bool connectedToServer = false;
+
     // setup the server and watcher connections, the watcher is off by default
     bool init(int serverPort, int watcherPort, bool useWatcher) override;
 
@@ -48,7 +49,7 @@ public:
     void command_setTrackingRollEnabled(bool enable);
     void command_updateOscDevice(int port, std::string addr_pttrn);
     void command_setMonitorMode(int mode);
-    void command_setOffsetYPR(float yaw, float pitch, float roll);
+    void command_setOffsetYPR(int client_id, float yaw, float pitch, float roll);
     void command_setFrameRate(float frameRate);
     void command_setPlayheadPositionInSeconds(float playheadPositionInSeconds);
     void command_recenter();
