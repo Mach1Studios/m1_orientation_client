@@ -6,6 +6,7 @@
 
 void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message) {
     if (message.getAddressPattern() == "/connectedToServer") {
+        client_id = message[0].getInt32();
         connectedToServer = true;
     }
     else if (message.getAddressPattern() == "/getDevices") {
@@ -145,10 +146,11 @@ void M1OrientationOSCClient::command_setMonitorMode(int mode = 0) {
     send(msg);
 }
 
-void M1OrientationOSCClient::command_setOffsetYPR(float yaw = 0, float pitch = 0, float roll = 0) {
+void M1OrientationOSCClient::command_setOffsetYPR(int client_id = 0, float yaw = 0, float pitch = 0, float roll = 0) {
     // Use this to instruct a client to add its orientation for calculation in another client
     // Master orientation of all clients should be calculated on server side
     juce::OSCMessage msg("/setOffsetYPR");
+    msg.addInt32(client_id);
     msg.addFloat32(yaw);
     msg.addFloat32(pitch);
     msg.addFloat32(roll);

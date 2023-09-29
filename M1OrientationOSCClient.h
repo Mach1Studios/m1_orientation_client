@@ -12,6 +12,7 @@ class M1OrientationOSCClient :
     juce::OSCReceiver receiver;
     int serverPort = 0;
     int clientPort = 0;
+    int client_id = 0;
     bool connectedToServer = false;
 
     M1OrientationDeviceInfo currentDevice;
