@@ -131,7 +131,7 @@ void M1OrientationOSCClient::command_setTrackingRollEnabled(bool enable) {
     send(msg);
 }
 
-void M1OrientationOSCClient::command_updateOscDevice(int new_osc_port, std::string new_osc_addr_pattrn) {
+void M1OrientationOSCClient::command_setOscDevice(int new_osc_port, std::string new_osc_addr_pattrn) {
     juce::OSCMessage msg("/setOscDeviceSettings");
     msg.addInt32(new_osc_port);
     msg.addString(new_osc_addr_pattrn);
