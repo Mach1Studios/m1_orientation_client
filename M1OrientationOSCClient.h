@@ -12,6 +12,7 @@ class M1OrientationOSCClient :
     juce::OSCReceiver receiver;
     int serverPort = 0;
     int clientPort = 0;
+    std::string clientType = "Generic"; // Use this to specify a client with specific behavior, default to a generic client
     bool connectedToServer = false;
 
     M1OrientationDeviceInfo currentDevice;
@@ -65,6 +66,8 @@ public:
     // Connection handling
     bool isConnectedToServer();
     int getServerPort();
+    std::string getClientType();
+    void setClientType(std::string client_type);
     void setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback);
     void close();
 };

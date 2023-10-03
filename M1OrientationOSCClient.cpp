@@ -192,6 +192,14 @@ int M1OrientationOSCClient::getServerPort() {
     return serverPort;
 }
 
+void M1OrientationOSCClient::setClientType(std::string client_type = "Generic") {
+    // sets the client type
+    // Generic = No additional behavior
+    // Monitor = Client calculates an absolute orientation
+    // Supplimentary = Client is expected to transmit its calculated orientation to another client for offset
+    clientType = client_type;
+}
+
 std::string M1OrientationOSCClient::getClientType() {
     return clientType;
 }
@@ -324,6 +332,7 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
                             // add client to server
                             juce::OSCMessage msg("/addClient");
                             msg.addInt32(this->clientPort);
+                            msg.addString(this->clientType);
                             send(msg);
                         } else {
                             // check connection
