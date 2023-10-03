@@ -64,6 +64,7 @@ public:
     
     // Connection handling
     bool isConnectedToServer();
+    int getServerPort();
     void setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback);
     void close();
 };

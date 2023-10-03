@@ -188,6 +188,14 @@ bool M1OrientationOSCClient::isConnectedToServer() {
     return connectedToServer;
 }
 
+int M1OrientationOSCClient::getServerPort() {
+    return serverPort;
+}
+
+std::string M1OrientationOSCClient::getClientType() {
+    return clientType;
+}
+
 void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback)
 {
     this->statusCallback = callback;
