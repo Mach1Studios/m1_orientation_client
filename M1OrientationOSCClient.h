@@ -35,6 +35,7 @@ public:
     ~M1OrientationOSCClient();
 
     int client_id = 0;
+    bool client_active = true;
     bool connectedToServer = false;
 
     // setup the server and watcher connections, the watcher is off by default

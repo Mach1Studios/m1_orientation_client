@@ -67,6 +67,10 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
             currentDevice = { connectedDeviceName, (enum M1OrientationDeviceType)connectedDeviceType, connectedDeviceAddress };
         }
     }
+    else if (message.getAddressPattern() == "/client-active") {
+        // used to mark a client as active and expose it to the object initializing this client
+        client_active = (bool)message[0].getInt32();
+    }
     // Playhead Timecode
     else if (message.getAddressPattern() == "/getFramerate") {
         frameRate = message[0].getFloat32();
