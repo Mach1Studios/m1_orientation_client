@@ -36,6 +36,7 @@ public:
 
     int client_id = 0;
     bool client_active = true;
+    std::string clientType = ""; // Use this to specify a client with a specific behavior
     bool connectedToServer = false;
 
     // setup the server and watcher connections, the watcher is off by default
@@ -69,6 +70,8 @@ public:
     
     // Connection handling
     bool isConnectedToServer();
+    std::string getClientType();
+    void setClientType(std::string client_type);
     void setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback);
     void close();
 };

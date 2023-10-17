@@ -212,6 +212,16 @@ bool M1OrientationOSCClient::isConnectedToServer() {
     return connectedToServer;
 }
 
+void M1OrientationOSCClient::setClientType(std::string client_type = "") {
+    // sets the client type for unique client behaviors
+    // Warning: Must be set before the init() call
+    clientType = client_type;
+}
+
+std::string M1OrientationOSCClient::getClientType() {
+    return clientType;
+}
+
 void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback)
 {
     this->statusCallback = callback;
@@ -340,6 +350,7 @@ bool M1OrientationOSCClient::init(int serverPort, int watcherPort, bool useWatch
                             // add client to server
                             juce::OSCMessage msg("/addClient");
                             msg.addInt32(this->clientPort);
+                            msg.addString(this->clientType);
                             send(msg);
                         } else {
                             // check connection
