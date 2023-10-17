@@ -144,14 +144,14 @@ void M1OrientationClient::command_setOscDevice(int new_osc_port, std::string new
 }
 
 // TODO: refactor this out
-void M1OrientationOSCClient::command_setMonitoringMode(int mode = 0) {
+void M1OrientationClient::command_setMonitoringMode(int mode = 0) {
     // It is expected to send the orientation to the monitor, let the monitor process its orientation and return it here for reporting to other plugin instances
     juce::OSCMessage msg("/setMonitoringMode");
     msg.addInt32(mode);
     send(msg);
 }
 
-void M1OrientationOSCClient::command_setOffsetYPR(int client_id = 0, float yaw = 0, float pitch = 0, float roll = 0) {
+void M1OrientationClient::command_setOffsetYPR(int client_id = 0, float yaw = 0, float pitch = 0, float roll = 0) {
     // Use this to instruct a client to add its orientation for calculation in another client
     // Master orientation of all clients should be calculated externally
     juce::OSCMessage msg("/setOffsetYPR");
@@ -162,7 +162,7 @@ void M1OrientationOSCClient::command_setOffsetYPR(int client_id = 0, float yaw =
     send(msg);
 }
 
-void M1OrientationOSCClient::command_setMasterYPR(float yaw = 0, float pitch = 0, float roll = 0) {
+void M1OrientationClient::command_setMasterYPR(float yaw = 0, float pitch = 0, float roll = 0) {
     // Use this to set the final calculated YPR that can be used for registered plugins GUI systems
     // Note: Expects an absolute YPR orientation
     juce::OSCMessage msg("/setMasterYPR");
@@ -212,17 +212,17 @@ bool M1OrientationClient::isConnectedToServer() {
     return connectedToServer;
 }
 
-void M1OrientationOSCClient::setClientType(std::string client_type = "") {
+void M1OrientationClient::setClientType(std::string client_type = "") {
     // sets the client type for unique client behaviors
     // Warning: Must be set before the init() call
     clientType = client_type;
 }
 
-std::string M1OrientationOSCClient::getClientType() {
+std::string M1OrientationClient::getClientType() {
     return clientType;
 }
 
-void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback)
+void M1OrientationClient::setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback)
 {
     this->statusCallback = callback;
 }
