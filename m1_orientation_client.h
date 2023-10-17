@@ -25,4 +25,4 @@
 
 #include "M1OrientationTypes.h"
 #include "M1OrientationSettings.h"
-#include "M1OrientationOSCClient.h"
+#include "M1OrientationClient.h"

@@ -5,7 +5,7 @@
 #include "M1OrientationTypes.h"
 #include "M1OrientationSettings.h"
 
-class M1OrientationOSCClient :
+class M1OrientationClient :
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>,
     public M1OrientationManagerOSCSettings
 {
@@ -34,7 +34,7 @@ class M1OrientationOSCClient :
     bool send(juce::OSCMessage& msg);
 
 public:
-    ~M1OrientationOSCClient();
+    ~M1OrientationClient();
 
     // setup the server and watcher connections, the watcher is off by default
     bool init(int serverPort, int watcherPort, bool useWatcher) override;
