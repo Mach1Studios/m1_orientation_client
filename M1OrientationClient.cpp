@@ -6,6 +6,7 @@
 
 void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
     if (message.getAddressPattern() == "/connectedToServer") {
+        client_id = message[0].getInt32();
         connectedToServer = true;
     }
     else if (message.getAddressPattern() == "/getDevices") {
@@ -65,6 +66,10 @@ void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
             statusCallback(success, text, connectedDeviceName, connectedDeviceType, connectedDeviceAddress);
             currentDevice = { connectedDeviceName, (enum M1OrientationDeviceType)connectedDeviceType, connectedDeviceAddress };
         }
+    }
+    else if (message.getAddressPattern() == "/client-active") {
+        // used to mark a client as active and expose it to the object initializing this client
+        client_active = (bool)message[0].getInt32();
     }
     // Playhead Timecode
     else if (message.getAddressPattern() == "/getFramerate") {
@@ -138,10 +143,29 @@ void M1OrientationClient::command_setOscDevice(int new_osc_port, std::string new
     send(msg);
 }
 
-void M1OrientationClient::command_setMonitorYPR(int mode = 0, float yaw = 0, float pitch = 0, float roll = 0) {
+// TODO: refactor this out
+void M1OrientationOSCClient::command_setMonitoringMode(int mode = 0) {
     // It is expected to send the orientation to the monitor, let the monitor process its orientation and return it here for reporting to other plugin instances
-    juce::OSCMessage msg("/setMonitorYPR");
+    juce::OSCMessage msg("/setMonitoringMode");
     msg.addInt32(mode);
+    send(msg);
+}
+
+void M1OrientationOSCClient::command_setOffsetYPR(int client_id = 0, float yaw = 0, float pitch = 0, float roll = 0) {
+    // Use this to instruct a client to add its orientation for calculation in another client
+    // Master orientation of all clients should be calculated externally
+    juce::OSCMessage msg("/setOffsetYPR");
+    msg.addInt32(client_id);
+    msg.addFloat32(yaw);
+    msg.addFloat32(pitch);
+    msg.addFloat32(roll);
+    send(msg);
+}
+
+void M1OrientationOSCClient::command_setMasterYPR(float yaw = 0, float pitch = 0, float roll = 0) {
+    // Use this to set the final calculated YPR that can be used for registered plugins GUI systems
+    // Note: Expects an absolute YPR orientation
+    juce::OSCMessage msg("/setMasterYPR");
     msg.addFloat32(yaw);
     msg.addFloat32(pitch);
     msg.addFloat32(roll);
@@ -188,23 +212,17 @@ bool M1OrientationClient::isConnectedToServer() {
     return connectedToServer;
 }
 
-int M1OrientationClient::getServerPort() {
-    return serverPort;
-}
-
-void M1OrientationClient::setClientType(std::string client_type = "Generic") {
-    // sets the client type
-    // Generic = No additional behavior
-    // Monitor = Client calculates an absolute orientation
-    // Supplimentary = Client is expected to transmit its calculated orientation to another client for offset
+void M1OrientationOSCClient::setClientType(std::string client_type = "") {
+    // sets the client type for unique client behaviors
+    // Warning: Must be set before the init() call
     clientType = client_type;
 }
 
-std::string M1OrientationClient::getClientType() {
+std::string M1OrientationOSCClient::getClientType() {
     return clientType;
 }
 
-void M1OrientationClient::setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback)
+void M1OrientationOSCClient::setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback)
 {
     this->statusCallback = callback;
 }

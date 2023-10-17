@@ -12,8 +12,6 @@ class M1OrientationClient :
     juce::OSCReceiver receiver;
     int serverPort = 0;
     int clientPort = 0;
-    std::string clientType = "Generic"; // Use this to specify a client with specific behavior, default to a generic client
-    bool connectedToServer = false;
 
     M1OrientationDeviceInfo currentDevice;
     std::vector<M1OrientationDeviceInfo> devices;
@@ -36,6 +34,11 @@ class M1OrientationClient :
 public:
     ~M1OrientationClient();
 
+    int client_id = 0;
+    bool client_active = true;
+    std::string clientType = ""; // Use this to specify a client with a specific behavior
+    bool connectedToServer = false;
+
     // setup the server and watcher connections, the watcher is off by default
     bool init(int serverPort, int watcherPort, bool useWatcher) override;
 
@@ -46,8 +49,10 @@ public:
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
-    void command_setMonitorYPR(int mode, float yaw, float pitch, float roll);
     void command_setOscDevice(int port, std::string addr_pttrn);
+    void command_setMonitoringMode(int mode);
+    void command_setOffsetYPR(int client_id, float yaw, float pitch, float roll);
+    void command_setMasterYPR(float yaw, float pitch, float roll);
     void command_setFrameRate(float frameRate);
     void command_setPlayheadPositionInSeconds(float playheadPositionInSeconds);
     void command_recenter();
@@ -65,7 +70,6 @@ public:
     
     // Connection handling
     bool isConnectedToServer();
-    int getServerPort();
     std::string getClientType();
     void setClientType(std::string client_type);
     void setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback);
