@@ -212,6 +212,10 @@ bool M1OrientationClient::isConnectedToServer() {
     return connectedToServer;
 }
 
+int M1OrientationClient::getServerPort() {
+    return serverPort;
+}
+
 void M1OrientationClient::setClientType(std::string client_type = "") {
     // sets the client type for unique client behaviors
     // Warning: Must be set before the init() call

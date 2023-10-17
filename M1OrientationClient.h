@@ -70,6 +70,7 @@ public:
     
     // Connection handling
     bool isConnectedToServer();
+    int getServerPort();
     std::string getClientType();
     void setClientType(std::string client_type);
     void setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback);
