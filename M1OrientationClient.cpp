@@ -258,7 +258,7 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
         } else {
             // Failed to start the process
             DBG("Failed to start m1-orientationmanager");
-            exit(1);
+            juce::JUCEApplication::getInstance()->quit();
         }
     }
     
@@ -311,8 +311,8 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
                     DBG("Started m1-systemwatcher");
                 } else {
                     // Failed to start the process
-                    DBG("Failed to start m1-systemwatcher");
-                    exit(1);
+                    DBG("Failed to start m1-systemwatcher"); 
+					juce::JUCEApplication::getInstance()->quit(); 
                 }
             } else {
                 // TODO: factor out linux using systemd service
@@ -325,7 +325,7 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
                 } else {
                     // Failed to start the process
                     DBG("Failed to start m1-systemwatcher");
-                    exit(1);
+                    juce::JUCEApplication::getInstance()->quit();
                 }
             }
         }
