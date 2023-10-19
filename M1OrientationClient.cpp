@@ -238,30 +238,6 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
     //juce::File pluginExe = juce::File::getSpecialLocation(juce::File::currentApplicationFile);
     //juce::File appDirectory = pluginExe.getParentDirectory();
     
-    // If a sibling OrientationManager is found then we skip past the services section as this overrides for easy local usage
-    juce::File siblingOrientationManager;
-    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-        siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("m1-orientationmanager.exe");
-    } else {
-        siblingOrientationManager = juce::File::getSpecialLocation(juce::File::currentApplicationFile).getSiblingFile("m1-orientationmanager");
-    }
-
-    if (siblingOrientationManager.exists()) {
-        // directly launching orientation manager because we are in local usage or debug mode
-        juce::ChildProcess exeProcess;
-        juce::StringArray arguments;
-        arguments.add(siblingOrientationManager.getFullPathName().quoted());
-        arguments.add("--no-gui");
-        DBG("Starting m1-orientationmanager: " + siblingOrientationManager.getFullPathName().quoted());
-        if (exeProcess.start(arguments)) {
-            DBG("Started m1-orientationmanager");
-        } else {
-            // Failed to start the process
-            DBG("Failed to start m1-orientationmanager");
-            juce::JUCEApplication::getInstance()->quit();
-        }
-    }
-    
     // Using common support files installation location
     juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
 
@@ -272,68 +248,13 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
         if (socket.bindToPort(watcherPort)) {
             socket.shutdown();
             
-            // We will assume the folders are properly created during the installation step
-            // Using common support files installation location
-            juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
-            juce::File watcherExe; // for linux and win
-            juce::ChildProcess watcherExeProcess; // for linux and win
-            
-            if ((juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_7) ||
-                (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_8) ||
-                (juce::SystemStats::getOperatingSystemType() == juce::SystemStats::MacOSX_10_9)) {
-                // MacOS 10.7-10.9, launchd v1.0
-                // load process m1-systemwatcher
-                std::string load_command = "launchctl load -w /Library/LaunchDaemons/com.mach1.spatial.watcher.plist";
-                DBG("Executing: " + load_command);
-                system(load_command.c_str());
-                // start process m1-systemwatcher
-                std::string command = "launchctl start com.mach1.spatial.watcher";
-                DBG("Executing: " + command);
-                system(command.c_str());
-            } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
-                // All newer MacOS, launchd v2.0
-                // load process m1-systemwatcher
-                std::string load_command = "launchctl bootstrap gui/$UID /Library/LaunchDaemons/com.mach1.spatial.watcher.plist";
-                DBG("Executing: " + load_command);
-                system(load_command.c_str());
-                // start process m1-systemwatcher
-                std::string command = "launchctl kickstart -p gui/$UID/com.mach1.spatial.watcher";
-                DBG("Executing: " + command);
-                system(command.c_str());
-            } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
-                // Any windows OS
-                // TODO: migrate to Windows Service Manager
-                watcherExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("m1-systemwatcher.exe");
-                juce::StringArray arguments;
-                arguments.add(watcherExe.getFullPathName().quoted());
-                DBG("Starting m1-systemwatcher: " + watcherExe.getFullPathName());
-                if (watcherExeProcess.start(arguments)) {
-                    DBG("Started m1-systemwatcher");
-                } else {
-                    // Failed to start the process
-                    DBG("Failed to start m1-systemwatcher"); 
-					juce::JUCEApplication::getInstance()->quit(); 
-                }
-            } else {
-                // TODO: factor out linux using systemd service
-                watcherExe = m1SupportDirectory.getChildFile("Mach1").getChildFile("m1-systemwatcher");
-                juce::StringArray arguments;
-                arguments.add(watcherExe.getFullPathName().quoted());
-                DBG("Starting m1-systemwatcher: " + watcherExe.getFullPathName());
-                if (watcherExeProcess.start(arguments)) {
-                    DBG("Started m1-systemwatcher");
-                } else {
-                    // Failed to start the process
-                    DBG("Failed to start m1-systemwatcher");
-                    juce::JUCEApplication::getInstance()->quit();
-                }
-            }
+            // TODO: Send signal to watcher here
         }
     }
 
     // choose random port
     int port = 4000;
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1000; i++) {
         juce::DatagramSocket socket(false);
         socket.setEnablePortReuse(false);
         if (socket.bindToPort(port + i)) {
