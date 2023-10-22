@@ -5,10 +5,16 @@
 #include "M1OrientationTypes.h"
 #include "M1OrientationSettings.h"
 
+// requires WIN32_LEAN_AND_MEAN
+#include "httplib.h"
+
 class M1OrientationClient :
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>,
     public M1OrientationManagerOSCSettings
 {
+	std::mutex mutex;
+	bool isRunning = false;
+
     juce::OSCReceiver receiver;
     int serverPort = 0;
     int clientPort = 0;
@@ -28,8 +34,7 @@ class M1OrientationClient :
     std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback = nullptr;
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
-    bool send(std::string str);
-    bool send(juce::OSCMessage& msg);
+	void send(std::string path, std::string data);
 
 public:
     ~M1OrientationClient();
@@ -37,13 +42,12 @@ public:
     int client_id = 0;
     bool client_active = true;
     std::string clientType = ""; // Use this to specify a client with a specific behavior
-    bool connectedToServer = false;
+	bool connectedToServer = false;
 
     // setup the server and watcher connections, the watcher is off by default
     bool init(int serverPort, int watcherPort, bool useWatcher) override;
 
     // Commands from a client to the server
-    void command_refreshDevices();
     void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);
     void command_disconnect();
     void command_setTrackingYawEnabled(bool enable);

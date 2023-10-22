@@ -4,10 +4,12 @@
 #include <thread>
 #include <chrono>
 
+#include "nlohmann/json.hpp"
+
 void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
     if (message.getAddressPattern() == "/connectedToServer") {
         client_id = message[0].getInt32();
-        connectedToServer = true;
+        //connectedToServer = true;
     }
     else if (message.getAddressPattern() == "/getDevices") {
         devices.clear();
@@ -91,27 +93,9 @@ void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
     }
 }
 
-bool M1OrientationClient::send(std::string str) {
-    juce::OSCMessage msg(str.c_str());
-    return send(msg);
-}
-
-bool M1OrientationClient::send(juce::OSCMessage& msg) {
-    juce::OSCSender sender;
-    if ((serverPort > 100 && serverPort < 65535) && (serverPort > 100 && serverPort < 65535)) {
-        if (sender.connect("127.0.0.1", serverPort)) {
-            sender.send(msg);
-            return true;
-        } else {
-            // if this send returns false, check for reconnection state
-            // TODO: This is an error, if we are sending messages but missing the server we should try to reconnect here
-        }
-    }
-
-    if (!connectedToServer) {
-        // TODO: This is an error, if we are sending messages but missing the server we should try to reconnect here
-    }
-    return false;
+void M1OrientationClient::send(std::string path, std::string data)
+{
+	httplib::Client("localhost", 8088).Post(path, data, "text/plain");
 }
 
 M1OrientationClient::~M1OrientationClient() {
@@ -119,69 +103,45 @@ M1OrientationClient::~M1OrientationClient() {
 }
     
 void M1OrientationClient::command_setTrackingYawEnabled(bool enable) {
-    juce::OSCMessage msg("/setTrackingYawEnabled");
-    msg.addInt32(enable);
-    send(msg);
+	send("/setTrackingYawEnabled", nlohmann::json({ enable }).dump());
 }
 
 void M1OrientationClient::command_setTrackingPitchEnabled(bool enable) {
-    juce::OSCMessage msg("/setTrackingPitchEnabled");
-    msg.addInt32(enable);
-    send(msg);
+	send("/setTrackingPitchEnabled", nlohmann::json({ enable }).dump());
 }
 
 void M1OrientationClient::command_setTrackingRollEnabled(bool enable) {
-    juce::OSCMessage msg("/setTrackingRollEnabled");
-    msg.addInt32(enable);
-    send(msg);
+	send("/setTrackingRollEnabled", nlohmann::json({ enable }).dump());
 }
 
 void M1OrientationClient::command_setOscDevice(int new_osc_port, std::string new_osc_addr_pattrn) {
-    juce::OSCMessage msg("/setOscDeviceSettings");
-    msg.addInt32(new_osc_port);
-    msg.addString(new_osc_addr_pattrn);
-    send(msg);
+	send("/setOscDeviceSettings", nlohmann::json({ new_osc_port, new_osc_addr_pattrn }).dump());
 }
 
 // TODO: refactor this out
 void M1OrientationClient::command_setMonitoringMode(int mode = 0) {
     // It is expected to send the orientation to the monitor, let the monitor process its orientation and return it here for reporting to other plugin instances
-    juce::OSCMessage msg("/setMonitoringMode");
-    msg.addInt32(mode);
-    send(msg);
+	send("/setMonitoringMode", nlohmann::json({ mode }).dump());
 }
 
 void M1OrientationClient::command_setOffsetYPR(int client_id = 0, float yaw = 0, float pitch = 0, float roll = 0) {
     // Use this to instruct a client to add its orientation for calculation in another client
     // Master orientation of all clients should be calculated externally
-    juce::OSCMessage msg("/setOffsetYPR");
-    msg.addInt32(client_id);
-    msg.addFloat32(yaw);
-    msg.addFloat32(pitch);
-    msg.addFloat32(roll);
-    send(msg);
+	send("/setOffsetYPR", nlohmann::json({ client_id, yaw, pitch ,roll }).dump());
 }
 
 void M1OrientationClient::command_setMasterYPR(float yaw = 0, float pitch = 0, float roll = 0) {
     // Use this to set the final calculated YPR that can be used for registered plugins GUI systems
     // Note: Expects an absolute YPR orientation
-    juce::OSCMessage msg("/setMasterYPR");
-    msg.addFloat32(yaw);
-    msg.addFloat32(pitch);
-    msg.addFloat32(roll);
-    send(msg);
+	send("/setMasterYPR", nlohmann::json({ yaw, pitch ,roll }).dump());
 }
 
 void M1OrientationClient::command_setFrameRate(float frameRate) {
-    juce::OSCMessage msg("/setFrameRate");
-    msg.addFloat32(frameRate);
-    send(msg);
+	send("/setFrameRate", nlohmann::json({ frameRate }).dump());
 }
 
 void M1OrientationClient::command_setPlayheadPositionInSeconds(float playheadPositionInSeconds) {
-    juce::OSCMessage msg("/setPlayheadPosition");
-    msg.addFloat32(playheadPositionInSeconds);
-    send(msg);
+	send("/setPlayheadPosition", nlohmann::json({ playheadPositionInSeconds }).dump());
 }
 
 void M1OrientationClient::command_recenter() {
@@ -251,95 +211,104 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
             // TODO: Send signal to watcher here
         }
     }
+ 
 
-    // choose random port
-    int port = 4000;
-    for (int i = 0; i < 1000; i++) {
-        juce::DatagramSocket socket(false);
-        socket.setEnablePortReuse(false);
-        if (socket.bindToPort(port + i)) {
-            socket.shutdown();
+	isRunning = true;
 
-            receiver.connect(port + i);
-            receiver.addListener(this);
+	std::thread([&]() {
+		httplib::Client client("localhost", 8088);
 
-            this->clientPort = port + i;
-            this->serverPort = serverPort;
+		while (isRunning) {
+			auto res = client.Get("/ping");
+			if (res) {
+				std::string sss = res->body;
+				auto j = nlohmann::json::parse(res->body);
+				
+				std::vector<M1OrientationDeviceInfo> devices;
+				for (int i = 0; i < j["devices"].size(); i++) {
+					auto m = j["devices"][i];
 
-            std::thread([&]() {
-                while (true) {
-                    // test to skip this loop due to improper parsing of port number
-                    // this likely is just a debugger catching the wrong instance
-                    if ((this->clientPort > 100 && this->clientPort < 65535) && (this->serverPort > 100 && this->serverPort < 65535)) {
-                        if (!connectedToServer) {
-                            // add client to server
-                            juce::OSCMessage msg("/addClient");
-                            msg.addInt32(this->clientPort);
-                            msg.addString(this->clientType);
-                            send(msg);
-                        } else {
-                            // check connection
-                            juce::DatagramSocket socket(false);
-                            socket.setEnablePortReuse(false);
-                            if (socket.bindToPort(this->serverPort)) {
-                                socket.shutdown();
-                                connectedToServer = false;
-                            }
-                        }
-                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    }
-                }
-            }).detach();
-            return true;
-        }
-    }
-    return false;
-}
+				 	std::string deviceName = m.at(0);
+					enum M1OrientationDeviceType deviceType = (enum M1OrientationDeviceType)m.at(1);
+					std::string deviceAddress = m.at(2);
+					bool hasStrength = m.at(3);
+					int deviceStrength = m.at(4);
 
-void M1OrientationClient::command_refreshDevices()
-{
-    if (connectedToServer) {
-        send("/refreshDevices");
-    } else {
-        // TODO: figure out reconnecting to server?
-    }
+					devices.push_back(M1OrientationDeviceInfo(deviceName, deviceType, deviceAddress, hasStrength ? deviceStrength : false));
+				}
+
+				mutex.lock();
+				this->devices = devices;
+				int currentDeviceIdx = j["currentDeviceIdx"];
+				if (currentDeviceIdx >= 0) {
+					currentDevice = devices[currentDeviceIdx];
+				}
+				mutex.unlock();
+
+				M1OrientationYPR incomingOrientation;
+				incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
+				incomingOrientation.yaw = j["orientation"][0];
+				incomingOrientation.pitch = j["orientation"][1];
+				incomingOrientation.roll = j["orientation"][2];
+				orientation.setYPR(incomingOrientation);
+
+				bTrackingYawEnabled = j["trackingEnabled"][0];
+				bTrackingPitchEnabled = j["trackingEnabled"][1];
+			 	bTrackingRollEnabled = j["trackingEnabled"][2];
+	
+				connectedToServer = true;
+			}
+			else {
+				connectedToServer = false;
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(30));
+		}
+
+	}).detach();
+
+    return true;
 }
 
 void M1OrientationClient::command_disconnect()
 {
-    send("/disconnect");
+	send("/disconnect", "");
 }
 
 std::vector<M1OrientationDeviceInfo> M1OrientationClient::getDevices() {
-    return devices;
+	mutex.lock();
+	std::vector<M1OrientationDeviceInfo> devices = this->devices;
+	mutex.unlock();
+	return devices;
 }
 
 M1OrientationDeviceInfo M1OrientationClient::getCurrentDevice() {
-    return currentDevice;
+	mutex.lock();
+	M1OrientationDeviceInfo currentDevice = this->currentDevice;
+	mutex.unlock();
+	return currentDevice;
 }
 
 void M1OrientationClient::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
-    if (currentDevice != device) {
-        juce::OSCMessage msg("/startTrackingUsingDevice");
-        msg.addString(device.getDeviceName());
-        msg.addInt32(device.getDeviceType());
-        msg.addString(device.getDeviceAddress());
-        if (send(msg)) {
-            currentDevice = device;
-        } else {
-            // TODO: ERROR: did not finish message to server
-        }
-    } else {
-        // already connected to this device
-    }
+	mutex.lock();
+	if (currentDevice != device) {
+		send("/startTrackingUsingDevice", nlohmann::json({ device.getDeviceName(), (int)device.getDeviceType(), device.getDeviceAddress() }).dump());
+	}
+	mutex.unlock();
 }
 
 void M1OrientationClient::close() {
     // Send a message to remove the client from server list
+	/*
     juce::OSCMessage msg("/removeClient");
     msg.addInt32(this->clientPort);
     send(msg);
-    
+    */
+
+	isRunning = false;
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
     receiver.removeListener(this);
     receiver.disconnect();
 }
