@@ -95,7 +95,7 @@ void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
 
 void M1OrientationClient::send(std::string path, std::string data)
 {
-	httplib::Client("localhost", 8088).Post(path, data, "text/plain");
+	httplib::Client("localhost", serverPort).Post(path, data, "text/plain");
 }
 
 M1OrientationClient::~M1OrientationClient() {
@@ -216,7 +216,7 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
 	isRunning = true;
 
 	std::thread([&]() {
-		httplib::Client client("localhost", 8088);
+		httplib::Client client("localhost", serverPort);
 
 		while (isRunning) {
 			auto res = client.Get("/ping");
