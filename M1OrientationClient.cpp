@@ -217,7 +217,7 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
 	isRunning = true;
 
 	std::thread([&]() {
-		httplib::Client client("localhost", serverPort);
+		httplib::Client client("localhost", this->serverPort);
 
 		while (isRunning) {
 			auto res = client.Get("/ping");
