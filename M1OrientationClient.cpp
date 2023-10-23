@@ -212,6 +212,7 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
         }
     }
  
+	this->serverPort = serverPort;
 
 	isRunning = true;
 
