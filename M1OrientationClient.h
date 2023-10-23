@@ -5,7 +5,6 @@
 #include "M1OrientationTypes.h"
 #include "M1OrientationSettings.h"
 
-// requires WIN32_LEAN_AND_MEAN
 #include "httplib.h"
 
 class M1OrientationClient :
