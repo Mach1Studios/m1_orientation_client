@@ -145,7 +145,7 @@ void M1OrientationClient::command_setPlayheadPositionInSeconds(float playheadPos
 }
 
 void M1OrientationClient::command_recenter() {
-    orientation.resetOrientation();
+    send("/recenter", nlohmann::json({ frameRate }).dump());
 }
 
 Orientation M1OrientationClient::getOrientation() {
@@ -261,6 +261,12 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
 			else {
 				connectedToServer = false;
 			}
+            
+            // TODO: inform watcher that we're here
+            
+            if (!connectedToServer) {
+                // TODO: send message to watcher that we need manager
+            }
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(30));
 		}
