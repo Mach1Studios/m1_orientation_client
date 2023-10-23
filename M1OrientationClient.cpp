@@ -222,42 +222,44 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
 		while (isRunning) {
 			auto res = client.Get("/ping");
 			if (res) {
-				std::string sss = res->body;
-				auto j = nlohmann::json::parse(res->body);
-				
-				std::vector<M1OrientationDeviceInfo> devices;
-				for (int i = 0; i < j["devices"].size(); i++) {
-					auto m = j["devices"][i];
+				std::string body = res->body;
+				if (body != "") {
+					auto j = nlohmann::json::parse(body);
 
-				 	std::string deviceName = m.at(0);
-					enum M1OrientationDeviceType deviceType = (enum M1OrientationDeviceType)m.at(1);
-					std::string deviceAddress = m.at(2);
-					bool hasStrength = m.at(3);
-					int deviceStrength = m.at(4);
+					std::vector<M1OrientationDeviceInfo> devices;
+					for (int i = 0; i < j["devices"].size(); i++) {
+						auto m = j["devices"][i];
 
-					devices.push_back(M1OrientationDeviceInfo(deviceName, deviceType, deviceAddress, hasStrength ? deviceStrength : false));
+						std::string deviceName = m.at(0);
+						enum M1OrientationDeviceType deviceType = (enum M1OrientationDeviceType)m.at(1);
+						std::string deviceAddress = m.at(2);
+						bool hasStrength = m.at(3);
+						int deviceStrength = m.at(4);
+
+						devices.push_back(M1OrientationDeviceInfo(deviceName, deviceType, deviceAddress, hasStrength ? deviceStrength : false));
+					}
+
+					mutex.lock();
+					this->devices = devices;
+					int currentDeviceIdx = j["currentDeviceIdx"];
+					if (currentDeviceIdx >= 0) {
+						currentDevice = devices[currentDeviceIdx];
+					}
+					mutex.unlock();
+
+					M1OrientationYPR incomingOrientation;
+					incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
+					incomingOrientation.yaw = j["orientation"][0];
+					incomingOrientation.pitch = j["orientation"][1];
+					incomingOrientation.roll = j["orientation"][2];
+					orientation.setYPR(incomingOrientation);
+
+					bTrackingYawEnabled = j["trackingEnabled"][0];
+					bTrackingPitchEnabled = j["trackingEnabled"][1];
+					bTrackingRollEnabled = j["trackingEnabled"][2];
+
+					connectedToServer = true;
 				}
-
-				mutex.lock();
-				this->devices = devices;
-				int currentDeviceIdx = j["currentDeviceIdx"];
-				if (currentDeviceIdx >= 0) {
-					currentDevice = devices[currentDeviceIdx];
-				}
-				mutex.unlock();
-
-				M1OrientationYPR incomingOrientation;
-				incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
-				incomingOrientation.yaw = j["orientation"][0];
-				incomingOrientation.pitch = j["orientation"][1];
-				incomingOrientation.roll = j["orientation"][2];
-				orientation.setYPR(incomingOrientation);
-
-				bTrackingYawEnabled = j["trackingEnabled"][0];
-				bTrackingPitchEnabled = j["trackingEnabled"][1];
-			 	bTrackingRollEnabled = j["trackingEnabled"][2];
-	
-				connectedToServer = true;
 			}
 			else {
 				connectedToServer = false;
