@@ -307,17 +307,8 @@ void M1OrientationClient::command_startTrackingUsingDevice(M1OrientationDeviceIn
 }
 
 void M1OrientationClient::close() {
-    // Send a message to remove the client from server list
-	/*
-    juce::OSCMessage msg("/removeClient");
-    msg.addInt32(this->clientPort);
-    send(msg);
-    */
-
 	isRunning = false;
-
 	std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
     receiver.removeListener(this);
     receiver.disconnect();
 }

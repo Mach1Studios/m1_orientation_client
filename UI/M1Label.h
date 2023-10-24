@@ -42,18 +42,9 @@ public:
 			float textX = (shape.size.x - 10) - font->getStringBoundingBox(label, 0, 0).width;
 			font->drawString(label, textX, 0);
 		}
-
-		// Testing vertical centering
-			//context.renderer->setColor(255);
-			//ofDrawLine(0, 0, context.getSize().x, 0);
-			//context.renderer->setColor(255, 0, 0);
-			//ofDrawLine(0, context.getSize().y / 2, context.getSize().x, context.getSize().y / 2);
-			//context.renderer->setColor(255);
-			//ofDrawLine(0, context.getSize().y, context.getSize().x, context.getSize().y);
-	};
+	}
 
 	// Here go parameters and any parameter convenience constructors. You need to define something called Parameters, even if it's NULL.
-//    std::string label;
     TextAlignment alignment = TEXT_LEFT;
     
     M1Label& withTextAlignment(TextAlignment a) {
