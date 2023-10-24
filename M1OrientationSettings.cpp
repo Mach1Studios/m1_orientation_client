@@ -7,7 +7,7 @@ bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsF
         juce::AlertWindow::showMessageBoxAsync(
             juce::AlertWindow::NoIcon,
             "Warning",
-            "Settings file doesn't exist",
+            "Mach1: settings.json file doesn't exist in Mach1's Application Support directory, please reinstall the Spatial System",
             "",
             nullptr,
             juce::ModalCallbackFunction::create(([&](int result) {
@@ -26,7 +26,7 @@ bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsF
             juce::AlertWindow::showMessageBoxAsync(
                 juce::AlertWindow::WarningIcon,
                 "Warning",
-                "Conflict is happening and you need to choose a new port",
+                "Mach1: Conflict is happening and you need to choose a new port by changing settings.json in Mach1's Application Support directory",
                 "",
                 nullptr,
                 juce::ModalCallbackFunction::create(([&](int result) {
