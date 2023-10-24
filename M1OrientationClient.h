@@ -14,7 +14,7 @@ class M1OrientationClient :
 	std::mutex mutex;
 	bool isRunning = false;
 
-    juce::OSCReceiver receiver;
+    juce::OSCSender watcherInterface;
     int watcherPort = 0;
     int serverPort = 0;
     int clientPort = 0;

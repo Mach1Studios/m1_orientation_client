@@ -196,6 +196,10 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
         }
     }
     
+    if (this->watcherPort != 0) {
+        watcherInterface.connect("127.0.0.1", this->watcherPort);
+    }
+    
 	isRunning = true;
 
 	std::thread([&]() {
@@ -259,9 +263,12 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
 			}
             
             // TODO: inform watcher that we're here
+            juce::OSCMessage clientExistsMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientExists"));
+            watcherInterface.send(clientExistsMessage);
             
             if (!connectedToServer) {
-                // TODO: send message to watcher that we need manager
+                juce::OSCMessage clientRequestsServerMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientRequestsServer"));
+                watcherInterface.send(clientRequestsServerMessage);
             }
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -307,6 +314,4 @@ void M1OrientationClient::command_startTrackingUsingDevice(M1OrientationDeviceIn
 void M1OrientationClient::close() {
 	isRunning = false;
 	std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    receiver.removeListener(this);
-    receiver.disconnect();
 }
