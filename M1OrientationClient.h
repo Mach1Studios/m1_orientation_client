@@ -14,7 +14,8 @@ class M1OrientationClient :
 	std::mutex mutex;
 	bool isRunning = false;
 
-    juce::OSCReceiver receiver;
+    juce::OSCSender watcherInterface;
+    int watcherPort = 0;
     int serverPort = 0;
     int clientPort = 0;
 
@@ -54,7 +55,7 @@ public:
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
-    void command_setOscDevice(int port, std::string addr_pttrn);
+    void command_setOscDeviceSettings(int port, std::string addr_pttrn);
     void command_setMonitoringMode(int mode);
     void command_setOffsetYPR(int client_id, float yaw, float pitch, float roll);
     void command_setMasterYPR(float yaw, float pitch, float roll);

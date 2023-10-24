@@ -63,7 +63,7 @@ void M1OrientationClient::command_setTrackingRollEnabled(bool enable) {
 	send("/setTrackingRollEnabled", nlohmann::json({ enable }).dump());
 }
 
-void M1OrientationClient::command_setOscDevice(int new_osc_port, std::string new_osc_addr_pattrn) {
+void M1OrientationClient::command_setOscDeviceSettings(int new_osc_port, std::string new_osc_addr_pattrn) {
 	send("/setOscDeviceSettings", nlohmann::json({ new_osc_port, new_osc_addr_pattrn }).dump());
 }
 
@@ -161,20 +161,45 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
     
     // Using common support files installation location
     juce::File m1SupportDirectory = juce::File::getSpecialLocation(juce::File::commonApplicationDataDirectory);
-
-    // check server is running
-    if (useWatcher) {
-        juce::DatagramSocket socket(false);
-        socket.setEnablePortReuse(false);
-        if (socket.bindToPort(watcherPort)) {
-            socket.shutdown();
-            
-            // TODO: Send signal to watcher here
+    
+    juce::File settingsFile;
+    if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::MacOSX) != 0) {
+        // test for any mac OS
+        settingsFile = m1SupportDirectory.getChildFile("Application Support").getChildFile("Mach1");
+    } else if ((juce::SystemStats::getOperatingSystemType() & juce::SystemStats::Windows) != 0) {
+        // test for any windows OS
+        settingsFile = m1SupportDirectory.getChildFile("Mach1");
+    } else {
+        settingsFile = m1SupportDirectory.getChildFile("Mach1");
+    }
+    settingsFile = settingsFile.getChildFile("settings.json");
+    
+    DBG("Opening settings file: " + settingsFile.getFullPathName().quoted());
+    if (settingsFile.exists()) {
+        // Found the settings.json
+        juce::var mainVar = juce::JSON::parse(juce::File(settingsFile));
+        this->serverPort = mainVar["serverPort"];
+        this->watcherPort = mainVar["watcherPort"];
+    } else {
+        if (!settingsFile.exists()) {
+            juce::AlertWindow::showMessageBoxAsync(
+                juce::AlertWindow::NoIcon,
+                "Warning",
+                "Mach1: settings.json file doesn't exist in Mach1's Application Support directory, please reinstall the Spatial System",
+                "",
+                nullptr,
+                juce::ModalCallbackFunction::create(([&](int result) {
+                   //juce::JUCEApplicationBase::quit();
+                }))
+            );
+            return false;
         }
     }
- 
-	this->serverPort = serverPort;
-
+    
+    if (this->watcherPort != 0) {
+        watcherInterface.connect("127.0.0.1", this->watcherPort);
+    }
+    
 	isRunning = true;
 
 	std::thread([&]() {
@@ -241,9 +266,12 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
 			}
             
             // TODO: inform watcher that we're here
+            juce::OSCMessage clientExistsMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientExists"));
+            watcherInterface.send(clientExistsMessage);
             
             if (!connectedToServer) {
-                // TODO: send message to watcher that we need manager
+                juce::OSCMessage clientRequestsServerMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientRequestsServer"));
+                watcherInterface.send(clientRequestsServerMessage);
             }
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -289,6 +317,4 @@ void M1OrientationClient::command_startTrackingUsingDevice(M1OrientationDeviceIn
 void M1OrientationClient::close() {
 	isRunning = false;
 	std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    receiver.removeListener(this);
-    receiver.disconnect();
 }
