@@ -62,6 +62,7 @@ public:
 	void command_setPlayerPositionInSeconds(float playheadPositionInSeconds);
 	void command_setPlayerIsPlaying(bool isPlaying);
 	void command_recenter();
+    void command_refresh();
 
     // Functions from the server to the clients
     std::vector<M1OrientationDeviceInfo> getDevices();

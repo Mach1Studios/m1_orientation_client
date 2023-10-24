@@ -256,6 +256,11 @@ void M1OrientationClient::command_disconnect()
 	send("/disconnect", "");
 }
 
+void M1OrientationClient::command_refresh()
+{
+    send("/devicesrefresh", "");
+}
+
 std::vector<M1OrientationDeviceInfo> M1OrientationClient::getDevices() {
 	mutex.lock();
 	std::vector<M1OrientationDeviceInfo> devices = this->devices;
