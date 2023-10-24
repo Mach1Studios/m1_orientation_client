@@ -7,55 +7,7 @@
 #include "nlohmann/json.hpp"
 
 void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
-    if (message.getAddressPattern() == "/connectedToServer") {
-        client_id = message[0].getInt32();
-        //connectedToServer = true;
-    }
-    else if (message.getAddressPattern() == "/getDevices") {
-        devices.clear();
-
-        int i = 0;
-        while(i < message.size()) {
-            std::string deviceName = message[i++].getString().toStdString();
-            enum M1OrientationDeviceType deviceType = (enum M1OrientationDeviceType)message[i++].getInt32();
-            std::string deviceAddress = message[i++].getString().toStdString();
-            bool hasStrength = (message[i++].getInt32() == 1);
-            int deviceStrength = deviceStrength = message[i++].getInt32();
-
-            devices.push_back(M1OrientationDeviceInfo(deviceName, deviceType, deviceAddress, hasStrength ? deviceStrength : false));
-        }
-    }
-    else if (message.getAddressPattern() == "/getCurrentDevice") {
-        // TODO: Should device be found from vector of devices instead of this?
-        currentDevice = { message[0].getString().toStdString(), (enum M1OrientationDeviceType)message[1].getInt32(), message[2].getString().toStdString() };
-    }
-    else if (message.getAddressPattern() == "/getOrientation") {
-        if (message.size() == 3){
-            /// WARNING: ONLY SEND SIGNED NORMALLED ORIENTATION VALUES
-            /// -1.0 -> 1.0
-            M1OrientationYPR incomingOrientation;
-            incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
-            incomingOrientation.yaw = message[0].getFloat32();
-            incomingOrientation.pitch = message[1].getFloat32();
-            incomingOrientation.roll = message[2].getFloat32();
-            orientation.setYPR(incomingOrientation);
-        } else if (message.size() == 4){
-        // quat input
-            orientation.setQuat({ message[0].getFloat32(), message[1].getFloat32(), message[2].getFloat32(), message[3].getFloat32() });
-        } else {
-            // error we have an undefined number of values in the message
-            DBG("Error: Undefined orientation message size:"+std::to_string(message.size()));
-        }
-    }
-    else if (message.getAddressPattern() == "/getTrackingYawEnabled") {
-        bTrackingYawEnabled = message[0].getInt32();
-    }
-    else if (message.getAddressPattern() == "/getTrackingPitchEnabled") {
-        bTrackingPitchEnabled = message[0].getInt32();
-    }
-    else if (message.getAddressPattern() == "/getTrackingRollEnabled") {
-        bTrackingRollEnabled = message[0].getInt32();
-    }
+	/*
     else if (message.getAddressPattern() == "/getStatus") {
         bool success = message[0].getInt32();
         std::string text = message[1].getString().toStdString();
@@ -73,10 +25,6 @@ void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
         // used to mark a client as active and expose it to the object initializing this client
         client_active = (bool)message[0].getInt32();
     }
-    // Playhead Timecode
-    else if (message.getAddressPattern() == "/getFramerate") {
-        frameRate = message[0].getFloat32();
-    }
     else if (message.getAddressPattern() == "/getTimecode") {
         // Retrieve current playhead position as timecode
         if (message.size() == 4) {
@@ -91,6 +39,7 @@ void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
     } else {
         // TODO: error handling for false returns
     }
+	*/
 }
 
 void M1OrientationClient::send(std::string path, std::string data)
@@ -136,16 +85,20 @@ void M1OrientationClient::command_setMasterYPR(float yaw = 0, float pitch = 0, f
 	send("/setMasterYPR", nlohmann::json({ yaw, pitch ,roll }).dump());
 }
 
-void M1OrientationClient::command_setFrameRate(float frameRate) {
-	send("/setFrameRate", nlohmann::json({ frameRate }).dump());
+void M1OrientationClient::command_setPlayerFrameRate(float playerFrameRate) {
+	send("/setPlayerFrameRate", nlohmann::json({ playerFrameRate }).dump());
 }
 
-void M1OrientationClient::command_setPlayheadPositionInSeconds(float playheadPositionInSeconds) {
-	send("/setPlayheadPosition", nlohmann::json({ playheadPositionInSeconds }).dump());
+void M1OrientationClient::command_setPlayerPositionInSeconds(float playerPlayheadPositionInSeconds) {
+	send("/setPlayerPosition", nlohmann::json({ playerPlayheadPositionInSeconds }).dump());
+}
+
+void M1OrientationClient::command_setPlayerIsPlaying(bool playerIsPlaying) {
+	send("/setPlayerIsPlaying", nlohmann::json({ playerIsPlaying }).dump());
 }
 
 void M1OrientationClient::command_recenter() {
-    send("/recenter", nlohmann::json({ frameRate }).dump());
+    send("/recenter", "");
 }
 
 Orientation M1OrientationClient::getOrientation() {
@@ -164,8 +117,16 @@ bool M1OrientationClient::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
 }
 
-float M1OrientationClient::getPlayheadPositionInSeconds() {
-    return currentPlayheadPositionInSeconds;
+float M1OrientationClient::getPlayerPositionInSeconds() {
+	return playerPositionInSeconds;
+}
+
+bool M1OrientationClient::getPlayerIsPlaying() {
+	return playerIsPlaying;
+}
+
+float M1OrientationClient::getPlayerLastUpdate() {
+	return playerLastUpdate;
 }
 
 bool M1OrientationClient::isConnectedToServer() {
@@ -247,16 +208,27 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
 					}
 					mutex.unlock();
 
-					M1OrientationYPR incomingOrientation;
-					incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
-					incomingOrientation.yaw = j["orientation"][0];
-					incomingOrientation.pitch = j["orientation"][1];
-					incomingOrientation.roll = j["orientation"][2];
-					orientation.setYPR(incomingOrientation);
+					if (j["orientation"].size() == 3) {
+						M1OrientationYPR incomingOrientation;
+						incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
+						incomingOrientation.yaw = j["orientation"][0];
+						incomingOrientation.pitch = j["orientation"][1];
+						incomingOrientation.roll = j["orientation"][2];
+						orientation.setYPR(incomingOrientation);
+					}
+					else if (j["orientation"].size() == 4) {
+						// quat input
+						orientation.setQuat({ j["orientation"][0], j["orientation"][1], j["orientation"][2], j["orientation"][3] });
+					}
 
 					bTrackingYawEnabled = j["trackingEnabled"][0];
 					bTrackingPitchEnabled = j["trackingEnabled"][1];
 					bTrackingRollEnabled = j["trackingEnabled"][2];
+
+					playerFrameRate = j["player"]["frameRate"];
+					playerPositionInSeconds = j["player"]["positionInSeconds"];
+					playerIsPlaying = j["player"]["isPlaying"];
+					playerLastUpdate = j["player"]["lastUpdate"];
 
 					connectedToServer = true;
 				}

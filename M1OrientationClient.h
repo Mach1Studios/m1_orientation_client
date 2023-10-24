@@ -26,9 +26,11 @@ class M1OrientationClient :
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
     
-    float currentPlayheadPositionInSeconds;
-    float frameRate;
-    int HH, MM, SS, FS;
+	float playerPositionInSeconds = 0;
+	float playerFrameRate = 0;
+	bool playerIsPlaying = false;
+	int playerLastUpdate = 0;
+	//int HH, MM, SS, FS;
 
     std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback = nullptr;
 
@@ -56,9 +58,10 @@ public:
     void command_setMonitoringMode(int mode);
     void command_setOffsetYPR(int client_id, float yaw, float pitch, float roll);
     void command_setMasterYPR(float yaw, float pitch, float roll);
-    void command_setFrameRate(float frameRate);
-    void command_setPlayheadPositionInSeconds(float playheadPositionInSeconds);
-    void command_recenter();
+    void command_setPlayerFrameRate(float frameRate);
+	void command_setPlayerPositionInSeconds(float playheadPositionInSeconds);
+	void command_setPlayerIsPlaying(bool isPlaying);
+	void command_recenter();
 
     // Functions from the server to the clients
     std::vector<M1OrientationDeviceInfo> getDevices();
@@ -69,8 +72,10 @@ public:
     bool getTrackingRollEnabled();
     
     // Master Timecode and Playhead position
-    float getPlayheadPositionInSeconds();
-    
+    float getPlayerPositionInSeconds();
+	bool getPlayerIsPlaying();
+	float getPlayerLastUpdate();
+
     // Connection handling
     bool isConnectedToServer();
     int getServerPort();
