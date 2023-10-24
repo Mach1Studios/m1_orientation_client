@@ -206,6 +206,9 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
 					if (currentDeviceIdx >= 0) {
 						currentDevice = devices[currentDeviceIdx];
 					}
+					else {
+						currentDevice = M1OrientationDeviceInfo();
+					}
 					mutex.unlock();
 
 					if (j["orientation"].size() == 3) {
