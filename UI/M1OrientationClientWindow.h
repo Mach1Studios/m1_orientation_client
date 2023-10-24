@@ -76,6 +76,11 @@ public:
         // Drawing settings if settings panel is enabled
         if (showSettings) {
             
+            m.prepare<M1SwitchableIconButton>({2, shape.size.y - 100, shape.size.x - 4, 25})
+                .withBorders()
+                .withCaption("RECENTER").withFontSize(12).onClick([&](M1SwitchableIconButton& b){ recenterClickedCallback(); })
+                .draw();
+            
             m.prepare<M1SwitchableIconButton>({2, shape.size.y - 75, shape.size.x - 4, 25})
                 .withBorders()
                 .withCaption("DISCONNECT").withFontSize(12).onClick([&](M1SwitchableIconButton& b){ disconnectClickedCallback(); })
@@ -173,8 +178,8 @@ public:
         return *this;
     }
     
-	M1OrientationClientWindow& onRefreshClicked(std::function<void()> callback) {
-		onRefreshCallback = callback;
+	M1OrientationClientWindow& onRecenterClicked(std::function<void()> callback) {
+		recenterClickedCallback = callback;
 		return *this;
 	}
 
@@ -221,6 +226,7 @@ public:
 	float roll;
 
     std::function<void(int)> yprSwitchesClickedCallback;
+    std::function<void()> recenterClickedCallback;
     std::function<void()> disconnectClickedCallback;
     std::function<void(int, std::string)> oscSettingsChangedCallback;
     std::vector<M1OrientationClientWindowDeviceSlot> deviceSlots;
