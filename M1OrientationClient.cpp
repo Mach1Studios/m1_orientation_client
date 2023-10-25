@@ -4,7 +4,7 @@
 #include <thread>
 #include <chrono>
 
-#include "nlohmann/json.hpp"
+#include "libs/json/single_include/nlohmann/json.hpp"
 
 void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
 	/*

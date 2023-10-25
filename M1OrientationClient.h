@@ -5,7 +5,7 @@
 #include "M1OrientationTypes.h"
 #include "M1OrientationSettings.h"
 
-#include "httplib.h"
+#include "libs/httplib/httplib.h"
 
 class M1OrientationClient :
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>,
