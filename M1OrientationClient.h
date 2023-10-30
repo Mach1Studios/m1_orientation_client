@@ -17,7 +17,6 @@ class M1OrientationClient :
     juce::OSCSender watcherInterface;
     int watcherPort = 0;
     int serverPort = 0;
-    int clientPort = 0;
 
     M1OrientationDeviceInfo currentDevice;
     std::vector<M1OrientationDeviceInfo> devices;
@@ -47,7 +46,7 @@ public:
 	bool connectedToServer = false;
 
     // setup the server and watcher connections, the watcher is off by default
-    bool init(int serverPort, int watcherPort, bool useWatcher) override;
+    bool init(int serverPort, int watcherPort) override;
 
     // Commands from a client to the server
     void command_startTrackingUsingDevice(M1OrientationDeviceInfo device);

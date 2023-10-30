@@ -7,39 +7,6 @@
 #include "libs/json/single_include/nlohmann/json.hpp"
 
 void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
-	/*
-    else if (message.getAddressPattern() == "/getStatus") {
-        bool success = message[0].getInt32();
-        std::string text = message[1].getString().toStdString();
-        std::string connectedDeviceName = message[2].getString().toStdString();
-        int connectedDeviceType = message[3].getInt32();
-        std::string connectedDeviceAddress = message[4].getString().toStdString();
-
-        // TODO: Should device be found from vector of devices instead of this?
-        if (statusCallback) {
-            statusCallback(success, text, connectedDeviceName, connectedDeviceType, connectedDeviceAddress);
-            currentDevice = { connectedDeviceName, (enum M1OrientationDeviceType)connectedDeviceType, connectedDeviceAddress };
-        }
-    }
-    else if (message.getAddressPattern() == "/client-active") {
-        // used to mark a client as active and expose it to the object initializing this client
-        client_active = (bool)message[0].getInt32();
-    }
-    else if (message.getAddressPattern() == "/getTimecode") {
-        // Retrieve current playhead position as timecode
-        if (message.size() == 4) {
-            HH = message[0].getInt32();
-            MM = message[1].getInt32();
-            SS = message[2].getInt32();
-            FS = message[3].getInt32();
-            currentPlayheadPositionInSeconds = (HH * 3600) + (MM * 60) + SS + (frameRate > 0 ? FS / frameRate : 0);
-        } else {
-            currentPlayheadPositionInSeconds = message[0].getFloat32();
-        }
-    } else {
-        // TODO: error handling for false returns
-    }
-	*/
 }
 
 void M1OrientationClient::send(std::string path, std::string data)
@@ -152,7 +119,7 @@ void M1OrientationClient::setStatusCallback(std::function<void(bool success, std
     this->statusCallback = callback;
 }
 
-bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher = false) {
+bool M1OrientationClient::init(int serverPort, int watcherPort) {
     // TODO: Add UI feedback for this process to stop user from selecting another device during connection
     
     // Using `currentApplicationFile` to be safe for both plugins and apps on all OS targets
