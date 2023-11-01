@@ -48,7 +48,7 @@ public:
 
         // Drawing the window
         float offsetY = 5;
-        float oscSettingsOffsetY;
+        float additionalSettingsOffsetY;
         
         // Drawing devices
         for (int i = 0; i < deviceSlots.size(); i++) {
@@ -63,10 +63,12 @@ public:
                 .withElementIndex(deviceSlots[i].index)
                 .withBorders()
                 .draw();
-            if (deviceSlots[i].deviceName == "OSC Input" || deviceSlots[i].deviceName == "Supperware HT IMU") {
-                // set where we will display the additional device settings under the device
-                oscSettingsOffsetY = offsetY + (30 * i) + 30;
-                offsetY += 30; // offset the next slot if this happens
+            if (showSettings) {
+                if ((showOscSettings && deviceSlots[i].deviceName == "OSC Input") || (showSWSettings &&  deviceSlots[i].deviceName.find("Supperware HT IMU") != std::string::npos)) {
+                    // set where we will display the additional device settings under the device
+                    additionalSettingsOffsetY = offsetY + (30 * i) + 30;
+                    offsetY += 30; // offset the next slot if this happens
+                }
             }
         }
         
@@ -115,24 +117,24 @@ public:
                 m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2 + yprToggleWidth/4 + 2, shape.size.y - 20);
     
             if (showOscSettings) {
-                // if OSC active then show UI for changing the input address/port/address_patter
+                // Extra dropdown settings for when the OSC device is active for changing the input address/port/address_patter
 
                 int oscDivWidth = int(float(shape.size.x) / 3.0);
 
                 m.setColor(78, 78, 78, 255);
                 m.enableFill();
-                m.drawRectangle(2, oscSettingsOffsetY, shape.size.x - 4, 30);
+                m.drawRectangle(2, additionalSettingsOffsetY, shape.size.x - 4, 30);
                 m.disableFill();
                 
                 // INPUT MSG ADDRESS PATTERN TEXTFIELD
-                auto& msg_address_pattern_field = m.prepare<murka::TextField>({2, oscSettingsOffsetY, (oscDivWidth * 2) - 4, 30}).onlyAllowNumbers(false).controlling(&requested_osc_msg_address);
+                auto& msg_address_pattern_field = m.prepare<murka::TextField>({2, additionalSettingsOffsetY, (oscDivWidth * 2) - 4, 30}).onlyAllowNumbers(false).controlling(&requested_osc_msg_address);
                 msg_address_pattern_field.drawBounds = true;
                 msg_address_pattern_field.widgetBgColor = {0.3, 0.3, 0.3};
                 msg_address_pattern_field.hint = "OSC ADDRESS PATTERN";
                 msg_address_pattern_field.draw();
 
                 // INPUT IP PORT TEXTFIELD
-                auto& ip_port_field = m.prepare<murka::TextField>({2 + oscDivWidth * 2, oscSettingsOffsetY, oscDivWidth - 4, 30}).onlyAllowNumbers(true).controlling(&requested_osc_port);
+                auto& ip_port_field = m.prepare<murka::TextField>({2 + oscDivWidth * 2, additionalSettingsOffsetY, oscDivWidth - 4, 30}).onlyAllowNumbers(true).controlling(&requested_osc_port);
                 ip_port_field.clampNumber = true;
                 ip_port_field.minNumber = 100;
                 ip_port_field.maxNumber = 65535;
@@ -144,6 +146,35 @@ public:
                 if (ip_port_field.editingFinished || msg_address_pattern_field.editingFinished) {
                     oscSettingsChangedCallback(requested_osc_port, requested_osc_msg_address);
                 }
+            }
+            
+            if (showSWSettings) {
+                // extra dropdown settings for Supperware device
+                
+                int swDivWidth = int(float(shape.size.x) / 3.0);
+                
+                m.setColor(78, 78, 78, 255);
+                m.enableFill();
+                m.drawRectangle(2, additionalSettingsOffsetY, shape.size.x - 4, 30);
+                m.disableFill();
+
+                auto& sw_chirality_switch = m.prepare<M1SwitchableIconButton>({2, additionalSettingsOffsetY + 4, (swDivWidth * 2) - 4, 25});
+                sw_chirality_switch.withBorders();
+                sw_chirality_switch.onClick([&](M1SwitchableIconButton& b){
+                    // Used to indicate how the IMU is mounted on the head
+                    // chirality = true  | USB connector is on the right side
+                    // chirality = false | USB connector is on the left side
+                    isRightEarChirality = !isRightEarChirality;
+                    supperwareSettingsChangedCallback(isRightEarChirality);
+                });
+                if (!isRightEarChirality) {
+                    sw_chirality_switch.caption = "USB ON THE LEFT";
+                } else {
+                    sw_chirality_switch.caption = "USB ON THE RIGHT";
+                }
+                sw_chirality_switch.fontSize = 5;
+                sw_chirality_switch.withFontSize(5);
+                sw_chirality_switch.draw();
             }
         }
     }
@@ -197,6 +228,11 @@ public:
         oscSettingsChangedCallback = callback;
         return *this;
     }
+    
+    M1OrientationClientWindow& onSupperwareSettingsChanged(std::function<void(bool)> callback) {
+        supperwareSettingsChangedCallback = callback;
+        return *this;
+    }
 
     M1OrientationClientWindow& onYPRSwitchesClicked(std::function<void(int)> callback) {
         yprSwitchesClickedCallback = callback;
@@ -233,7 +269,6 @@ public:
     std::function<void(int)> yprSwitchesClickedCallback;
     std::function<void()> recenterClickedCallback;
     std::function<void()> disconnectClickedCallback;
-    std::function<void(int, std::string)> oscSettingsChangedCallback;
     std::vector<M1OrientationClientWindowDeviceSlot> deviceSlots;
     
 	std::function<void()> onClickOutsideCallback = []() {};
@@ -247,9 +282,12 @@ public:
 
     // device specific
     bool showSWSettings = false;
+    bool isRightEarChirality = true;
+    std::function<void(bool)> supperwareSettingsChangedCallback;
 
     // osc specific
     bool showOscSettings = false;
     int requested_osc_port = 9901; // default value
     std::string requested_osc_msg_address = "/orientation"; // default value
+    std::function<void(int, std::string)> oscSettingsChangedCallback;
 };
