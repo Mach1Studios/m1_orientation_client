@@ -54,7 +54,7 @@ public:
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
-    void command_setOscDeviceSettings(int port, std::string addr_pttrn);
+    void command_setAdditionalDeviceSettings(std::string additional_settings);
     void command_setMonitoringMode(int mode);
     void command_setOffsetYPR(int client_id, float yaw, float pitch, float roll);
     void command_setMasterYPR(float yaw, float pitch, float roll);

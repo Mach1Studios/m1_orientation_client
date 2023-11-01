@@ -30,8 +30,8 @@ void M1OrientationClient::command_setTrackingRollEnabled(bool enable) {
 	send("/setTrackingRollEnabled", nlohmann::json({ enable }).dump());
 }
 
-void M1OrientationClient::command_setOscDeviceSettings(int new_osc_port, std::string new_osc_addr_pattrn) {
-	send("/setOscDeviceSettings", nlohmann::json({ new_osc_port, new_osc_addr_pattrn }).dump());
+void M1OrientationClient::command_setAdditionalDeviceSettings(std::string additional_settings) {
+    send("/setDeviceSettings", nlohmann::json({ additional_settings }).dump());
 }
 
 // TODO: refactor this out

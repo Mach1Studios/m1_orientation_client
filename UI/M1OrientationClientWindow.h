@@ -63,8 +63,8 @@ public:
                 .withElementIndex(deviceSlots[i].index)
                 .withBorders()
                 .draw();
-            if (deviceSlots[i].deviceName == "OSC Input") {
-                // set where we will display the OSC settings under the OSC device
+            if (deviceSlots[i].deviceName == "OSC Input" || deviceSlots[i].deviceName == "Supperware HT IMU") {
+                // set where we will display the additional device settings under the device
                 oscSettingsOffsetY = offsetY + (30 * i) + 30;
                 offsetY += 30; // offset the next slot if this happens
             }
@@ -113,7 +113,7 @@ public:
                 m.drawString(formatFloatWithLeadingZeros(yaw), 2 + yprToggleWidth/4 + 2, shape.size.y - 20);
                 m.drawString(formatFloatWithLeadingZeros(pitch), 2 + yprToggleWidth * 1 + yprToggleWidth/4 + 2, shape.size.y - 20);
                 m.drawString(formatFloatWithLeadingZeros(roll), 2 + yprToggleWidth * 2 + yprToggleWidth/4 + 2, shape.size.y - 20);
-            
+    
             if (showOscSettings) {
                 // if OSC active then show UI for changing the input address/port/address_patter
 
@@ -170,6 +170,11 @@ public:
     
     M1OrientationClientWindow& withOscSettingsEnabled(bool showOscSettings) {
         this->showOscSettings = showOscSettings;
+        return *this;
+    }
+    
+    M1OrientationClientWindow& withSupperwareSettingsEnabled(bool showSWSettings) {
+        this->showSWSettings = showSWSettings;
         return *this;
     }
 
@@ -239,9 +244,12 @@ public:
     bool initialized = false;
     bool showSettings = false;
     bool enabled = true;
+
+    // device specific
+    bool showSWSettings = false;
+
     // osc specific
     bool showOscSettings = false;
     int requested_osc_port = 9901; // default value
     std::string requested_osc_msg_address = "/orientation"; // default value
-
 };
