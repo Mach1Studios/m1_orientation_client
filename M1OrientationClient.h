@@ -14,8 +14,8 @@ class M1OrientationClient :
 	std::mutex mutex;
 	bool isRunning = false;
 
-    juce::OSCSender watcherInterface;
-    int watcherPort = 0;
+    juce::OSCSender helperInterface;
+    int helperPort = 0;
     int serverPort = 0;
 
     M1OrientationDeviceInfo currentDevice;
@@ -55,9 +55,6 @@ public:
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
     void command_setAdditionalDeviceSettings(std::string additional_settings);
-    void command_setMonitoringMode(int mode);
-    void command_setOffsetYPR(int client_id, float yaw, float pitch, float roll);
-    void command_setMasterYPR(float yaw, float pitch, float roll);
     void command_setPlayerFrameRate(float frameRate);
 	void command_setPlayerPositionInSeconds(float playheadPositionInSeconds);
 	void command_setPlayerIsPlaying(bool isPlaying);
@@ -80,6 +77,7 @@ public:
     // Connection handling
     bool isConnectedToServer();
     int getServerPort();
+    int getHelperPort();
     std::string getClientType();
     void setClientType(std::string client_type);
     void setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback);
