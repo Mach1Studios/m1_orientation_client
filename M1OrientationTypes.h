@@ -46,18 +46,17 @@ struct M1OrientationYPR {
 		return result;
 	}
     
-    void setYaw(float yaw) {
-        this->yaw = yaw;
+    void setYaw(float _yaw) {
+        this->yaw = _yaw;
     }
     
-    void setPitch(float pitch) {
-        this->pitch = pitch;
+    void setPitch(float _pitch) {
+        this->pitch = _pitch;
     }
     
-    void setRoll(float roll) {
-        this->roll = roll;
+    void setRoll(float _roll) {
+        this->roll = _roll;
     }
-
 };
 
 struct M1OrientationQuat {
