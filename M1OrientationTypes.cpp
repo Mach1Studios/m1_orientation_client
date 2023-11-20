@@ -95,6 +95,8 @@ void Orientation::setYPR(M1OrientationYPR orientation) {
     // It is better to avoid this function and stick to updating quat and calculating best YPR
     // Note:
     //   Skipping the setQuat() call and calculating the output directly
+    
+    // TODO: deal with left/right handedness before conversion
     orientationQuat.w = cos((juce::MathConstants<float>::pi * orientationYPR.roll) / 2) * cos((juce::MathConstants<float>::pi * orientationYPR.pitch) / 2) * cos((juce::MathConstants<float>::pi * orientationYPR.yaw) / 2) + sin((juce::MathConstants<float>::pi * orientationYPR.roll) / 2) * sin((juce::MathConstants<float>::pi * orientationYPR.pitch) / 2) * sin((juce::MathConstants<float>::pi * orientationYPR.yaw) / 2);
     orientationQuat.x = sin((juce::MathConstants<float>::pi * orientationYPR.roll) / 2) * cos((juce::MathConstants<float>::pi * orientationYPR.pitch) / 2) * cos((juce::MathConstants<float>::pi * orientationYPR.yaw) / 2) - cos((juce::MathConstants<float>::pi * orientationYPR.roll) / 2) * sin((juce::MathConstants<float>::pi * orientationYPR.pitch) / 2) * sin((juce::MathConstants<float>::pi * orientationYPR.yaw) / 2);
     orientationQuat.y = cos((juce::MathConstants<float>::pi * orientationYPR.roll) / 2) * sin((juce::MathConstants<float>::pi * orientationYPR.pitch) / 2) * cos((juce::MathConstants<float>::pi * orientationYPR.yaw) / 2) + sin((juce::MathConstants<float>::pi * orientationYPR.roll) / 2) * cos((juce::MathConstants<float>::pi * orientationYPR.pitch) / 2) * sin((juce::MathConstants<float>::pi * orientationYPR.yaw) / 2);
@@ -102,7 +104,7 @@ void Orientation::setYPR(M1OrientationYPR orientation) {
 }
 
 void Orientation::offsetYPR(M1OrientationYPR offset_delta) {
-    // this function assumes an orientation offset delta and apply it safely
+    // this function assumes the input is an orientation delta and applies it safely
     // Warning: shift all offsets to signed so that 0 is center of rotations
     
     if ((int)shiftYPR.angleType != (int)offset_delta.angleType) {
