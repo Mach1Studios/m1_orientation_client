@@ -147,61 +147,31 @@ void Orientation::setQuat(M1OrientationQuat orientation) {
     orientationQuat.z = orientation.wb * orientation.zIn - orientation.xb * orientation.yIn + orientation.yb * orientation.xIn - orientation.zb * orientation.wIn;
     //TODO: add logic for reordering and inversing
     
-    // credit to Charles Verron (https://www.noisemakers.fr/) for the following code snippet below
-    float test = orientationQuat.x * orientationQuat.z - orientationQuat.y * orientationQuat.w;
-    if (test > 0.499999) {
-        // singularity at north pole
-        orientationYPR.yaw = 2 * atan2(orientationQuat.x, orientationQuat.w);
-        orientationYPR.pitch = (float)juce::MathConstants<double>::pi / 2;
-        orientationYPR.roll = 0;
-        
-        // output from above is expected as -PI -> PI
-        // converting to signed normalled   -1  -> 1
-        orientationYPR.yaw = orientationYPR.yaw / juce::MathConstants<float>::pi;
-        orientationYPR.pitch = orientationYPR.pitch / juce::MathConstants<float>::pi;
-        if ((int)shiftYPR.angleType != (int)M1OrientationYPR::SIGNED_NORMALLED) {
-            shiftYPR = getSignedNormalled(shiftYPR);
-        }
-        setYPR_type(M1OrientationYPR::SIGNED_NORMALLED);
-        setYPR_range(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f);
-        return;
-    } else if (test < -0.499999) {
-        // singularity at south pole
-        orientationYPR.yaw = -2 * atan2(orientationQuat.x, orientationQuat.w);
-        orientationYPR.pitch = (float)-juce::MathConstants<double>::pi / 2;
-        orientationYPR.roll = 0;
+    double qysqr = orientationQuat.x * orientationQuat.z - orientationQuat.y * orientationQuat.w;
+    double t0 = -2.0 * (qysqr + orientationQuat.z * orientationQuat.z) + 1.0;
+    double t1 = +2.0 * (orientationQuat.x * orientationQuat.y + orientationQuat.w * orientationQuat.z);
+    double t2 = -2.0 * (orientationQuat.x * orientationQuat.z - orientationQuat.w * orientationQuat.y);
+    double t3 = +2.0 * (orientationQuat.y * orientationQuat.z + orientationQuat.w * orientationQuat.x);
+    double t4 = -2.0 * (orientationQuat.x * orientationQuat.x + qysqr) + 1.0;
+    
+    t2 = t2 > +1.0 ? +1.0 : t2; // singularity at north pole
+    t2 = t2 < -1.0 ? -1.0 : t2; // singularity at south pole
+    
+    float y = (float)atan2(t1, t0);
+    y *= -1.0f; // flip for lefthanded yaw+ is to the right
+    float p = (float)asin(t2);
+    p *= -1.0;
+    float r = (float)atan2(t3, t4);
 
-        // output from above is expected as -PI -> PI
-        // converting to signed normalled   -1  -> 1
-        orientationYPR.yaw = orientationYPR.yaw / juce::MathConstants<float>::pi;
-        orientationYPR.pitch = orientationYPR.pitch / juce::MathConstants<float>::pi;
-        if ((int)shiftYPR.angleType != (int)M1OrientationYPR::SIGNED_NORMALLED) {
-            shiftYPR = getSignedNormalled(shiftYPR);
-        }
-        setYPR_type(M1OrientationYPR::SIGNED_NORMALLED);
-        setYPR_range(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f);
-        return;
-    } else {
-        float sqx = orientationQuat.x * orientationQuat.x;
-        float sqy = orientationQuat.z * orientationQuat.z;
-        float sqz = orientationQuat.y * orientationQuat.y;
-
-        float y = atan2(2 * orientationQuat.z * orientationQuat.w - 2 * orientationQuat.x * orientationQuat.y, 1 - 2 * sqy - 2 * sqz);
-        y *= -1.0f; // flip for lefthanded yaw+ is to the right
-        float p = asin(2 * test);
-        float r = atan2(2 * orientationQuat.x * orientationQuat.w - 2 * orientationQuat.z * orientationQuat.y, 1 - 2 * sqx - 2 * sqz);
-
-        // output from above is expected as -PI -> PI
-        // converting to signed normalled   -1  -> 1
-        orientationYPR.yaw = y / juce::MathConstants<float>::pi;
-        orientationYPR.pitch = p / juce::MathConstants<float>::pi;
-        orientationYPR.roll = r / juce::MathConstants<float>::pi;
-        if ((int)shiftYPR.angleType != (int)M1OrientationYPR::SIGNED_NORMALLED) {
-            shiftYPR = getSignedNormalled(shiftYPR);
-        }
-        setYPR_type(M1OrientationYPR::SIGNED_NORMALLED);
-        setYPR_range(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f);
+    // signed normalled -1 -> 1
+    orientationYPR.yaw = y;
+    orientationYPR.pitch = p;
+    orientationYPR.roll = r;
+    if ((int)shiftYPR.angleType != (int)M1OrientationYPR::SIGNED_NORMALLED) {
+        shiftYPR = getSignedNormalled(shiftYPR);
     }
+    setYPR_type(M1OrientationYPR::SIGNED_NORMALLED);
+    setYPR_range(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void Orientation::offsetQuat(M1OrientationQuat offset_delta) {
