@@ -148,11 +148,11 @@ void Orientation::setQuat(M1OrientationQuat orientation) {
     //TODO: add logic for reordering and inversing
     
     // credit to Charles Verron (https://www.noisemakers.fr/) for the following code snippet below
-    float test = orientationQuat.x * orientationQuat.z + orientationQuat.y * orientationQuat.w;
+    float test = orientationQuat.x * orientationQuat.z - orientationQuat.y * orientationQuat.w;
     if (test > 0.499999) {
         // singularity at north pole
         orientationYPR.yaw = 2 * atan2(orientationQuat.x, orientationQuat.w);
-        orientationYPR.pitch = juce::MathConstants<double>::pi / 2;
+        orientationYPR.pitch = (float)juce::MathConstants<double>::pi / 2;
         orientationYPR.roll = 0;
         
         // output from above is expected as -PI -> PI
@@ -168,8 +168,9 @@ void Orientation::setQuat(M1OrientationQuat orientation) {
     } else if (test < -0.499999) {
         // singularity at south pole
         orientationYPR.yaw = -2 * atan2(orientationQuat.x, orientationQuat.w);
-        orientationYPR.pitch = -juce::MathConstants<double>::pi / 2;
-        
+        orientationYPR.pitch = (float)-juce::MathConstants<double>::pi / 2;
+        orientationYPR.roll = 0;
+
         // output from above is expected as -PI -> PI
         // converting to signed normalled   -1  -> 1
         orientationYPR.yaw = orientationYPR.yaw / juce::MathConstants<float>::pi;
@@ -186,7 +187,7 @@ void Orientation::setQuat(M1OrientationQuat orientation) {
         float sqz = orientationQuat.y * orientationQuat.y;
 
         float y = atan2(2 * orientationQuat.z * orientationQuat.w - 2 * orientationQuat.x * orientationQuat.y, 1 - 2 * sqy - 2 * sqz);
-        y *= -1.0f;
+        y *= -1.0f; // flip for lefthanded yaw+ is to the right
         float p = asin(2 * test);
         float r = atan2(2 * orientationQuat.x * orientationQuat.w - 2 * orientationQuat.z * orientationQuat.y, 1 - 2 * sqx - 2 * sqz);
 
