@@ -12,7 +12,7 @@ class M1OrientationClient :
     public M1OrientationManagerOSCSettings
 {
 	std::mutex mutex;
-	bool isRunning = false;
+	bool isRunning;
 
     juce::OSCSender helperInterface;
     int helperPort = 0;

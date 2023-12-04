@@ -215,13 +215,13 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
 				connectedToServer = false;
 			}
             
-            juce::OSCMessage clientExistsMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientExists"));
-            helperInterface.send(clientExistsMessage);
-            
             if (!connectedToServer) {
                 juce::OSCMessage clientRequestsServerMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientRequestsServer"));
                 helperInterface.send(clientRequestsServerMessage);
             }
+            
+            juce::OSCMessage clientExistsMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientExists"));
+            helperInterface.send(clientExistsMessage);
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(30));
 		}
