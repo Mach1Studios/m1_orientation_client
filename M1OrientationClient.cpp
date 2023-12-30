@@ -11,7 +11,12 @@ void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
 
 void M1OrientationClient::send(std::string path, std::string data)
 {
-	httplib::Client("localhost", serverPort).Post(path, data, "text/plain");
+	httplib::Client client("localhost", serverPort);
+	time_t usec = 100000; // 100ms
+	client.set_connection_timeout(0, usec);
+	client.set_read_timeout(0, usec);
+	client.set_write_timeout(0, usec);
+	client.Post(path, data, "text/plain");
 }
     
 void M1OrientationClient::command_setTrackingYawEnabled(bool enable) {
@@ -152,8 +157,12 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
     
 	isRunning = true;
 
-	std::thread([&]() {
+	std::thread([&, this]() {
 		httplib::Client client("localhost", this->serverPort);
+		time_t usec = 100000; // 100ms
+		client.set_connection_timeout(0, usec);
+		client.set_read_timeout(0, usec);
+		client.set_write_timeout(0, usec);
 
 		while (isRunning) {
 			auto res = client.Get("/ping");
@@ -215,13 +224,15 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
 				connectedToServer = false;
 			}
             
-            if (!connectedToServer) {
-                juce::OSCMessage clientRequestsServerMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientRequestsServer"));
-                helperInterface.send(clientRequestsServerMessage);
-            }
-            
-            juce::OSCMessage clientExistsMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientExists"));
-            helperInterface.send(clientExistsMessage);
+			if (this->helperPort != 0) {
+				if (!connectedToServer) {
+					juce::OSCMessage clientRequestsServerMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientRequestsServer"));
+					helperInterface.send(clientRequestsServerMessage);
+				}
+
+				juce::OSCMessage clientExistsMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientExists"));
+				helperInterface.send(clientExistsMessage);
+			}
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(30));
 		}
