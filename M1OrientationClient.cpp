@@ -12,7 +12,7 @@ void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
 void M1OrientationClient::send(std::string path, std::string data)
 {
 	httplib::Client client("localhost", serverPort);
-	time_t usec = 100000; // 100ms
+	time_t usec = 10000; // 10ms
 	client.set_connection_timeout(0, usec);
 	client.set_read_timeout(0, usec);
 	client.set_write_timeout(0, usec);
@@ -159,7 +159,7 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
 
 	std::thread([&, this]() {
 		httplib::Client client("localhost", this->serverPort);
-		time_t usec = 100000; // 100ms
+		time_t usec = 10000; // 10ms
 		client.set_connection_timeout(0, usec);
 		client.set_read_timeout(0, usec);
 		client.set_write_timeout(0, usec);
