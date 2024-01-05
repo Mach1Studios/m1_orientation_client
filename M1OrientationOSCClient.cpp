@@ -28,17 +28,27 @@ void M1OrientationOSCClient::oscMessageReceived(const juce::OSCMessage& message)
     }
     else if (message.getAddressPattern() == "/getOrientation") {
         if (message.size() == 3){
-            /// WARNING: ONLY SEND SIGNED NORMALLED ORIENTATION VALUES
+            /// WARNING: ONLY SEND SIGNED NORMALIZED ORIENTATION VALUES
             /// -1.0 -> 1.0
-            M1OrientationYPR incomingOrientation;
-            incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
-            incomingOrientation.yaw = message[0].getFloat32();
-            incomingOrientation.pitch = message[1].getFloat32();
-            incomingOrientation.roll = message[2].getFloat32();
-            orientation.setYPR(incomingOrientation);
+//            M1Orientation incomingOrientation;
+//            incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
+//            incomingOrientation.yaw = message[0].getFloat32();
+//            incomingOrientation.pitch = message[1].getFloat32();
+//            incomingOrientation.roll = message[2].getFloat32();
+//            orientation.setYPR(incomingOrientation);
+            
+            orientation.setFromEulerYXZ(message[0].getFloat32(),
+                                        message[1].getFloat32(),
+                                        message[2].getFloat32());
+            
         } else if (message.size() == 4){
         // quat input
-            orientation.setQuat({ message[0].getFloat32(), message[1].getFloat32(), message[2].getFloat32(), message[3].getFloat32() });
+//            orientation.setQuat({ message[0].getFloat32(), message[1].getFloat32(), message[2].getFloat32(), message[3].getFloat32() });
+            
+            orientation.setFromQuaternion(message[0].getFloat32(),
+                                          message[1].getFloat32(),
+                                          message[2].getFloat32(),
+                                          message[3].getFloat32());
         } else {
             // error we have an undefined number of values in the message
             DBG("Error: Undefined orientation message size:"+std::to_string(message.size()));
@@ -159,10 +169,12 @@ void M1OrientationOSCClient::command_setPlayheadPositionInSeconds(float playhead
 }
 
 void M1OrientationOSCClient::command_recenter() {
-    orientation.resetOrientation();
+    offset = offset + orientation;
+    
+    orientation.setToZero();
 }
 
-Orientation M1OrientationOSCClient::getOrientation() {
+M1Orientation M1OrientationOSCClient::getOrientation() {
     return orientation;
 }
 
