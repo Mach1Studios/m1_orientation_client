@@ -22,7 +22,7 @@ class M1OrientationClient :
     M1OrientationDeviceInfo currentDevice;
     std::vector<M1OrientationDeviceInfo> devices;
 
-    Orientation orientation;
+    M1Orientation orientation, offset;
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
@@ -68,7 +68,7 @@ public:
     // Functions from the server to the clients
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getCurrentDevice();
-    Orientation getOrientation();
+    M1Orientation getOrientation();
     bool getTrackingYawEnabled();
     bool getTrackingPitchEnabled();
     bool getTrackingRollEnabled();

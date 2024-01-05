@@ -101,7 +101,7 @@ void M1OrientationClient::command_recenter() {
     send("/recenter", "");
 }
 
-Orientation M1OrientationClient::getOrientation() {
+M1Orientation M1OrientationClient::getOrientation() {
     return orientation;
 }
 
@@ -234,16 +234,14 @@ bool M1OrientationClient::init(int serverPort, int watcherPort, bool useWatcher 
 					mutex.unlock();
 
 					if (j["orientation"].size() == 3) {
-						M1OrientationYPR incomingOrientation;
-						incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
-						incomingOrientation.yaw = j["orientation"][0];
-						incomingOrientation.pitch = j["orientation"][1];
-						incomingOrientation.roll = j["orientation"][2];
-						orientation.setYPR(incomingOrientation);
+						double yaw = j["orientation"][0];
+                        double pitch = j["orientation"][1];
+                        double roll = j["orientation"][2];
+						orientation.setFromEulerYXZ(yaw, pitch, roll, true, true);
 					}
 					else if (j["orientation"].size() == 4) {
 						// quat input
-						orientation.setQuat({ j["orientation"][0], j["orientation"][1], j["orientation"][2], j["orientation"][3] });
+						orientation.setFromQuaternion(j["orientation"][0], j["orientation"][1], j["orientation"][2], j["orientation"][3]);
 					}
 
 					bTrackingYawEnabled = j["trackingEnabled"][0];
