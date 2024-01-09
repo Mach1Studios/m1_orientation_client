@@ -7,13 +7,13 @@
 #include <variant>
 #include <cmath>
 #include <stdexcept>
+#include <iostream>
 
-
-class Quaternion {
+class M1Quaternion {
 public:
     double w, x, y, z;
 
-    Quaternion(double w = 1.0, double x = 0.0, double y = 0.0, double z = 0.0)
+    M1Quaternion(double w = 1.0, double x = 0.0, double y = 0.0, double z = 0.0)
         : w(w), x(x), y(y), z(z) {}
 
     // Normalize the quaternion
@@ -26,13 +26,29 @@ public:
     }
 
     // Multiply two quaternions
-    Quaternion operator*(const Quaternion& other) const {
-        return Quaternion(
+    M1Quaternion operator*(const M1Quaternion& other) const {
+        return M1Quaternion(
             w * other.w - x * other.x - y * other.y - z * other.z,
             w * other.x + x * other.w + y * other.z - z * other.y,
             w * other.y - x * other.z + y * other.w + z * other.x,
             w * other.z + x * other.y - y * other.x + z * other.w);
     }
+};
+
+class EulerAngleSet {
+public:
+    double yaw;
+    double pitch;
+    double roll;
+    
+    EulerAngleSet() {
+        yaw = 0;
+        pitch = 0;
+        roll = 0;
+    }
+
+    EulerAngleSet(double yaw, double pitch, double roll)
+        : yaw(yaw), pitch(pitch), roll(roll) {}
 };
 
 class M1Orientation {
@@ -43,39 +59,22 @@ public:
 
     
     // Set orientation directly from a Quaternion object
-    void setFromQuaternion(const Quaternion& q) {
+    void setFromQuaternion(const M1Quaternion& q) {
         quat = q;
         quat.normalize();
     }
 
     // Set orientation directly from quaternion values
     void setFromQuaternion(double w, double x, double y, double z) {
-        quat = Quaternion(w, x, y, z);
+        quat = M1Quaternion(w, x, y, z);
         quat.normalize();
     }
 
-    // Setting the internal representation from incoming yaw, pitch and roll in radians
-    void setFromEulerYXZ(double yaw, double pitch, double roll, bool signedAngles = true, bool normalized = true) {
-        if (!signedAngles) {
-            yaw = 2.0 * (yaw - 0.5);
-            pitch = 2.0 * (pitch - 0.5);
-            roll = 2.0 * (roll - 0.5);
-        }
-        if (!normalized) {
-            yaw = normalizeAngle(yaw);
-            pitch = normalizeAngle(pitch);
-            roll = normalizeAngle(roll);
-        }
-
-        // Convert Euler angles to quaternion
-        yaw *= M_PI;
-        pitch *= M_PI;
-        roll *= M_PI;
-        quat = eulerToQuaternion(yaw, pitch, roll);
+    void setFromEulerYXZRadians(double yaw, double pitch, double roll, bool signedAngles = true) {
+        setFromEulerYXZRadiansInternal(yaw, pitch, roll, signedAngles, false);
     }
     
-    // Setting the internal representation from incoming yaw, pitch and roll in degrees
-    void setFromEulerYXZDegrees(double yaw, double pitch, double roll, bool signedAngles = true, bool normalized = true) {
+    void setFromEulerYXZDegrees(double yaw, double pitch, double roll, bool signedAngles = true) {
         const double degToRad = M_PI / 180.0;
 
         // Convert from degrees to radians
@@ -84,62 +83,60 @@ public:
         roll *= degToRad;
 
         // Now call the existing setFromEulerYXZ with the radians
-        setFromEulerYXZ(yaw, pitch, roll, signedAngles, normalized);
+        setFromEulerYXZRadiansInternal(yaw, pitch, roll, signedAngles, false);
     }
     
-    // getting the representation in a shape of a Yaw, Pitch, Roll in radians
-    std::tuple<double, double, double> getAsEulerYXZ(bool signedAngles = true, bool normalized = true) const {
-        double yaw, pitch, roll;
-        quaternionToEuler(quat, yaw, pitch, roll); // Convert to Euler angles in radians
+    void setFromEulerYXZNormalized(double yaw, double pitch, double roll, bool signedAngles = true) {
 
-        if (normalized) {
-            // Normalize to -1 to 1 (signed) or 0 to 1 (unsigned)
-            yaw = signedAngles ? yaw / M_PI : (yaw + M_PI) / (2 * M_PI);
-            pitch = signedAngles ? pitch / (M_PI / 2) : (pitch + (M_PI / 2)) / M_PI;
-            roll = signedAngles ? roll / M_PI : (roll + M_PI) / (2 * M_PI);
-        } else {
-            if (!signedAngles) {
-                // Adjust to 0 to π (yaw) and -π/2 to π/2 (pitch and roll) for unsigned angles
-                yaw = (yaw < 0) ? yaw + 2 * M_PI : yaw;
-                pitch = (pitch < -M_PI / 2) ? pitch + M_PI : (pitch > M_PI / 2) ? pitch - M_PI : pitch;
-                roll = (roll < 0) ? roll + 2 * M_PI : roll;
-            }
-        }
-
-        return std::make_tuple(yaw, pitch, roll);
+        // Now call the existing setFromEulerYXZ with the radians
+        setFromEulerYXZRadiansInternal(yaw, pitch, roll, signedAngles, true);
+    }
+    
+    // getting the representation in a shape of a Yaw, Pitch, Roll in radians or in normalized values if normalized = true (0.0 to 1.0 in case of signedAngles = false, -1.0 to 1.0 in case of signedAngles = true)
+    // TODO: make it follow the same pattern as the setters
+    EulerAngleSet getAsEulerYXZRadians(bool signedAngles = true) const {
+        return getAsEulerYXZRadiansInternal(signedAngles);
     }
 
     void setToZero() {
-        quat = Quaternion(1.0, 0.0, 0.0, 0.0); // Quaternion representing no rotation
+        quat = M1Quaternion(1.0, 0.0, 0.0, 0.0); // Quaternion representing no rotation
+    }
+    
+    void resetOrientation() {
+        setToZero();
     }
 
-    Quaternion getAsQuaternion() const { return quat; }
+    M1Quaternion getAsQuaternion() const { return quat; }
 
     M1Orientation operator+(const M1Orientation& other) const {
-        Quaternion resultQuat = quat * other.quat;
+        M1Quaternion resultQuat = quat * other.quat;
         resultQuat.normalize();
         return M1Orientation(resultQuat);
     }
     
-    std::tuple<double, double, double> getAsEulerYXZDegrees(bool signedAngles = true, bool normalized = true) const {
-        auto [yaw, pitch, roll] = getAsEulerYXZ(signedAngles, normalized);
+    EulerAngleSet getAsEulerYXZDegrees(bool signedAngles = true) const {
+        auto [yaw, pitch, roll] = getAsEulerYXZRadiansInternal(signedAngles); // returning them non normalized
 
-        if (!normalized) {
-            // Convert from radians to degrees for non-normalized output
-            const double radToDeg = 180.0 / M_PI;
-            yaw *= radToDeg;
-            pitch *= radToDeg;
-            roll *= radToDeg;
-        }
+        // Convert from radians to degrees
+        const double radToDeg = 180.0 / M_PI;
+        yaw *= radToDeg;
+        pitch *= radToDeg;
+        roll *= radToDeg;
 
-        return std::make_tuple(yaw, pitch, roll);
+        return EulerAngleSet(yaw, pitch, roll);
+    }
+    
+    EulerAngleSet getAsEulerYXZNormalized(bool signedAngles = true) const {
+        auto [yaw, pitch, roll] = getAsEulerYXZRadiansInternal(signedAngles, true); // returning them normalized
+
+        return EulerAngleSet(yaw, pitch, roll);
     }
 
     M1Orientation operator-(const M1Orientation& other) const {
         // Subtracting orientations requires more considerations
         // This is a placeholder for a more complex implementation
-        Quaternion inverseOther = Quaternion(other.quat.w, -other.quat.x, -other.quat.y, -other.quat.z);
-        Quaternion resultQuat = quat * inverseOther;
+        M1Quaternion inverseOther = M1Quaternion(other.quat.w, -other.quat.x, -other.quat.y, -other.quat.z);
+        M1Quaternion resultQuat = quat * inverseOther;
         resultQuat.normalize();
         return M1Orientation(resultQuat);
     }
@@ -154,7 +151,7 @@ public:
     }
 
 private:
-    Quaternion quat;
+    M1Quaternion quat;
 
     double normalizeAngle(double angle) {
         // Normalize angle to [-PI, PI]
@@ -167,10 +164,44 @@ private:
         // Convert from [-PI, PI] to [-180, 180]
         return angle * 180.0 / M_PI;
     }
+    
+    void setFromEulerYXZRadiansInternal(double yaw, double pitch, double roll, bool signedAngles = true, bool normalized = true) {
+        if (!signedAngles) {
+            yaw = 2.0 * (yaw - 0.5);
+            pitch = 2.0 * (pitch - 0.5);
+            roll = 2.0 * (roll - 0.5);
+        }
+        if (!normalized) {
+            yaw = normalizeAngle(yaw);
+            pitch = normalizeAngle(pitch);
+            roll = normalizeAngle(roll);
+        }
 
-    Quaternion eulerToQuaternion(double yaw, double pitch, double roll) {
-        // Convert Euler angles (in radians) to quaternion
-        // Assuming YXZ order (yaw, pitch, roll)
+        // Convert Euler angles to quaternion
+        quat = eulerToQuaternion(yaw, pitch, roll);
+    }
+    
+    EulerAngleSet getAsEulerYXZRadiansInternal(bool signedAngles = true, bool normalized = false) const {
+        double yaw, pitch, roll;
+        quaternionToEuler(quat, yaw, pitch, roll); // Convert to Euler angles in radians
+
+        if (normalized) {
+            yaw = signedAngles ? yaw / M_PI : (yaw + M_PI) / (2 * M_PI);
+            pitch = signedAngles ? pitch / (M_PI / 2) : (pitch + (M_PI / 2)) / M_PI;
+            roll = signedAngles ? roll / M_PI : (roll + M_PI) / (2 * M_PI);
+        } else {
+            if (!signedAngles) {
+                yaw = (yaw < 0) ? yaw + 2 * M_PI : yaw;
+                pitch = (pitch < -M_PI / 2) ? pitch + M_PI : (pitch > M_PI / 2) ? pitch - M_PI : pitch;
+                roll = (roll < 0) ? roll + 2 * M_PI : roll;
+            }
+        }
+
+        return EulerAngleSet(yaw, pitch, roll);
+    }
+
+    M1Quaternion eulerToQuaternion(double yaw, double pitch, double roll) {
+        
         double cy = cos(yaw * 0.5);
         double sy = sin(yaw * 0.5);
         double cp = cos(pitch * 0.5);
@@ -178,32 +209,38 @@ private:
         double cr = cos(roll * 0.5);
         double sr = sin(roll * 0.5);
 
-        return Quaternion(
-            cy * cp * cr + sy * sp * sr,
-            cy * cp * sr - sy * sp * cr,
-            sy * cp * sr + cy * sp * cr,
-            sy * cp * cr - cy * sp * sr);
+        M1Quaternion result(
+            cy * cp * cr + sy * sp * sr, // w
+            cy * cp * sr - sy * sp * cr, // x
+            sy * cp * sr + cy * sp * cr, // y
+            sy * cp * cr - cy * sp * sr  // z
+        );
+
+        return result;
     }
 
-    void quaternionToEuler(const Quaternion& q, double& yaw, double& pitch, double& roll) const {
-        // Convert quaternion to Euler angles
-        // Assuming YXZ order (yaw, pitch, roll)
-        double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
-        double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
-        roll = std::atan2(sinr_cosp, cosr_cosp);
-
+    void quaternionToEuler(const M1Quaternion& q, double& yaw, double& pitch, double& roll) const {
+        // Extract sin(pitch)
         double sinp = 2 * (q.w * q.y - q.z * q.x);
+
+        // Compute pitch (y-axis rotation)
         if (std::abs(sinp) >= 1)
-            pitch = std::copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+            pitch = std::copysign(M_PI / 2, sinp); // use π/2 or -π/2 if out of range
         else
             pitch = std::asin(sinp);
 
-        double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
-        double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-        yaw = std::atan2(siny_cosp, cosy_cosp);
+        // Compute yaw (y-axis rotation) and roll (z-axis rotation)
+        if (std::abs(sinp) < 0.9999) { // Avoid gimbal lock
+            yaw = std::atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z));
+            roll = std::atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y));
+        } else {
+            // Gimbal lock, arbitrary set yaw to 0
+            yaw = 0;
+            roll = std::atan2(-2 * (q.x * q.z - q.w * q.y), 2 * (q.w * q.x + q.y * q.z));
+        }
     }
 
-    M1Orientation(const Quaternion& quat) : quat(quat) {}
+    M1Orientation(const M1Quaternion& quat) : quat(quat) {}
 };
 
 
