@@ -54,9 +54,7 @@ public:
 class M1Orientation {
 public:
     M1Orientation() : quat() {}
-    
     M1Orientation(double w, double x, double y, double z) : quat(w, x, y, z) {}
-
     
     // Set orientation directly from a Quaternion object
     void setFromQuaternion(const M1Quaternion& q) {
@@ -70,11 +68,11 @@ public:
         quat.normalize();
     }
 
-    void setFromEulerYXZRadians(double yaw, double pitch, double roll, bool signedAngles = true) {
-        setFromEulerYXZRadiansInternal(yaw, pitch, roll, signedAngles, false);
+    void setFromEulerYPRRadians(double yaw, double pitch, double roll, bool signedAngles = true) {
+        setFromEulerYPRRadiansInternal(yaw, pitch, roll, signedAngles, false);
     }
     
-    void setFromEulerYXZDegrees(double yaw, double pitch, double roll, bool signedAngles = true) {
+    void setFromEulerYPRDegrees(double yaw, double pitch, double roll, bool signedAngles = true) {
         const double degToRad = M_PI / 180.0;
 
         // Convert from degrees to radians
@@ -83,19 +81,19 @@ public:
         roll *= degToRad;
 
         // Now call the existing setFromEulerYXZ with the radians
-        setFromEulerYXZRadiansInternal(yaw, pitch, roll, signedAngles, false);
+        setFromEulerYPRRadiansInternal(yaw, pitch, roll, signedAngles, false);
     }
     
-    void setFromEulerYXZNormalized(double yaw, double pitch, double roll, bool signedAngles = true) {
+    void setFromEulerYPRNormalized(double yaw, double pitch, double roll, bool signedAngles = true) {
 
         // Now call the existing setFromEulerYXZ with the radians
-        setFromEulerYXZRadiansInternal(yaw, pitch, roll, signedAngles, true);
+        setFromEulerYPRRadiansInternal(yaw, pitch, roll, signedAngles, true);
     }
     
     // getting the representation in a shape of a Yaw, Pitch, Roll in radians or in normalized values if normalized = true (0.0 to 1.0 in case of signedAngles = false, -1.0 to 1.0 in case of signedAngles = true)
     // TODO: make it follow the same pattern as the setters
-    EulerAngleSet getAsEulerYXZRadians(bool signedAngles = true) const {
-        return getAsEulerYXZRadiansInternal(signedAngles);
+    EulerAngleSet getAsEulerYPRRadians(bool signedAngles = true) const {
+        return getAsEulerYPRRadiansInternal(signedAngles);
     }
 
     void setToZero() {
@@ -114,8 +112,8 @@ public:
         return M1Orientation(resultQuat);
     }
     
-    EulerAngleSet getAsEulerYXZDegrees(bool signedAngles = true) const {
-        auto [yaw, pitch, roll] = getAsEulerYXZRadiansInternal(signedAngles); // returning them non normalized
+    EulerAngleSet getAsEulerYPRDegrees(bool signedAngles = true) const {
+        auto [yaw, pitch, roll] = getAsEulerYPRRadiansInternal(signedAngles); // returning them non normalized
 
         // Convert from radians to degrees
         const double radToDeg = 180.0 / M_PI;
@@ -126,9 +124,8 @@ public:
         return EulerAngleSet(yaw, pitch, roll);
     }
     
-    EulerAngleSet getAsEulerYXZNormalized(bool signedAngles = true) const {
-        auto [yaw, pitch, roll] = getAsEulerYXZRadiansInternal(signedAngles, true); // returning them normalized
-
+    EulerAngleSet getAsEulerYPRNormalized(bool signedAngles = true) const {
+        auto [yaw, pitch, roll] = getAsEulerYPRRadiansInternal(signedAngles, true); // returning them normalized
         return EulerAngleSet(yaw, pitch, roll);
     }
 
@@ -165,7 +162,7 @@ private:
         return angle * 180.0 / M_PI;
     }
     
-    void setFromEulerYXZRadiansInternal(double yaw, double pitch, double roll, bool signedAngles = true, bool normalized = true) {
+    void setFromEulerYPRRadiansInternal(double yaw, double pitch, double roll, bool signedAngles = true, bool normalized = true) {
         if (!signedAngles) {
             yaw = 2.0 * (yaw - 0.5);
             pitch = 2.0 * (pitch - 0.5);
@@ -181,7 +178,7 @@ private:
         quat = eulerToQuaternion(yaw, pitch, roll);
     }
     
-    EulerAngleSet getAsEulerYXZRadiansInternal(bool signedAngles = true, bool normalized = false) const {
+    EulerAngleSet getAsEulerYPRRadiansInternal(bool signedAngles = true, bool normalized = false) const {
         double yaw, pitch, roll;
         quaternionToEuler(quat, yaw, pitch, roll); // Convert to Euler angles in radians
 
@@ -242,9 +239,6 @@ private:
 
     M1Orientation(const M1Quaternion& quat) : quat(quat) {}
 };
-
-
-
 
 struct M1OrientationTrackingResult {
     M1Orientation currentOrientation;

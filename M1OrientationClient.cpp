@@ -199,7 +199,7 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
 						double yaw = j["orientation"][0];
                         double pitch = j["orientation"][1];
                         double roll = j["orientation"][2];
-						orientation.setFromEulerYXZNormalized(yaw, pitch, roll, true);
+						orientation.setFromEulerYPRNormalized(yaw, pitch, roll, true);
 					}
 					else if (j["orientation"].size() == 4) {
 						// quat input
