@@ -107,6 +107,9 @@ void M1OrientationClient::setStatusCallback(std::function<void(bool success, std
 }
 
 bool M1OrientationClient::init(int serverPort, int helperPort) {
+    // This function assumes that there is already a service and system in place
+    // that launches or manages instances of the M1-OrientationManager and M1-System-Helper
+    //
     // TODO: Add UI feedback for this process to stop user from selecting another device during connection
     
     // Using `currentApplicationFile` to be safe for both plugins and apps on all OS targets
