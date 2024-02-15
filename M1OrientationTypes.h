@@ -46,6 +46,12 @@ struct M1OrientationYPR {
 		return result;
 	}
     
+    // used to find if the two orientations are the same
+    bool operator ==(const M1OrientationYPR& a) {
+        M1OrientationYPR result = *this;
+        return (result.yaw == a.yaw && result.pitch == a.pitch && result.roll == a.roll);
+    }
+    
     void setYaw(float _yaw) {
         this->yaw = _yaw;
     }
