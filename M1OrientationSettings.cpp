@@ -19,8 +19,8 @@ bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsF
     else {
         // Found the settings.json
         juce::var mainVar = juce::JSON::parse(juce::File(jsonSettingsFilePath));
-		int serverPort = mainVar["serverPort"];
-		int helperPort = mainVar["helperPort"];
+        int serverPort = mainVar["serverPort"];
+        int helperPort = mainVar["helperPort"];
 
         if (!init(serverPort, helperPort)) {
             juce::AlertWindow::showMessageBoxAsync(
@@ -31,7 +31,7 @@ bool M1OrientationManagerOSCSettings::initFromSettings(std::string jsonSettingsF
                 nullptr,
                 juce::ModalCallbackFunction::create(([&](int result) {
                     //juce::JUCEApplicationBase::quit();
-			    }))
+                }))
             );
             return false;
         }

@@ -6,8 +6,8 @@ std::map<enum M1OrientationDeviceType, std::string> M1OrientationDeviceTypeName 
     { M1OrientationManagerDeviceTypeSerial, "Serial"},
     { M1OrientationManagerDeviceTypeBLE, "BLE"},
     { M1OrientationManagerDeviceTypeOSC, "OSC"},
-	{ M1OrientationManagerDeviceTypeCamera, "Camera"},
-	{ M1OrientationManagerDeviceTypeEmulator, "Emulator"},
+    { M1OrientationManagerDeviceTypeCamera, "Camera"},
+    { M1OrientationManagerDeviceTypeEmulator, "Emulator"},
     { M1OrientationManagerDeviceTypeFusion, "Fusion"}, // TODO: Add Camera + [any] type
 };
 

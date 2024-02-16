@@ -11,24 +11,24 @@ void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
 
 void M1OrientationClient::send(std::string path, std::string data)
 {
-	httplib::Client client("localhost", serverPort);
-	time_t usec = 10000; // 10ms
-	client.set_connection_timeout(0, usec);
-	client.set_read_timeout(0, usec);
-	client.set_write_timeout(0, usec);
-	client.Post(path, data, "text/plain");
+    httplib::Client client("localhost", serverPort);
+    time_t usec = 10000; // 10ms
+    client.set_connection_timeout(0, usec);
+    client.set_read_timeout(0, usec);
+    client.set_write_timeout(0, usec);
+    client.Post(path, data, "text/plain");
 }
     
 void M1OrientationClient::command_setTrackingYawEnabled(bool enable) {
-	send("/setTrackingYawEnabled", nlohmann::json({ enable }).dump());
+    send("/setTrackingYawEnabled", nlohmann::json({ enable }).dump());
 }
 
 void M1OrientationClient::command_setTrackingPitchEnabled(bool enable) {
-	send("/setTrackingPitchEnabled", nlohmann::json({ enable }).dump());
+    send("/setTrackingPitchEnabled", nlohmann::json({ enable }).dump());
 }
 
 void M1OrientationClient::command_setTrackingRollEnabled(bool enable) {
-	send("/setTrackingRollEnabled", nlohmann::json({ enable }).dump());
+    send("/setTrackingRollEnabled", nlohmann::json({ enable }).dump());
 }
 
 void M1OrientationClient::command_setAdditionalDeviceSettings(std::string additional_settings) {
@@ -36,15 +36,15 @@ void M1OrientationClient::command_setAdditionalDeviceSettings(std::string additi
 }
 
 void M1OrientationClient::command_setPlayerFrameRate(float playerFrameRate) {
-	send("/setPlayerFrameRate", nlohmann::json({ playerFrameRate }).dump());
+    send("/setPlayerFrameRate", nlohmann::json({ playerFrameRate }).dump());
 }
 
 void M1OrientationClient::command_setPlayerPositionInSeconds(float playerPlayheadPositionInSeconds) {
-	send("/setPlayerPosition", nlohmann::json({ playerPlayheadPositionInSeconds }).dump());
+    send("/setPlayerPosition", nlohmann::json({ playerPlayheadPositionInSeconds }).dump());
 }
 
 void M1OrientationClient::command_setPlayerIsPlaying(bool playerIsPlaying) {
-	send("/setPlayerIsPlaying", nlohmann::json({ playerIsPlaying }).dump());
+    send("/setPlayerIsPlaying", nlohmann::json({ playerIsPlaying }).dump());
 }
 
 void M1OrientationClient::command_recenter() {
@@ -68,15 +68,15 @@ bool M1OrientationClient::getTrackingRollEnabled() {
 }
 
 float M1OrientationClient::getPlayerPositionInSeconds() {
-	return playerPositionInSeconds;
+    return playerPositionInSeconds;
 }
 
 bool M1OrientationClient::getPlayerIsPlaying() {
-	return playerIsPlaying;
+    return playerIsPlaying;
 }
 
 float M1OrientationClient::getPlayerLastUpdate() {
-	return playerLastUpdate;
+    return playerLastUpdate;
 }
 
 bool M1OrientationClient::isConnectedToServer() {
@@ -155,89 +155,89 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
         helperInterface.connect("127.0.0.1", this->helperPort);
     }
     
-	isRunning = true;
+    isRunning = true;
 
-	std::thread([&, this]() {
-		httplib::Client client("localhost", this->serverPort);
-		time_t usec = 10000; // 10ms
-		client.set_connection_timeout(0, usec);
-		client.set_read_timeout(0, usec);
-		client.set_write_timeout(0, usec);
+    std::thread([&, this]() {
+        httplib::Client client("localhost", this->serverPort);
+        time_t usec = 10000; // 10ms
+        client.set_connection_timeout(0, usec);
+        client.set_read_timeout(0, usec);
+        client.set_write_timeout(0, usec);
 
-		while (isRunning) {
-			auto res = client.Get("/ping");
-			if (res) {
-				std::string body = res->body;
-				if (body != "") {
-					auto j = nlohmann::json::parse(body);
+        while (isRunning) {
+            auto res = client.Get("/ping");
+            if (res) {
+                std::string body = res->body;
+                if (body != "") {
+                    auto j = nlohmann::json::parse(body);
 
-					std::vector<M1OrientationDeviceInfo> devices;
-					for (int i = 0; i < j["devices"].size(); i++) {
-						auto m = j["devices"][i];
+                    std::vector<M1OrientationDeviceInfo> devices;
+                    for (int i = 0; i < j["devices"].size(); i++) {
+                        auto m = j["devices"][i];
 
-						std::string deviceName = m.at(0);
-						enum M1OrientationDeviceType deviceType = (enum M1OrientationDeviceType)m.at(1);
-						std::string deviceAddress = m.at(2);
-						bool hasStrength = m.at(3);
-						int deviceStrength = m.at(4);
+                        std::string deviceName = m.at(0);
+                        enum M1OrientationDeviceType deviceType = (enum M1OrientationDeviceType)m.at(1);
+                        std::string deviceAddress = m.at(2);
+                        bool hasStrength = m.at(3);
+                        int deviceStrength = m.at(4);
 
-						devices.push_back(M1OrientationDeviceInfo(deviceName, deviceType, deviceAddress, hasStrength ? deviceStrength : false));
-					}
+                        devices.push_back(M1OrientationDeviceInfo(deviceName, deviceType, deviceAddress, hasStrength ? deviceStrength : false));
+                    }
 
-					mutex.lock();
-					this->devices = devices;
-					int currentDeviceIdx = j["currentDeviceIdx"];
-					if (currentDeviceIdx >= 0) {
-						currentDevice = devices[currentDeviceIdx];
-					}
-					else {
-						currentDevice = M1OrientationDeviceInfo();
-					}
-					mutex.unlock();
+                    mutex.lock();
+                    this->devices = devices;
+                    int currentDeviceIdx = j["currentDeviceIdx"];
+                    if (currentDeviceIdx >= 0) {
+                        currentDevice = devices[currentDeviceIdx];
+                    }
+                    else {
+                        currentDevice = M1OrientationDeviceInfo();
+                    }
+                    mutex.unlock();
 
-					if (j["orientation"].size() == 3) {
-						M1OrientationYPR incomingOrientation;
-						incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
-						incomingOrientation.yaw = j["orientation"][0];
-						incomingOrientation.pitch = j["orientation"][1];
-						incomingOrientation.roll = j["orientation"][2];
-						orientation.setYPR(incomingOrientation);
-					}
-					else if (j["orientation"].size() == 4) {
-						// quat input
-						orientation.setQuat({ j["orientation"][0], j["orientation"][1], j["orientation"][2], j["orientation"][3] });
-					}
+                    if (j["orientation"].size() == 3) {
+                        M1OrientationYPR incomingOrientation;
+                        incomingOrientation.angleType = M1OrientationYPR::SIGNED_NORMALLED;
+                        incomingOrientation.yaw = j["orientation"][0];
+                        incomingOrientation.pitch = j["orientation"][1];
+                        incomingOrientation.roll = j["orientation"][2];
+                        orientation.setYPR(incomingOrientation);
+                    }
+                    else if (j["orientation"].size() == 4) {
+                        // quat input
+                        orientation.setQuat({ j["orientation"][0], j["orientation"][1], j["orientation"][2], j["orientation"][3] });
+                    }
 
-					bTrackingYawEnabled = j["trackingEnabled"][0];
-					bTrackingPitchEnabled = j["trackingEnabled"][1];
-					bTrackingRollEnabled = j["trackingEnabled"][2];
+                    bTrackingYawEnabled = j["trackingEnabled"][0];
+                    bTrackingPitchEnabled = j["trackingEnabled"][1];
+                    bTrackingRollEnabled = j["trackingEnabled"][2];
 
-					playerFrameRate = j["player"]["frameRate"];
-					playerPositionInSeconds = j["player"]["positionInSeconds"];
-					playerIsPlaying = j["player"]["isPlaying"];
-					playerLastUpdate = j["player"]["lastUpdate"];
+                    playerFrameRate = j["player"]["frameRate"];
+                    playerPositionInSeconds = j["player"]["positionInSeconds"];
+                    playerIsPlaying = j["player"]["isPlaying"];
+                    playerLastUpdate = j["player"]["lastUpdate"];
 
-					connectedToServer = true;
-				}
-			}
-			else {
-				connectedToServer = false;
-			}
+                    connectedToServer = true;
+                }
+            }
+            else {
+                connectedToServer = false;
+            }
             
-			if (this->helperPort != 0) {
-				if (!connectedToServer) {
-					juce::OSCMessage clientRequestsServerMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientRequestsServer"));
-					helperInterface.send(clientRequestsServerMessage);
-				}
+            if (this->helperPort != 0) {
+                if (!connectedToServer) {
+                    juce::OSCMessage clientRequestsServerMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientRequestsServer"));
+                    helperInterface.send(clientRequestsServerMessage);
+                }
 
-				juce::OSCMessage clientExistsMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientExists"));
-				helperInterface.send(clientExistsMessage);
-			}
+                juce::OSCMessage clientExistsMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientExists"));
+                helperInterface.send(clientExistsMessage);
+            }
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(30));
-		}
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        }
 
-	}).detach();
+    }).detach();
 
     return true;
 }
@@ -248,25 +248,25 @@ void M1OrientationClient::command_refresh()
 }
 
 std::vector<M1OrientationDeviceInfo> M1OrientationClient::getDevices() {
-	mutex.lock();
-	std::vector<M1OrientationDeviceInfo> devices = this->devices;
-	mutex.unlock();
-	return devices;
+    mutex.lock();
+    std::vector<M1OrientationDeviceInfo> devices = this->devices;
+    mutex.unlock();
+    return devices;
 }
 
 M1OrientationDeviceInfo M1OrientationClient::getCurrentDevice() {
-	mutex.lock();
-	M1OrientationDeviceInfo currentDevice = this->currentDevice;
-	mutex.unlock();
-	return currentDevice;
+    mutex.lock();
+    M1OrientationDeviceInfo currentDevice = this->currentDevice;
+    mutex.unlock();
+    return currentDevice;
 }
 
 void M1OrientationClient::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
-	mutex.lock();
-	if (currentDevice != device) {
-		send("/startTrackingUsingDevice", nlohmann::json({ device.getDeviceName(), (int)device.getDeviceType(), device.getDeviceAddress() }).dump());
-	}
-	mutex.unlock();
+    mutex.lock();
+    if (currentDevice != device) {
+        send("/startTrackingUsingDevice", nlohmann::json({ device.getDeviceName(), (int)device.getDeviceType(), device.getDeviceAddress() }).dump());
+    }
+    mutex.unlock();
 }
 
 void M1OrientationClient::command_disconnect()
@@ -275,8 +275,8 @@ void M1OrientationClient::command_disconnect()
 }
 
 void M1OrientationClient::close() {
-	isRunning = false;
-	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    isRunning = false;
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
 
 M1OrientationClient::~M1OrientationClient() {
