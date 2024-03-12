@@ -11,8 +11,8 @@ class M1OrientationClient :
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>,
     public M1OrientationManagerOSCSettings
 {
-	std::mutex mutex;
-	bool isRunning;
+    std::mutex mutex;
+    bool isRunning;
 
     juce::OSCSender helperInterface;
     int helperPort = 0;
@@ -26,11 +26,11 @@ class M1OrientationClient :
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
     
-	float playerPositionInSeconds = 0;
-	float playerFrameRate = 0;
-	bool playerIsPlaying = false;
-	int playerLastUpdate = 0;
-	//int HH, MM, SS, FS;
+    float playerPositionInSeconds = 0;
+    float playerFrameRate = 0;
+    bool playerIsPlaying = false;
+    int playerLastUpdate = 0;
+    //int HH, MM, SS, FS;
 
     std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback = nullptr;
 
@@ -47,7 +47,7 @@ public:
     int client_id = 0;
     bool client_active = true;
     std::string clientType = ""; // Use this to specify a client with a specific behavior
-	bool connectedToServer = false;
+    bool connectedToServer = false;
 
     // setup the server and watcher connections, the watcher is off by default
     bool init(int serverPort, int watcherPort) override;
@@ -60,9 +60,9 @@ public:
     void command_setTrackingRollEnabled(bool enable);
     void command_setAdditionalDeviceSettings(std::string additional_settings);
     void command_setPlayerFrameRate(float frameRate);
-	void command_setPlayerPositionInSeconds(float playheadPositionInSeconds);
-	void command_setPlayerIsPlaying(bool isPlaying);
-	void command_recenter();
+    void command_setPlayerPositionInSeconds(float playheadPositionInSeconds);
+    void command_setPlayerIsPlaying(bool isPlaying);
+    void command_recenter();
     void command_refresh();
 
     // Functions from the server to the clients
@@ -75,8 +75,8 @@ public:
     
     // Master Timecode and Playhead position
     float getPlayerPositionInSeconds();
-	bool getPlayerIsPlaying();
-	float getPlayerLastUpdate();
+    bool getPlayerIsPlaying();
+    float getPlayerLastUpdate();
 
     // Connection handling
     bool isConnectedToServer();

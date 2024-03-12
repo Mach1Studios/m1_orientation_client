@@ -29,22 +29,28 @@ struct M1OrientationYPR {
     // used to add two rotations together
     M1OrientationYPR& operator +(const M1OrientationYPR& a) {
         // add together and keep within set bounds
-		M1OrientationYPR result = *this;
-		result.yaw = std::fmod((yaw + a.yaw), yaw_max - yaw_min);
-		result.pitch = std::fmod((pitch + a.pitch), pitch_max - pitch_min);
-		result.roll = std::fmod((roll + a.roll), roll_max - roll_min);
+        M1OrientationYPR result = *this;
+        result.yaw = std::fmod((yaw + a.yaw), yaw_max - yaw_min);
+        result.pitch = std::fmod((pitch + a.pitch), pitch_max - pitch_min);
+        result.roll = std::fmod((roll + a.roll), roll_max - roll_min);
         return result;
     }
     
     // used to find the delta of two rotations
     M1OrientationYPR& operator -(const M1OrientationYPR& a) {
         // subtract together and keep within set bounds
-		M1OrientationYPR result = *this;
-		result.yaw = std::fmod((yaw - a.yaw), yaw_max - yaw_min);
-		result.pitch = std::fmod((pitch - a.pitch), pitch_max - pitch_min);
-		result.roll = std::fmod((roll - a.roll), roll_max - roll_min);
-		return result;
-	}
+        M1OrientationYPR result = *this;
+        result.yaw = std::fmod((yaw - a.yaw), yaw_max - yaw_min);
+        result.pitch = std::fmod((pitch - a.pitch), pitch_max - pitch_min);
+        result.roll = std::fmod((roll - a.roll), roll_max - roll_min);
+        return result;
+    }
+    
+    // used to find if the two orientations are the same
+    bool operator ==(const M1OrientationYPR& a) {
+        M1OrientationYPR result = *this;
+        return (result.yaw == a.yaw && result.pitch == a.pitch && result.roll == a.roll);
+    }
     
     void setYaw(float _yaw) {
         this->yaw = _yaw;
@@ -105,12 +111,12 @@ struct M1OrientationTrackingResult {
 };
 
 enum M1OrientationDeviceType {
-	M1OrientationManagerDeviceTypeEmulator = -1,
-	M1OrientationManagerDeviceTypeNone = 0,
+    M1OrientationManagerDeviceTypeEmulator = -1,
+    M1OrientationManagerDeviceTypeNone = 0,
     M1OrientationManagerDeviceTypeSerial,
     M1OrientationManagerDeviceTypeBLE,
     M1OrientationManagerDeviceTypeOSC,
-	M1OrientationManagerDeviceTypeCamera,
+    M1OrientationManagerDeviceTypeCamera,
     M1OrientationManagerDeviceTypeFusion, // TODO: Add Camera + [any] type
 };
 
@@ -133,7 +139,7 @@ public:
         batteryPercentage = batteryPercentage_;
     }
     
-	bool notConnectable = false;
+    bool notConnectable = false;
     bool newErrorToParse = false;
     std::string error = "";
     // osc specific
