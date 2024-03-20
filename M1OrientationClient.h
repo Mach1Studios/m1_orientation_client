@@ -38,7 +38,7 @@ class M1OrientationClient :
 	void send(std::string path, std::string data);
     
     bool isConnectedToDevice() {
-        return (getClientType() != "");
+        return getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone;
     }
 
 public:
