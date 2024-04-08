@@ -36,7 +36,7 @@ class M1OrientationClient :
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
     void send(std::string path, std::string data);
-
+    
 public:
     ~M1OrientationClient();
 
@@ -82,4 +82,10 @@ public:
     void setClientType(std::string client_type);
     void setStatusCallback(std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> callback);
     void close();
+    
+    bool isConnectedToDevice() {
+        return getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone;
+    }
+
+
 };
