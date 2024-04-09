@@ -1,11 +1,13 @@
 #pragma once
 
+#include "m1_mathematics/Orientation.h"
+
 #include <cmath>
 #include <string>
 #include <vector>
 #include <map>
+#include <mutex>
 #include <variant>
-#include "m1_mathematics/Orientation.h"
 
 struct M1OrientationTrackingResult {
     Mach1::Orientation currentOrientation;
@@ -44,34 +46,49 @@ public:
         signalStrength = signalStrength_;
         batteryPercentage = batteryPercentage_;
     }
-    
-	bool notConnectable = false;
-    bool newErrorToParse = false;
-    std::string error = "";
-    // osc specific
-    int osc_port = 9901;
-    std::string osc_msg_addr_pttrn = "/orientation";
 
-    std::string getDeviceName(){
+    struct Hash {
+        std::size_t operator()(const M1OrientationDeviceInfo& k) const
+        {
+            // Joshua Bloch, Effective Java, Addison-Wesley Professional (2018), p. 53
+            std::size_t result = k.getDeviceNameHash();
+            result = 31 * result + k.getDeviceAddressHash();
+            return result;
+        }
+    };
+
+    std::string getDeviceName() {
         return name;
+    }
+
+    std::size_t getDeviceNameHash() const {
+        return std::hash<std::string>()( name );
     }
 
     bool isDeviceName(const std::string& query_name) const {
         return name.find(query_name) != std::string::npos;
     }
 
-    M1OrientationDeviceType getDeviceType(){
+    M1OrientationDeviceType getDeviceType() {
         return type;
     }
     
-    std::string getDeviceAddress(){
+    std::string getDeviceAddress() {
         // [Serial]: returns the path
         // [BLE]: returns the UUID
         return address;
     }
-    
+
+    std::size_t getDeviceAddressHash() const {
+        return std::hash<std::string>()( address);
+    }
+
+    bool isDeviceAddress(const std::string& query_address) const {
+        return address.find(query_address) != std::string::npos;
+    }
+
     // Keeping these getters for ease of documentation but these variables are now public
-    std::variant<bool, int> getDeviceSignalStrength(){
+    std::variant<bool, int> getDeviceSignalStrength() {
         return signalStrength;
         
         /* Reference:
@@ -84,7 +101,7 @@ public:
     }
     
     // Keeping these getters for ease of documentation but these variables are now public
-    std::variant<bool, int> getDeviceBatteryPercentage(){
+    std::variant<bool, int> getDeviceBatteryPercentage() {
         return batteryPercentage;
         
         /* Reference:
@@ -105,18 +122,27 @@ public:
         }
     };
     
-    bool operator==(const M1OrientationDeviceInfo& rhs) {
+    bool operator==(const M1OrientationDeviceInfo& rhs) const {
         return ((name == rhs.name) && (address == rhs.address));
     }
     
-    bool operator!=(const M1OrientationDeviceInfo& rhs) {
+    bool operator!=(const M1OrientationDeviceInfo& rhs) const {
         return ((name != rhs.name) || (address != rhs.address));
     }
+
+public:
+    bool notConnectable = false;
+    bool newErrorToParse = false;
+    std::string error = "";
+    // osc specific
+    int osc_port = 9901;
+    std::string osc_msg_addr_pttrn = "/orientation";
 
 private:
     std::string name = "";
     M1OrientationDeviceType type = M1OrientationDeviceType::M1OrientationManagerDeviceTypeNone;
     std::string address = ""; // Device path or UUID
+
 public:
     std::variant<bool, int> signalStrength = false;
     std::variant<bool, int> batteryPercentage = false;
