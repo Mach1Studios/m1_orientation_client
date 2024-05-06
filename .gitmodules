@@ -4,3 +4,6 @@
 [submodule "libs/json"]
 	path = libs/json
 	url = git@github.com:nlohmann/json.git
+[submodule "libs/m1-mathematics"]
+	path = libs/m1-mathematics
+	url = git@github.com:Mach1Studios/m1-mathematics.git
