@@ -112,24 +112,24 @@ public:
                                           additionalSettingsOffsetY,
                                           m.getSize().width()/3, 30))
             .withText("ROLL").withTextAlignment(TEXT_CENTER).draw();
-            
+                        
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0 + 2,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
-            .withText("100").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetYaw()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withStrokeBorder(connectedRed).
             draw();
-            
+                        
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 + 2,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
-            .withText("0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetPitch()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withStrokeBorder(connectedRed).draw();
             
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 + 2,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
-            .withText("25").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetRoll()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withStrokeBorder(connectedRed).draw();
             
             // Re-center and disconnect
@@ -203,7 +203,6 @@ public:
             m.drawRectangle(ip_port_field.shape);
             m.enableFill();
 //            m.popStyle();
-
         }
 
         std::vector<std::string> deviceListStrings;
