@@ -6,6 +6,7 @@
 #include "M1OrientationSettings.h"
 
 #include "libs/httplib/httplib.h"
+#include "m1_mathematics/Orientation.h"
 
 class M1OrientationClient :
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>,
@@ -21,7 +22,7 @@ class M1OrientationClient :
     M1OrientationDeviceInfo currentDevice;
     std::vector<M1OrientationDeviceInfo> devices;
 
-    Orientation orientation;
+    Mach1::Orientation m_orientation;
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
@@ -35,7 +36,7 @@ class M1OrientationClient :
     std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback = nullptr;
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
-    void send(std::string path, std::string data);
+	void send(std::string path, std::string data);
     
 public:
     ~M1OrientationClient();
@@ -64,7 +65,7 @@ public:
     // Functions from the server to the clients
     std::vector<M1OrientationDeviceInfo> getDevices();
     M1OrientationDeviceInfo getCurrentDevice();
-    Orientation getOrientation();
+    Mach1::Orientation getOrientation();
     bool getTrackingYawEnabled();
     bool getTrackingPitchEnabled();
     bool getTrackingRollEnabled();
