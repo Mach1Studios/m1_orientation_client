@@ -38,9 +38,7 @@ public:
             isConnected = orientationClient->isConnectedToDevice();
             
             // Debug
-            
             isConnected = (deviceSelectedOption != "<SELECT>");
-            
             
             showOscSettings = (orientationClient->getCurrentDevice().getDeviceType() == M1OrientationManagerDeviceTypeOSC);
             showSWSettings = orientationClient->getCurrentDevice().getDeviceName().find("Supperware HT IMU") != std::string::npos;
@@ -73,7 +71,6 @@ public:
                     // roll clicked
                     orientationClient->command_setTrackingRollEnabled(!orientationClient->getTrackingRollEnabled());
             };
-            
         }
         
         if (!inside() && !areInteractiveChildrenHovered() && mouseDownPressed(0)) {
@@ -98,14 +95,11 @@ public:
         m.drawLine(m.getSize().width()/2 + 75, 7, m.getSize().width() - 7, 7);
         m.drawLine(7, 7, 7, 16);
         m.drawLine(m.getSize().width() - 7, 7, m.getSize().width() - 7, 16);
-        
-        
+
         float additionalSettingsOffsetY = 140; // dropdown starts at 30 y and is 120 pix long in height
         
         if (isConnected) {
-            
             // XYZ buttons / tracking enablers
-            
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0,
                                           additionalSettingsOffsetY,
                                           m.getSize().width()/3, 30))
@@ -265,9 +259,6 @@ public:
                 deviceDropdown.close();
             }
         }
-    
-
-        
     }
     
     void startRefreshing() {
@@ -316,7 +307,6 @@ public:
     bool initialized = false;
     bool showSettings = false;
     bool enabled = true;
-    
     bool showDeviceSelectionDropdown = false;
 
     // device specific

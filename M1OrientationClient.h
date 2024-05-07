@@ -88,5 +88,4 @@ public:
         return getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone;
     }
 
-
 };
