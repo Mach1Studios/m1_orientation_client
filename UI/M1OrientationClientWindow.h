@@ -276,20 +276,26 @@ public:
          */
         
         std::vector<std::string> deviceListStrings;
-        
+        if (deviceSlots.size() > 0) {
+            deviceListStrings.push_back("<SELECT>");
+        } else {
+            deviceListStrings.push_back("<NOT AVAILABLE>");
+        }
+
         for (int i = 0; i < deviceSlots.size(); i++) {
             deviceListStrings.push_back(deviceSlots[i].deviceName);
         }
         
         // !!! debug device list !!!
-        
+        /*
         deviceListStrings.push_back("<SELECT>");
         deviceListStrings.push_back("OSC Device");
         deviceListStrings.push_back("SUPPERWARE HT IMU");
         deviceListStrings.push_back("test device 3");
         deviceListStrings.push_back("test device 4");
         deviceListStrings.push_back("test device 5");
-        
+        */
+         
         float deviceDropdownY = 28;
         
         auto& deviceDropdown = m.prepare<M1DropdownMenu>({7, deviceDropdownY, shape.size.x - 14, 120}).withOptions(deviceListStrings);
