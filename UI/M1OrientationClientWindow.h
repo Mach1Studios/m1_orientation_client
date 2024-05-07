@@ -212,69 +212,6 @@ public:
 
         }
 
-        /*
-        if (showOscSettings) {
-            // Extra dropdown settings for when the OSC device is active for changing the input address/port/address_patter
-
-            int oscDivWidth = int(float(shape.size.x) / 3.0);
-
-            m.setColor(78, 78, 78, 255);
-            m.enableFill();
-            m.drawRectangle(2, additionalSettingsOffsetY, shape.size.x - 4, 30);
-            m.disableFill();
-            
-            // INPUT MSG ADDRESS PATTERN TEXTFIELD
-            auto& msg_address_pattern_field = m.prepare<murka::TextField>({2, additionalSettingsOffsetY, (oscDivWidth * 2) - 4, 30}).onlyAllowNumbers(false).controlling(&requested_osc_msg_address);
-            msg_address_pattern_field.drawBounds = true;
-            msg_address_pattern_field.widgetBgColor = {0.3, 0.3, 0.3};
-            msg_address_pattern_field.hint = "OSC ADDRESS PATTERN";
-            msg_address_pattern_field.draw();
-
-            // INPUT IP PORT TEXTFIELD
-            auto& ip_port_field = m.prepare<murka::TextField>({2 + oscDivWidth * 2, additionalSettingsOffsetY, oscDivWidth - 4, 30}).onlyAllowNumbers(true).controlling(&requested_osc_port);
-            ip_port_field.clampNumber = true;
-            ip_port_field.minNumber = 100;
-            ip_port_field.maxNumber = 65535;
-            ip_port_field.drawBounds = true;
-            ip_port_field.widgetBgColor = {0.3, 0.3, 0.3};
-            ip_port_field.hint = "OSC PORT";
-            ip_port_field.draw();
-            
-            if (ip_port_field.editingFinished || msg_address_pattern_field.editingFinished) {
-                oscSettingsChangedCallback(requested_osc_port, requested_osc_msg_address);
-            }
-        }
-        
-        if (showSWSettings) {
-            // extra dropdown settings for Supperware device
-            
-            int swDivWidth = int(float(shape.size.x) / 3.0);
-            
-            m.setColor(78, 78, 78, 255);
-            m.enableFill();
-            m.drawRectangle(2, additionalSettingsOffsetY, shape.size.x - 4, 30);
-            m.disableFill();
-
-            auto& sw_chirality_switch = m.prepare<M1SwitchableIconButton>({2, additionalSettingsOffsetY + 4, (swDivWidth * 2) - 4, 25});
-            sw_chirality_switch.withBorders();
-            sw_chirality_switch.onClick([&](M1SwitchableIconButton& b){
-                // Used to indicate how the IMU is mounted on the head
-                // chirality = true  | USB connector is on the right side
-                // chirality = false | USB connector is on the left side
-                isRightEarChirality = !isRightEarChirality;
-                supperwareSettingsChangedCallback(isRightEarChirality);
-            });
-            if (!isRightEarChirality) {
-                sw_chirality_switch.caption = "USB ON THE LEFT";
-            } else {
-                sw_chirality_switch.caption = "USB ON THE RIGHT";
-            }
-            sw_chirality_switch.fontSize = 5;
-            sw_chirality_switch.withFontSize(5);
-            sw_chirality_switch.draw();
-        }
-         */
-        
         std::vector<std::string> deviceListStrings;
         if (deviceSlots.size() > 0) {
             deviceListStrings.push_back("<SELECT>");
@@ -309,7 +246,6 @@ public:
             m.enableFill();
             m.drawRectangle(dropdownInitShape);
             
-                            
             auto& dropdownInit = m.prepare<M1DropdownButton>(dropdownInitShape).withLabel(deviceSelectedOption).withOutline(true).withBackgroundColor(MurkaColor(BACKGROUND_GREY))
                 .withTriangle(true).withOutlineColor(isConnected ? connectedRed : MurkaColor(ENABLED_PARAM));
             dropdownInit.textAlignment = TEXT_LEFT;
@@ -324,9 +260,7 @@ public:
             deviceDropdown.draw();
             if (deviceDropdown.changed || !deviceDropdown.opened) {
                 // UPDATING THE DEVICE PER SELECTED OPTION
-                
                 deviceSelectedOption = deviceListStrings[deviceDropdown.selectedOption];
-                
                 showDeviceSelectionDropdown = false;
                 deviceDropdown.close();
             }
@@ -347,18 +281,15 @@ public:
     bool refreshing = true;
     juce::int64 millisOnStart = 0;
     juce::int64 millisWhenRefreshingStarted = 0;
-    
 
     M1OrientationClientWindow& withOrientationClient(M1OrientationClient& client) {
         orientationClient = &client;
-        
         return *this;
     }
     
     std::string debugSupperwareChirality = "USB ON THE LEFT";
-    
+
     M1OrientationClient* orientationClient = nullptr;
-    
     bool isConnected = false;
     std::string connectedDeviceId = "";
 
