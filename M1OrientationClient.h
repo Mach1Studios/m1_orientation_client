@@ -87,5 +87,4 @@ public:
     bool isConnectedToDevice() {
         return getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone;
     }
-
 };

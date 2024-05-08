@@ -53,7 +53,8 @@ public:
                 }
                 orientationClient->command_setAdditionalDeviceSettings("sw_chir="+chir_cmd);
             };
-            disconnectClickedCallback = [&]() { orientationClient->command_disconnect();
+            disconnectClickedCallback = [&]() {
+                orientationClient->command_disconnect();
             };
             recenterClickedCallback = [&]() {
                 orientationClient->command_recenter();
@@ -98,7 +99,6 @@ public:
         
         if (isConnected) {
             // XYZ buttons / tracking enablers
-            // TODO: Make these buttons that disable input values when clicked (with highlight interaction)
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0,
                                           additionalSettingsOffsetY,
                                           m.getSize().width()/3, 30))
@@ -112,26 +112,41 @@ public:
                                           m.getSize().width()/3, 30))
             .withText("ROLL").withTextAlignment(TEXT_CENTER).draw();
                         
+            // Yaw value display & Enable button
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0 + 2,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetYaw()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
-            .withStrokeBorder(connectedRed).draw();
-                        
+            .withStrokeBorder(connectedRed)
+            .withOnClickCallback([&](){
+                orientationClient->command_setTrackingYawEnabled(!orientationClient->getTrackingYawEnabled());
+            })
+            .draw();
+            
+            // Pitch value display & Enable button
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 + 2,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetPitch()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
-            .withStrokeBorder(connectedRed).draw();
+            .withStrokeBorder(connectedRed)
+            .withOnClickCallback([&](){
+                orientationClient->command_setTrackingPitchEnabled(!orientationClient->getTrackingPitchEnabled());
+            })
+            .draw();
             
+            // Roll value display & Enable button
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 + 2,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetRoll()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
-            .withStrokeBorder(connectedRed).draw();
+            .withStrokeBorder(connectedRed)
+            .withOnClickCallback([&](){
+                orientationClient->command_setTrackingRollEnabled(!orientationClient->getTrackingRollEnabled());
+            })
+            .draw();
             
             // Recenter and disconnect
             
