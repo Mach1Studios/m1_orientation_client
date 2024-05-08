@@ -17,7 +17,6 @@ public:
         bool hovered = isHovered();
         
         // Click
-        
         bool clicked = false;
         if (hovered && mouseDownPressed(0)) {
             onClickCallback();
@@ -59,9 +58,7 @@ public:
             
             //            m.drawRectangle(0, 0, shape.size.x, shape.size.y);
             m.enableFill();
-            
         }
-        
         
         // color
         MurkaColor fgColor = customColor ? color : m.getColor();
@@ -82,7 +79,6 @@ public:
             float textX = (shape.size.x - 10) - font->getStringBoundingBox(label, 0, 0).width;
             font->drawString(label, textX, verticalTextOffset);
         }
-        
     }
     
     // Here go parameters and any parameter convenience constructors. You need to define something called Parameters, even if it's NULL.

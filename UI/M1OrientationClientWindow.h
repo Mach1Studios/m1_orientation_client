@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 #include <sstream>
@@ -81,8 +79,8 @@ public:
         
         // Drawing the window itself
         
-        MurkaColor connectedRed = MurkaColor(255.0 / 255.0, 72 / 255.0, 80 / 255.0);
-        MurkaColor backgroundHover = MurkaColor(0.25, 0.25, 0.25);
+        MurkaColor connectedRed = MurkaColor(ORIENTATION_ACTIVE_COLOR);
+        MurkaColor backgroundHover = MurkaColor(DISABLED_PARAM);
         
         if (isConnected) {
             m.setColor(connectedRed); // fancy red = connected
@@ -100,6 +98,7 @@ public:
         
         if (isConnected) {
             // XYZ buttons / tracking enablers
+            // TODO: Make these buttons that disable input values when clicked (with highlight interaction)
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0,
                                           additionalSettingsOffsetY,
                                           m.getSize().width()/3, 30))
@@ -117,46 +116,47 @@ public:
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetYaw()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
-            .withStrokeBorder(connectedRed).
-            draw();
+            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
+            .withStrokeBorder(connectedRed).draw();
                         
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 + 2,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetPitch()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(connectedRed).draw();
             
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 + 2,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetRoll()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(connectedRed).draw();
             
-            // Re-center and disconnect
+            // Recenter and disconnect
             
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/2 * 0 + 6,
                                           additionalSettingsOffsetY + 60,
                                           m.getSize().width()/2 - 8, 30))
-            .withText("RE-CENTER").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText("RECENTER").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withOnClickFlash()
-            .withBackgroundFill(backgroundHover, MurkaColor(26.0 / 255.0, 26.0 / 255.0, 26.0 / 255.0))
+            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(connectedRed).draw();
             
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/2 * 1 + 2,
                                           additionalSettingsOffsetY + 60,
                                           m.getSize().width()/2 - 8, 30))
-            .withBackgroundFill(backgroundHover, MurkaColor(26.0 / 255.0, 26.0 / 255.0, 26.0 / 255.0))
+            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
             .withOnClickFlash()
             .withText("DISCONNECT").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withStrokeBorder(connectedRed).draw();
-            
         }
         
         float additionalOptionY = 80;
         
         if (deviceSelectedOption == "SUPPERWARE HT IMU") {
             m.prepare<M1Label>(MurkaShape(6, additionalOptionY, shape.size.x  - 8, 30))
-            .withBackgroundFill(backgroundHover, MurkaColor(26.0 / 255.0, 26.0 / 255.0, 26.0 / 255.0))
+            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
             .withText(debugSupperwareChirality).withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withOnClickCallback([&](){
                 if (debugSupperwareChirality == "USB ON THE LEFT") {
@@ -239,8 +239,8 @@ public:
             m.enableFill();
             m.drawRectangle(dropdownInitShape);
             
-            auto& dropdownInit = m.prepare<M1DropdownButton>(dropdownInitShape).withLabel(deviceSelectedOption).withOutline(true).withBackgroundColor(MurkaColor(BACKGROUND_GREY))
-                .withTriangle(true).withOutlineColor(isConnected ? connectedRed : MurkaColor(ENABLED_PARAM));
+            auto& dropdownInit = m.prepare<M1DropdownButton>(dropdownInitShape).withLabel(deviceSelectedOption).withOutline(true).withBackgroundColor(MurkaColor(BACKGROUND_GREY)/255.)
+                .withTriangle(true).withOutlineColor(isConnected ? connectedRed : MurkaColor(ENABLED_PARAM)/255.);
             dropdownInit.textAlignment = TEXT_LEFT;
             dropdownInit.heightDivisor = 3;
             dropdownInit.draw();
