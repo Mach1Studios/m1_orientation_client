@@ -27,7 +27,7 @@ public:
         if (drawBorders)
             m.drawRectangle(0, 0, shape.size.x, shape.size.y);
         
-        m.setColor(140, 255);
+        m.setColor(GRID_LINES_4_RGB);
         m.enableFill();
         if (iconKind != "") {
             if (!iconLoaded) {

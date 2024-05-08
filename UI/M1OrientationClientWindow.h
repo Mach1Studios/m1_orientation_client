@@ -79,12 +79,9 @@ public:
         m.enableFill();
         
         // Drawing the window itself
-        
-        MurkaColor connectedRed = MurkaColor(ORIENTATION_ACTIVE_COLOR);
-        MurkaColor backgroundHover = MurkaColor(DISABLED_PARAM);
-        
+
         if (isConnected) {
-            m.setColor(connectedRed); // fancy red = connected
+            m.setColor(MurkaColor(ORIENTATION_ACTIVE_COLOR)); // fancy red = connected
         } else {
             m.setColor(189, 189, 189); // disconnected white
         }
@@ -117,8 +114,8 @@ public:
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetYaw()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
-            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
-            .withStrokeBorder(connectedRed)
+            .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
+            .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
                 orientationClient->command_setTrackingYawEnabled(!orientationClient->getTrackingYawEnabled());
             })
@@ -129,8 +126,8 @@ public:
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetPitch()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
-            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
-            .withStrokeBorder(connectedRed)
+            .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
+            .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
                 orientationClient->command_setTrackingPitchEnabled(!orientationClient->getTrackingPitchEnabled());
             })
@@ -141,8 +138,8 @@ public:
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 4, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetRoll()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
-            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
-            .withStrokeBorder(connectedRed)
+            .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
+            .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
                 orientationClient->command_setTrackingRollEnabled(!orientationClient->getTrackingRollEnabled());
             })
@@ -155,33 +152,41 @@ public:
                                           m.getSize().width()/2 - 8, 30))
             .withText("RECENTER").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withOnClickFlash()
-            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
-            .withStrokeBorder(connectedRed).draw();
+            .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
+            .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
+            .withOnClickCallback([&](){
+                orientationClient->command_recenter();
+            })
+            .draw();
             
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/2 * 1 + 2,
                                           additionalSettingsOffsetY + 60,
                                           m.getSize().width()/2 - 8, 30))
-            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
+            .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withOnClickFlash()
             .withText("DISCONNECT").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
-            .withStrokeBorder(connectedRed).draw();
+            .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
+            .withOnClickCallback([&](){
+                orientationClient->command_disconnect();
+            })
+            .draw();
         }
         
         float additionalOptionY = 80;
         
         if (deviceSelectedOption == "SUPPERWARE HT IMU") {
             m.prepare<M1Label>(MurkaShape(6, additionalOptionY, shape.size.x  - 8, 30))
-            .withBackgroundFill(backgroundHover, MurkaColor(BACKGROUND_GREY))
-            .withText(debugSupperwareChirality).withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
+            .withText(supperwareChirality).withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withOnClickCallback([&](){
-                if (debugSupperwareChirality == "USB ON THE LEFT") {
-                    debugSupperwareChirality = "USB ON THE RIGHT";
+                if (supperwareChirality == "USB ON THE LEFT") {
+                    supperwareChirality = "USB ON THE RIGHT";
                 } else {
-                    debugSupperwareChirality = "USB ON THE LEFT";
+                    supperwareChirality = "USB ON THE LEFT";
                 }
             })
             .withOnClickFlash()
-            .withStrokeBorder(connectedRed).draw();
+            .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR)).draw();
         }
         
         if (deviceSelectedOption == "OSC Device") {
@@ -191,15 +196,13 @@ public:
             msg_address_pattern_field.drawBounds = false;
             msg_address_pattern_field.hint = "OSC ADDRESS PATTERN";
             msg_address_pattern_field.widgetBgColor = BACKGROUND_GREY;
-            msg_address_pattern_field.widgetFgColor = connectedRed;
+            msg_address_pattern_field.widgetFgColor = MurkaColor(ORIENTATION_ACTIVE_COLOR);
             msg_address_pattern_field.draw();
-            
-//            m.pushStyle();
+                        
             m.disableFill();
-            m.setColor(connectedRed);
+            m.setColor(MurkaColor(ORIENTATION_ACTIVE_COLOR));
             m.drawRectangle(msg_address_pattern_field.shape);
             m.enableFill();
-//            m.popStyle();
 
             // INPUT IP PORT TEXTFIELD
             auto& ip_port_field = m.prepare<murka::TextField>({shape.size.x * 0.7 + 2, additionalOptionY, shape.size.x * 0.3 - 2, 30}).onlyAllowNumbers(true).controlling(&requested_osc_port);
@@ -208,16 +211,18 @@ public:
             ip_port_field.maxNumber = 65535;
             ip_port_field.drawBounds = false;
             ip_port_field.widgetBgColor = BACKGROUND_GREY;
-            ip_port_field.widgetFgColor = connectedRed;
+            ip_port_field.widgetFgColor = MurkaColor(ORIENTATION_ACTIVE_COLOR);
             ip_port_field.hint = "OSC PORT";
             ip_port_field.draw();
 
-//            m.pushStyle();
             m.disableFill();
-            m.setColor(connectedRed);
+            m.setColor(MurkaColor(ORIENTATION_ACTIVE_COLOR));
             m.drawRectangle(ip_port_field.shape);
             m.enableFill();
-//            m.popStyle();
+            
+            if (ip_port_field.editingFinished || msg_address_pattern_field.editingFinished) {
+                oscSettingsChangedCallback(requested_osc_port, requested_osc_msg_address);
+            }
         }
 
         std::vector<std::string> deviceListStrings;
@@ -250,12 +255,12 @@ public:
         if (!showDeviceSelectionDropdown) {
             MurkaShape dropdownInitShape = MurkaShape(7, deviceDropdownY, shape.size.x - 14, 40);
 
-            m.setColor(MurkaColor(0.25, 0.25, 0.25));
+            m.setColor(MurkaColor(DISABLED_PARAM));
             m.enableFill();
             m.drawRectangle(dropdownInitShape);
             
-            auto& dropdownInit = m.prepare<M1DropdownButton>(dropdownInitShape).withLabel(deviceSelectedOption).withOutline(true).withBackgroundColor(MurkaColor(BACKGROUND_GREY)/255.)
-                .withTriangle(true).withOutlineColor(isConnected ? connectedRed : MurkaColor(ENABLED_PARAM)/255.);
+            auto& dropdownInit = m.prepare<M1DropdownButton>(dropdownInitShape).withLabel(deviceSelectedOption).withOutline(true).withBackgroundColor(MurkaColor(BACKGROUND_GREY))
+                .withTriangle(true).withOutlineColor(isConnected ? MurkaColor(ORIENTATION_ACTIVE_COLOR) : MurkaColor(ENABLED_PARAM));
             dropdownInit.textAlignment = TEXT_LEFT;
             dropdownInit.heightDivisor = 3;
             dropdownInit.draw();
@@ -292,7 +297,7 @@ public:
         return *this;
     }
     
-    std::string debugSupperwareChirality = "USB ON THE LEFT";
+    std::string supperwareChirality = "USB ON THE LEFT";
 
     M1OrientationClient* orientationClient = nullptr;
     bool isConnected = false;
@@ -312,7 +317,6 @@ public:
     std::function<void()> recenterClickedCallback;
     std::function<void()> disconnectClickedCallback;
     std::vector<M1OrientationClientWindowDeviceSlot> deviceSlots;
-    
 	std::function<void()> onClickOutsideCallback = []() {};
 	std::function<void()> onRefreshCallback = []() {};
 	
