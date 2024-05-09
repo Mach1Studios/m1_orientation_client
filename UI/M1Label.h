@@ -163,13 +163,6 @@ public:
     
     std::string label = "";
 
-//    MURKA_PARAMETER(M1Label, // class name
-//                    std::string, // parameter type
-//                    label, // parameter variable name
-//                    text, // setter
-//                    "" // default
-//    )
-
 	// The results type, you also need to define it even if it's nothing.
 	bool result;
 
