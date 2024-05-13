@@ -29,13 +29,13 @@ public:
         m.disableFill();
         m.drawRectangle(0, 0, shape.size.x, shape.size.y);
         
-        m.setColor(140, 255);
+        m.setColor(GRID_LINES_4_RGB);
         m.enableFill();
         if (!showGimmick) {
             m.drawImage(icon, 5, 5, shape.size.x - 10, shape.size.y - 10);
         } else {
             // TODO: show monitor yaw iconology?
-            m.setColor(220, 220, 220, 255);
+            m.setColor(ENABLED_PARAM);
             m.drawCircle(shape.size.x / 2 + cos(juce::degreesToRadians(gimmickAngleDegrees - 90)) * (shape.size.x - 5) / 2,
                          shape.size.y / 2 + sin(juce::degreesToRadians(gimmickAngleDegrees - 90)) * (shape.size.y - 5) / 2,
                          2);
