@@ -269,6 +269,20 @@ public:
             if (deviceDropdown.changed || !deviceDropdown.opened) {
                 // UPDATING THE DEVICE PER SELECTED OPTION
                 deviceSelectedOption = deviceListStrings[deviceDropdown.selectedOption];
+                
+                std::vector<M1OrientationDeviceInfo> sourceDevices = orientationClient->getDevices();
+                bool foundDevice = false;
+                for (int i = 0; i < sourceDevices.size(); i++) {
+                    if (sourceDevices[i].getDeviceName() == deviceSelectedOption) {
+                        orientationClient->command_startTrackingUsingDevice(sourceDevices[i]);
+                        foundDevice = true;
+                    }
+                }
+                
+                if (!foundDevice) {
+                    orientationClient->command_disconnect();
+                }
+                
                 showDeviceSelectionDropdown = false;
                 deviceDropdown.close();
             }
@@ -289,6 +303,11 @@ public:
 
     M1OrientationClientWindow& withOrientationClient(M1OrientationClient& client) {
         orientationClient = &client;
+        return *this;
+    }
+    
+    M1OrientationClientWindow& withDeviceSlots(std::vector<M1OrientationClientWindowDeviceSlot> slots) {
+        deviceSlots = slots;
         return *this;
     }
     
