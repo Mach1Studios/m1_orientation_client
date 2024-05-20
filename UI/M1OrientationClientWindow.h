@@ -122,7 +122,7 @@ public:
             .draw();
             
             // Pitch value display & Enable button
-            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 + 4,
+            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1  + 4,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 8, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetPitch()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
