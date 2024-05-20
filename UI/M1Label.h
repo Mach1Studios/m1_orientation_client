@@ -25,7 +25,7 @@ public:
         
         MurkaColor bgColor = backgroundColor;
         m.enableFill();
-        if ((bgColor.a != 0.0) && bgFill) {
+        if ((bgColor.getNormalisedAlpha() != 0.0) && bgFill) {
             if (backgroundColorHoverEnable) {
                 m.setColor(hovered ? backgroundColor : backgroundColorUnhovered);
             } else {
@@ -62,10 +62,12 @@ public:
         
         // color
         MurkaColor fgColor = customColor ? color : m.getColor();
-        float anim = enabled ? 1.0 * 40 / 255 * A(highlighted) : 0.0;
-        fgColor.r += anim - fgColor.r * 0.5 * !enabled;
-        fgColor.g += anim - fgColor.g * 0.5 * !enabled;
-        fgColor.b += anim - fgColor.b * 0.5 * !enabled;
+        float anim = enabled ? 40  * A(highlighted) : 0.0;
+        fgColor.setRed(fgColor.getRed() + anim - fgColor.getRed() * 0.5 * !enabled);
+        fgColor.setGreen(fgColor.getGreen() + anim - fgColor.getGreen() * 0.5 * !enabled);
+        fgColor.setBlue(fgColor.getBlue() + anim - fgColor.getBlue() * 0.5 * !enabled);
+        
+        
         
         m.setColor(fgColor);
         if (alignment == TEXT_LEFT) {
@@ -101,7 +103,7 @@ public:
     M1Label& withBackgroundFill(MurkaColor bgFillColor, MurkaColor bgFillColorUnhovered = MurkaColor(0,0,0, 0)) {
         backgroundColor = bgFillColor;
         backgroundColorUnhovered = bgFillColorUnhovered;
-        if (bgFillColorUnhovered.a > 0) {
+        if (bgFillColorUnhovered.getAlpha() > 0) {
             backgroundColorHoverEnable = true;
         } else {
             backgroundColorHoverEnable = false;
@@ -113,7 +115,7 @@ public:
     
     M1Label& withStrokeBorder(MurkaColor sbColor, MurkaColor sbColorUnhovered = MurkaColor(0,0,0, -1.0)) {
         strokeBorderColor = sbColor;
-        if (sbColorUnhovered.a > 0) {
+        if (sbColorUnhovered.getAlpha() > 0) {
             strokeBorderColorUnhovered = sbColorUnhovered;
             strokeBorkerHoverEnable = true;
         } else {
