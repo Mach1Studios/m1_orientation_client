@@ -14,6 +14,7 @@
   description:        An orientation client that receives the aggregate peripheral orienatation or headtracking devices and inputs from the orientation-server.
   website:            https://github.com/Mach1Studios/m1_orientation_client
   license:            Free
+  searchpaths:        libs/m1-mathematics/include
 
   dependencies:       juce_osc
 
