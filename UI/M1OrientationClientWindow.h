@@ -36,7 +36,7 @@ public:
             isConnected = orientationClient->isConnectedToDevice();
             
             // Debug
-            isConnected = (deviceSelectedOption != "<SELECT>");
+            isConnected = (deviceSelectedOption != "<SELECT DEVICE>");
             
             showOscSettings = (orientationClient->getCurrentDevice().getDeviceType() == M1OrientationManagerDeviceTypeOSC);
             showSWSettings = orientationClient->getCurrentDevice().getDeviceName().find("Supperware HT IMU") != std::string::npos;
@@ -170,65 +170,64 @@ public:
                 orientationClient->command_disconnect();
             })
             .draw();
-        }
-        
-        float additionalOptionY = 80;
-        
-        if (deviceSelectedOption == "SUPPERWARE HT IMU") {
-            m.prepare<M1Label>(MurkaShape(6, additionalOptionY, shape.size.x  - 8, 30))
-            .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
-            .withText(supperwareChirality).withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
-            .withOnClickCallback([&](){
-                if (supperwareChirality == "USB ON THE LEFT") {
-                    supperwareChirality = "USB ON THE RIGHT";
-                } else {
-                    supperwareChirality = "USB ON THE LEFT";
+            
+            float additionalOptionY = 80;
+            
+            if (deviceSelectedOption == "SUPPERWARE HT IMU") {
+                m.prepare<M1Label>(MurkaShape(6, additionalOptionY, shape.size.x  - 8, 30))
+                .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
+                .withText(supperwareChirality).withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+                .withOnClickCallback([&](){
+                    if (supperwareChirality == "USB ON THE LEFT") {
+                        supperwareChirality = "USB ON THE RIGHT";
+                    } else {
+                        supperwareChirality = "USB ON THE LEFT";
+                    }
+                })
+                .withOnClickFlash()
+                .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
+                .draw();
+            }
+            
+            if (deviceSelectedOption == "OSC Input" || deviceSelectedOption == "OSC Device") {
+                // INPUT MSG ADDRESS PATTERN TEXTFIELD
+                auto& msg_address_pattern_field = m.prepare<murka::TextField>({2, additionalOptionY, shape.size.x * 0.7 - 4, 30}).onlyAllowNumbers(false).controlling(&requested_osc_msg_address);
+                msg_address_pattern_field.drawBounds = false;
+                msg_address_pattern_field.hint = "OSC ADDRESS PATTERN";
+                msg_address_pattern_field.widgetBgColor = MurkaColor(BACKGROUND_GREY);
+                msg_address_pattern_field.widgetFgColor = MurkaColor(ORIENTATION_ACTIVE_COLOR);
+                msg_address_pattern_field.draw();
+                            
+                m.disableFill();
+                m.setColor(ORIENTATION_ACTIVE_COLOR);
+                m.drawRectangle(msg_address_pattern_field.shape);
+                m.enableFill();
+
+                // INPUT IP PORT TEXTFIELD
+                auto& ip_port_field = m.prepare<murka::TextField>({shape.size.x * 0.7 + 2, additionalOptionY, shape.size.x * 0.3 - 2, 30}).onlyAllowNumbers(true).controlling(&requested_osc_port);
+                ip_port_field.clampNumber = true;
+                ip_port_field.minNumber = 100;
+                ip_port_field.maxNumber = 65535;
+                ip_port_field.drawBounds = false;
+                ip_port_field.widgetBgColor = MurkaColor(BACKGROUND_GREY);
+                ip_port_field.widgetFgColor = MurkaColor(ORIENTATION_ACTIVE_COLOR);
+                ip_port_field.hint = "OSC PORT";
+                ip_port_field.draw();
+
+                m.disableFill();
+                m.setColor(ORIENTATION_ACTIVE_COLOR);
+                m.drawRectangle(ip_port_field.shape);
+                m.enableFill();
+                
+                if (ip_port_field.editingFinished || msg_address_pattern_field.editingFinished) {
+                    oscSettingsChangedCallback(requested_osc_port, requested_osc_msg_address);
                 }
-            })
-            .withOnClickFlash()
-            .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
-            .draw();
-        }
-        
-        if (deviceSelectedOption == "OSC Device") {
-            
-            // INPUT MSG ADDRESS PATTERN TEXTFIELD
-            auto& msg_address_pattern_field = m.prepare<murka::TextField>({2, additionalOptionY, shape.size.x * 0.7 - 4, 30}).onlyAllowNumbers(false).controlling(&requested_osc_msg_address);
-            msg_address_pattern_field.drawBounds = false;
-            msg_address_pattern_field.hint = "OSC ADDRESS PATTERN";
-            msg_address_pattern_field.widgetBgColor = MurkaColor(BACKGROUND_GREY);
-            msg_address_pattern_field.widgetFgColor = MurkaColor(ORIENTATION_ACTIVE_COLOR);
-            msg_address_pattern_field.draw();
-                        
-            m.disableFill();
-            m.setColor(ORIENTATION_ACTIVE_COLOR);
-            m.drawRectangle(msg_address_pattern_field.shape);
-            m.enableFill();
-
-            // INPUT IP PORT TEXTFIELD
-            auto& ip_port_field = m.prepare<murka::TextField>({shape.size.x * 0.7 + 2, additionalOptionY, shape.size.x * 0.3 - 2, 30}).onlyAllowNumbers(true).controlling(&requested_osc_port);
-            ip_port_field.clampNumber = true;
-            ip_port_field.minNumber = 100;
-            ip_port_field.maxNumber = 65535;
-            ip_port_field.drawBounds = false;
-            ip_port_field.widgetBgColor = MurkaColor(BACKGROUND_GREY);
-            ip_port_field.widgetFgColor = MurkaColor(ORIENTATION_ACTIVE_COLOR);
-            ip_port_field.hint = "OSC PORT";
-            ip_port_field.draw();
-
-            m.disableFill();
-            m.setColor(ORIENTATION_ACTIVE_COLOR);
-            m.drawRectangle(ip_port_field.shape);
-            m.enableFill();
-            
-            if (ip_port_field.editingFinished || msg_address_pattern_field.editingFinished) {
-                oscSettingsChangedCallback(requested_osc_port, requested_osc_msg_address);
             }
         }
-
+        
         std::vector<std::string> deviceListStrings;
         if (deviceSlots.size() > 0) {
-            deviceListStrings.push_back("<SELECT>");
+            deviceListStrings.push_back("<SELECT DEVICE>");
         } else {
             deviceListStrings.push_back("<NOT AVAILABLE>");
         }
@@ -236,17 +235,7 @@ public:
         for (int i = 0; i < deviceSlots.size(); i++) {
             deviceListStrings.push_back(deviceSlots[i].deviceName);
         }
-        
-        // !!! debug device list !!!
-        /*
-        deviceListStrings.push_back("<SELECT>");
-        deviceListStrings.push_back("OSC Device");
-        deviceListStrings.push_back("SUPPERWARE HT IMU");
-        deviceListStrings.push_back("test device 3");
-        deviceListStrings.push_back("test device 4");
-        deviceListStrings.push_back("test device 5");
-        */
-         
+
         float deviceDropdownY = 28;
         
         auto& deviceDropdown = m.prepare<M1DropdownMenu>({7, deviceDropdownY, shape.size.x - 14, 120}).withOptions(deviceListStrings);
@@ -260,8 +249,10 @@ public:
             m.enableFill();
             m.drawRectangle(dropdownInitShape);
             
-            auto& dropdownInit = m.prepare<M1DropdownButton>(dropdownInitShape).withLabel(deviceSelectedOption).withOutline(false).withBackgroundColor(MurkaColor(BACKGROUND_GREY))
-                .withTriangle(true).withOutlineColor(isConnected ? MurkaColor(ORIENTATION_ACTIVE_COLOR) : MurkaColor(ENABLED_PARAM));
+            // `withOutlineColor()` sets the triangle
+            // TODO: Make isConnected test include checking the device name
+            auto& dropdownInit = m.prepare<M1DropdownButton>(dropdownInitShape).withLabel(deviceSelectedOption).withLabelColor(isConnected ? MurkaColor(ORIENTATION_ACTIVE_COLOR) : MurkaColor(LABEL_TEXT_COLOR)).withOutline(false).withOutlineColor(isConnected ? MurkaColor(ORIENTATION_ACTIVE_COLOR) : MurkaColor(ENABLED_PARAM)).withBackgroundColor(MurkaColor(BACKGROUND_GREY))
+                .withTriangle(true);
             dropdownInit.textAlignment = TEXT_LEFT;
             dropdownInit.heightDivisor = 3;
             dropdownInit.draw();
@@ -301,7 +292,7 @@ public:
 		onRefreshCallback();
     }
     
-    std::string deviceSelectedOption = "<SELECT>";
+    std::string deviceSelectedOption = "<SELECT DEVICE>";
     
     bool refreshing = true;
     juce::int64 millisOnStart = 0;
