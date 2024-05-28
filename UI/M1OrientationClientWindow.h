@@ -113,7 +113,7 @@ public:
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0 + 6,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 6, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetYaw()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetYaw()) : "0.0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
@@ -125,7 +125,7 @@ public:
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1  + 4,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 8, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetPitch()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetPitch()) : "0.0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
@@ -137,7 +137,7 @@ public:
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 + 0,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 6, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetRoll()) : "0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetRoll()) : "0.0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
@@ -197,7 +197,7 @@ public:
                 msg_address_pattern_field.widgetBgColor = MurkaColor(BACKGROUND_GREY);
                 msg_address_pattern_field.widgetFgColor = MurkaColor(ORIENTATION_ACTIVE_COLOR);
                 msg_address_pattern_field.draw();
-                            
+
                 m.disableFill();
                 m.setColor(ORIENTATION_ACTIVE_COLOR);
                 m.drawRectangle(msg_address_pattern_field.shape);
@@ -239,6 +239,8 @@ public:
         float deviceDropdownY = 28;
         
         auto& deviceDropdown = m.prepare<M1DropdownMenu>({7, deviceDropdownY, shape.size.x - 14, 120}).withOptions(deviceListStrings);
+        deviceDropdown.withLabelColor(MurkaColor(LABEL_TEXT_COLOR));
+        deviceDropdown.withSelectedLabelColor(MurkaColor(ORIENTATION_ACTIVE_COLOR));
         deviceDropdown.textAlignment = TEXT_LEFT;
         deviceDropdown.optionHeight = 40;
         
@@ -344,6 +346,7 @@ public:
     std::function<void(bool)> supperwareSettingsChangedCallback;
 
     // osc specific
+    // TODO: GETTER for textfields active
     bool showOscSettings = false;
     int requested_osc_port = 9901; // default value
     std::string requested_osc_msg_address = "/orientation"; // default value
