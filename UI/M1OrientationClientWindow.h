@@ -241,6 +241,7 @@ public:
         auto& deviceDropdown = m.prepare<M1DropdownMenu>({7, deviceDropdownY, shape.size.x - 14, 120}).withOptions(deviceListStrings);
         deviceDropdown.withLabelColor(MurkaColor(LABEL_TEXT_COLOR));
         deviceDropdown.withSelectedLabelColor(MurkaColor(ORIENTATION_ACTIVE_COLOR));
+        deviceDropdown.withHighlightLabelColor(MurkaColor(BACKGROUND_GREY));
         deviceDropdown.textAlignment = TEXT_LEFT;
         deviceDropdown.optionHeight = 40;
         
