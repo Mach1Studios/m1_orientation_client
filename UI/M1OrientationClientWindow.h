@@ -110,10 +110,13 @@ public:
             .withText("ROLL").withTextAlignment(TEXT_CENTER).draw();
                         
             // Yaw value display & Enable button
+            std::stringstream ytmp;
+            ytmp << std::fixed << std::setprecision(3) << orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetYaw() + 0.0;
+            std::string yawValue = ytmp.str();
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0 + 6,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 6, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetYaw()) : "0.0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? yawValue : "0.000").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
@@ -122,10 +125,13 @@ public:
             .draw();
             
             // Pitch value display & Enable button
+            std::stringstream ptmp;
+            ptmp << std::fixed << std::setprecision(3) << orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetPitch() + 0.0;
+            std::string pitchValue = ptmp.str();
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1  + 4,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 8, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetPitch()) : "0.0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? pitchValue : "0.000").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
@@ -134,10 +140,13 @@ public:
             .draw();
             
             // Roll value display & Enable button
+            std::stringstream rtmp;
+            rtmp << std::fixed << std::setprecision(3) << orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetRoll() + 0.0;
+            std::string rollValue = rtmp.str();
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 + 0,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 6, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? std::to_string(orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetRoll()) : "0.0").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? rollValue : "0.000").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
@@ -150,7 +159,7 @@ public:
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/2 * 0 + 6,
                                           additionalSettingsOffsetY + 60,
                                           m.getSize().width()/2 - 8, 30))
-            .withText("RECENTER").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText("RECENTER").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
             .withOnClickFlash()
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
@@ -164,7 +173,7 @@ public:
                                           m.getSize().width()/2 - 8, 30))
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withOnClickFlash()
-            .withText("DISCONNECT").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+            .withText("DISCONNECT").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
                 orientationClient->command_disconnect();
@@ -176,7 +185,7 @@ public:
             if (deviceSelectedOption == "SUPPERWARE HT IMU") {
                 m.prepare<M1Label>(MurkaShape(6, additionalOptionY, shape.size.x  - 8, 30))
                 .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
-                .withText(supperwareChirality).withTextAlignment(TEXT_CENTER).withVerticalTextOffset(10)
+                .withText(supperwareChirality).withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
                 .withOnClickCallback([&](){
                     if (supperwareChirality == "USB ON THE LEFT") {
                         supperwareChirality = "USB ON THE RIGHT";
@@ -191,7 +200,7 @@ public:
             
             if (deviceSelectedOption == "OSC Input" || deviceSelectedOption == "OSC Device") {
                 // INPUT MSG ADDRESS PATTERN TEXTFIELD
-                auto& msg_address_pattern_field = m.prepare<murka::TextField>({2, additionalOptionY, shape.size.x * 0.7 - 4, 30}).onlyAllowNumbers(false).controlling(&requested_osc_msg_address);
+                auto& msg_address_pattern_field = m.prepare<murka::TextField>({8, additionalOptionY, shape.size.x * 0.7 - 10, 30}).onlyAllowNumbers(false).controlling(&requested_osc_msg_address);
                 msg_address_pattern_field.drawBounds = false;
                 msg_address_pattern_field.hint = "OSC ADDRESS PATTERN";
                 msg_address_pattern_field.widgetBgColor = MurkaColor(BACKGROUND_GREY);
@@ -204,7 +213,7 @@ public:
                 m.enableFill();
 
                 // INPUT IP PORT TEXTFIELD
-                auto& ip_port_field = m.prepare<murka::TextField>({shape.size.x * 0.7 + 2, additionalOptionY, shape.size.x * 0.3 - 2, 30}).onlyAllowNumbers(true).controlling(&requested_osc_port);
+                auto& ip_port_field = m.prepare<murka::TextField>({shape.size.x * 0.7 + 6, additionalOptionY, shape.size.x * 0.3 - 14, 30}).onlyAllowNumbers(true).controlling(&requested_osc_port);
                 ip_port_field.clampNumber = true;
                 ip_port_field.minNumber = 100;
                 ip_port_field.maxNumber = 65535;
