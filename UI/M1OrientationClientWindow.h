@@ -32,11 +32,19 @@ public:
     void internalDraw(Murka & m) {
         // Updating the state from the client
         
+        deviceSelectedOption = "";
+
+        
         if (orientationClient != nullptr) {
             isConnected = orientationClient->isConnectedToDevice();
             
-            // Debug
-            isConnected = (deviceSelectedOption != "<SELECT DEVICE>");
+            if (isConnected) {
+                deviceSelectedOption = orientationClient->getCurrentDevice().getDeviceName();
+            } else {
+                deviceSelectedOption = "<SELECT DEVICE>";
+            }
+
+            
             
             showOscSettings = (orientationClient->getCurrentDevice().getDeviceType() == M1OrientationManagerDeviceTypeOSC);
             showSWSettings = orientationClient->getCurrentDevice().getDeviceName().find("Supperware HT IMU") != std::string::npos;
@@ -240,9 +248,16 @@ public:
         } else {
             deviceListStrings.push_back("<NOT AVAILABLE>");
         }
-
+        
+        int selectedOptionInDeviceList = 0;
         for (int i = 0; i < deviceSlots.size(); i++) {
             deviceListStrings.push_back(deviceSlots[i].deviceName);
+            
+            if (isConnected) {
+                if (orientationClient->getCurrentDevice().getDeviceName() == deviceSlots[i].deviceName) {
+                    selectedOptionInDeviceList = i + 1; // cause 0 is "SELECTE DEVICE"
+                }
+            }
         }
 
         float deviceDropdownY = 28;
@@ -253,6 +268,7 @@ public:
         deviceDropdown.withHighlightLabelColor(MurkaColor(BACKGROUND_GREY));
         deviceDropdown.textAlignment = TEXT_LEFT;
         deviceDropdown.optionHeight = 40;
+        deviceDropdown.selectedOption = selectedOptionInDeviceList;
         
         if (!showDeviceSelectionDropdown) {
             MurkaShape dropdownInitShape = MurkaShape(7, deviceDropdownY, shape.size.x - 14, 40);
@@ -277,12 +293,11 @@ public:
             deviceDropdown.draw();
             if (deviceDropdown.changed || !deviceDropdown.opened) {
                 // UPDATING THE DEVICE PER SELECTED OPTION
-                deviceSelectedOption = deviceListStrings[deviceDropdown.selectedOption];
                 
                 std::vector<M1OrientationDeviceInfo> sourceDevices = orientationClient->getDevices();
                 bool foundDevice = false;
                 for (int i = 0; i < sourceDevices.size(); i++) {
-                    if (sourceDevices[i].getDeviceName() == deviceSelectedOption) {
+                    if (sourceDevices[i].getDeviceName() == deviceListStrings[deviceDropdown.selectedOption]) {
                         orientationClient->command_startTrackingUsingDevice(sourceDevices[i]);
                         foundDevice = true;
                     }
