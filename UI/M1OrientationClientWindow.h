@@ -5,6 +5,8 @@
 #include "TextField.h"
 #include "MurkaBasicWidgets.h"
 #include "M1SwitchableIconButton.h"
+#include "M1OrientationClientDropdownButton.h"
+#include "M1OrientationClientDropdownMenu.h"
 
 using namespace murka;
 
@@ -262,7 +264,7 @@ public:
 
         float deviceDropdownY = 28;
         
-        auto& deviceDropdown = m.prepare<M1DropdownMenu>({7, deviceDropdownY, shape.size.x - 14, 120}).withOptions(deviceListStrings);
+        auto& deviceDropdown = m.prepare<M1OrientationClientDropdownMenu>({7, deviceDropdownY, shape.size.x - 14, 120}).withOptions(deviceListStrings);
         deviceDropdown.withLabelColor(MurkaColor(LABEL_TEXT_COLOR));
         deviceDropdown.withSelectedLabelColor(MurkaColor(ORIENTATION_ACTIVE_COLOR));
         deviceDropdown.withHighlightLabelColor(MurkaColor(BACKGROUND_GREY));
@@ -279,7 +281,7 @@ public:
             
             // `withOutlineColor()` sets the triangle
             // TODO: Make isConnected test include checking the device name
-            auto& dropdownInit = m.prepare<M1DropdownButton>(dropdownInitShape).withLabel(deviceSelectedOption).withLabelColor(isConnected ? MurkaColor(ORIENTATION_ACTIVE_COLOR) : MurkaColor(LABEL_TEXT_COLOR)).withOutline(false).withOutlineColor(isConnected ? MurkaColor(ORIENTATION_ACTIVE_COLOR) : MurkaColor(ENABLED_PARAM)).withBackgroundColor(MurkaColor(BACKGROUND_GREY))
+            auto& dropdownInit = m.prepare<M1OrientationClientDropdownButton>(dropdownInitShape).withLabel(deviceSelectedOption).withLabelColor(isConnected ? MurkaColor(ORIENTATION_ACTIVE_COLOR) : MurkaColor(LABEL_TEXT_COLOR)).withOutline(false).withOutlineColor(isConnected ? MurkaColor(ORIENTATION_ACTIVE_COLOR) : MurkaColor(ENABLED_PARAM)).withBackgroundColor(MurkaColor(BACKGROUND_GREY))
                 .withTriangle(true);
             dropdownInit.textAlignment = TEXT_LEFT;
             dropdownInit.heightDivisor = 3;
