@@ -191,7 +191,7 @@ public:
             .draw();
             
             float additionalOptionY = 80;
-            
+
             if (deviceSelectedOption == "Supperware HT IMU" || deviceSelectedOption == "SUPPERWARE HT IMU") {
                 m.prepare<M1Label>(MurkaShape(6, additionalOptionY, shape.size.x  - 8, 30))
                 .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
@@ -199,8 +199,10 @@ public:
                 .withOnClickCallback([&](){
                     if (supperwareChirality == "USB ON THE LEFT") {
                         supperwareChirality = "USB ON THE RIGHT";
+                        supperwareSettingsChangedCallback(true);
                     } else {
                         supperwareChirality = "USB ON THE LEFT";
+                        supperwareSettingsChangedCallback(false);
                     }
                 })
                 .withOnClickFlash()
