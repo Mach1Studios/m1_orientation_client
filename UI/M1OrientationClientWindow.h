@@ -192,7 +192,7 @@ public:
             
             float additionalOptionY = 80;
             
-            if (deviceSelectedOption == "SUPPERWARE HT IMU") {
+            if (deviceSelectedOption == "Supperware HT IMU" || deviceSelectedOption == "SUPPERWARE HT IMU") {
                 m.prepare<M1Label>(MurkaShape(6, additionalOptionY, shape.size.x  - 8, 30))
                 .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
                 .withText(supperwareChirality).withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
