@@ -31,6 +31,18 @@ void M1OrientationClient::command_setTrackingRollEnabled(bool enable) {
     send("/setTrackingRollEnabled", nlohmann::json({ enable }).dump());
 }
 
+void M1OrientationClient::command_setTrackingYawInverted(bool invert) {
+    send("/setTrackingYawInverted", nlohmann::json({ invert }).dump());
+}
+
+void M1OrientationClient::command_setTrackingPitchInverted(bool invert) {
+    send("/setTrackingPitchInverted", nlohmann::json({ invert }).dump());
+}
+
+void M1OrientationClient::command_setTrackingRollInverted(bool invert) {
+    send("/setTrackingRollInverted", nlohmann::json({ invert }).dump());
+}
+
 void M1OrientationClient::command_setAdditionalDeviceSettings(std::string additional_settings) {
     send("/setDeviceSettings", nlohmann::json({ additional_settings }).dump());
 }

@@ -58,6 +58,9 @@ public:
     void command_setTrackingYawEnabled(bool enable);
     void command_setTrackingPitchEnabled(bool enable);
     void command_setTrackingRollEnabled(bool enable);
+    void command_setTrackingYawInverted(bool invert);
+    void command_setTrackingPitchInverted(bool invert);
+    void command_setTrackingRollInverted(bool invert);
     void command_setAdditionalDeviceSettings(std::string additional_settings);
     void command_setPlayerFrameRate(float frameRate);
     void command_setPlayerPositionInSeconds(float playheadPositionInSeconds);
@@ -72,6 +75,9 @@ public:
     bool getTrackingYawEnabled();
     bool getTrackingPitchEnabled();
     bool getTrackingRollEnabled();
+    bool getTrackingYawInverted();
+    bool getTrackingPitchInverted();
+    bool getTrackingRollInverted();
     
     // Master Timecode and Playhead position
     float getPlayerPositionInSeconds();
