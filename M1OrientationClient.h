@@ -26,7 +26,10 @@ class M1OrientationClient :
     bool bTrackingYawEnabled = true;
     bool bTrackingPitchEnabled = true;
     bool bTrackingRollEnabled = true;
-    
+    bool bTrackingYawInverted = false;
+    bool bTrackingPitchInverted = false;
+    bool bTrackingRollInverted = false;
+
     float playerPositionInSeconds = 0;
     float playerFrameRate = 0;
     bool playerIsPlaying = false;

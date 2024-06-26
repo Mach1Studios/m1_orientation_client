@@ -209,6 +209,9 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
                     bTrackingYawEnabled = j["trackingEnabled"][0];
                     bTrackingPitchEnabled = j["trackingEnabled"][1];
                     bTrackingRollEnabled = j["trackingEnabled"][2];
+                    bTrackingYawInverted = j["trackingInverted"][0];
+                    bTrackingPitchInverted = j["trackingInverted"][1];
+                    bTrackingRollInverted = j["trackingInverted"][2];
 
                     playerFrameRate = j["player"]["frameRate"];
                     playerPositionInSeconds = j["player"]["positionInSeconds"];
