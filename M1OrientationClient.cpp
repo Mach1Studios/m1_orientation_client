@@ -79,6 +79,18 @@ bool M1OrientationClient::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
 }
 
+bool M1OrientationClient::getTrackingYawInverted() {
+    return bTrackingYawInverted;
+}
+
+bool M1OrientationClient::getTrackingPitchInverted() {
+    return bTrackingPitchInverted;
+}
+
+bool M1OrientationClient::getTrackingRollInverted() {
+    return bTrackingRollInverted;
+}
+
 float M1OrientationClient::getPlayerPositionInSeconds() {
     return playerPositionInSeconds;
 }
