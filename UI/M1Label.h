@@ -60,14 +60,12 @@ public:
             m.enableFill();
         }
         
-        // color
+        // text color
         MurkaColor fgColor = customColor ? color : m.getColor();
         float anim = enabled ? 40  * A(highlighted) : 0.0;
         fgColor.setRed(fgColor.getRed() + anim - fgColor.getRed() * 0.5 * !enabled);
         fgColor.setGreen(fgColor.getGreen() + anim - fgColor.getGreen() * 0.5 * !enabled);
         fgColor.setBlue(fgColor.getBlue() + anim - fgColor.getBlue() * 0.5 * !enabled);
-        
-        
         
         m.setColor(fgColor);
         if (alignment == TEXT_LEFT) {

@@ -33,10 +33,8 @@ public:
     
     void internalDraw(Murka & m) {
         // Updating the state from the client
-        
         deviceSelectedOption = "";
 
-        
         if (orientationClient != nullptr) {
             isConnected = orientationClient->isConnectedToDevice();
             
@@ -45,8 +43,6 @@ public:
             } else {
                 deviceSelectedOption = "<SELECT DEVICE>";
             }
-
-            
             
             showOscSettings = (orientationClient->getCurrentDevice().getDeviceType() == M1OrientationManagerDeviceTypeOSC);
             showSWSettings = orientationClient->getCurrentDevice().getDeviceName().find("Supperware HT IMU") != std::string::npos;
@@ -79,6 +75,15 @@ public:
                 if (whichone == 2)
                     // roll clicked
                     orientationClient->command_setTrackingRollEnabled(!orientationClient->getTrackingRollEnabled());
+                if (whichone == 3)
+                    // yaw invert clicked
+                    orientationClient->command_setTrackingYawInverted(!orientationClient->getTrackingYawInverted());
+                if (whichone == 4)
+                    // pitch invert clicked
+                    orientationClient->command_setTrackingPitchInverted(!orientationClient->getTrackingPitchInverted());
+                if (whichone == 5)
+                    // roll invert clicked
+                    orientationClient->command_setTrackingRollInverted(!orientationClient->getTrackingRollInverted());
             };
         }
         
@@ -105,58 +110,71 @@ public:
         float additionalSettingsOffsetY = 140; // dropdown starts at 30 y and is 120 pix long in height
         
         if (isConnected) {
-            // XYZ buttons / tracking enablers
-            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0 + 2,
+            // YPR buttons / tracking enablers / inverters
+            // TODO: Add text interaction with labels when clicked (flash on text, hover on text color change)
+            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0,
                                           additionalSettingsOffsetY,
                                           m.getSize().width()/3, 30))
-            .withText("YAW").withTextAlignment(TEXT_CENTER).draw();
-            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 + 2,
+            .withText((orientationClient->getTrackingYawInverted()) ? "-YAW" : "+YAW").withTextAlignment(TEXT_CENTER)
+            .withOnClickCallback([&](){
+                orientationClient->command_setTrackingYawInverted(!orientationClient->getTrackingYawInverted());
+            })
+            .draw();
+            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 - 2,
                                           additionalSettingsOffsetY,
                                           m.getSize().width()/3, 30))
-            .withText("PITCH").withTextAlignment(TEXT_CENTER).draw();
-            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 + 0,
+            .withText((orientationClient->getTrackingPitchInverted()) ? "-PITCH" : "+PITCH").withTextAlignment(TEXT_CENTER)
+            .withOnClickCallback([&](){
+                orientationClient->command_setTrackingPitchInverted(!orientationClient->getTrackingPitchInverted());
+            })
+            .draw();
+            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 - 7,
                                           additionalSettingsOffsetY,
                                           m.getSize().width()/3, 30))
-            .withText("ROLL").withTextAlignment(TEXT_CENTER).draw();
-                        
+            .withText((orientationClient->getTrackingRollInverted()) ? "-ROLL" : "+ROLL").withTextAlignment(TEXT_CENTER)
+            .withOnClickCallback([&](){
+                orientationClient->command_setTrackingRollInverted(!orientationClient->getTrackingRollInverted());
+            })
+            .draw();
+
             // Yaw value display & Enable button
             std::stringstream ytmp;
-            ytmp << std::fixed << std::setprecision(3) << orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetYaw() + 0.0;
+            ytmp << std::fixed << std::setprecision(2) << orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetYaw() + 0.0;
             std::string yawValue = ytmp.str();
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0 + 6,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 6, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? yawValue : "0.000").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? yawValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
                 orientationClient->command_setTrackingYawEnabled(!orientationClient->getTrackingYawEnabled());
             })
             .draw();
-            
+
             // Pitch value display & Enable button
             std::stringstream ptmp;
-            ptmp << std::fixed << std::setprecision(3) << orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetPitch() + 0.0;
+            ptmp << std::fixed << std::setprecision(2) << orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetPitch() + 0.0;
             std::string pitchValue = ptmp.str();
-            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1  + 4,
+            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 + 4,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 8, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? pitchValue : "0.000").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? pitchValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
                 orientationClient->command_setTrackingPitchEnabled(!orientationClient->getTrackingPitchEnabled());
             })
             .draw();
-            
+
             // Roll value display & Enable button
             std::stringstream rtmp;
-            rtmp << std::fixed << std::setprecision(3) << orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetRoll() + 0.0;
+            rtmp << std::fixed << std::setprecision(2) << orientationClient->getOrientation().GetGlobalRotationAsEulerDegrees().GetRoll() + 0.0;
             std::string rollValue = rtmp.str();
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 + 0,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 6, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? rollValue : "0.000").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? rollValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
@@ -193,6 +211,7 @@ public:
             float additionalOptionY = 80;
 
             if (deviceSelectedOption == "Supperware HT IMU" || deviceSelectedOption == "SUPPERWARE HT IMU") {
+                // Chirality button
                 m.prepare<M1Label>(MurkaShape(6, additionalOptionY, shape.size.x  - 8, 30))
                 .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
                 .withText(supperwareChirality).withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
@@ -204,6 +223,16 @@ public:
                         supperwareChirality = "USB ON THE LEFT";
                         supperwareSettingsChangedCallback(false);
                     }
+                })
+                .withOnClickFlash()
+                .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
+                .draw();
+                // Calibrate button
+                m.prepare<M1Label>(MurkaShape(6, additionalOptionY + 30, shape.size.x  - 8, 30))
+                .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
+                .withText("CALIBRATE").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
+                .withOnClickCallback([&](){
+                    
                 })
                 .withOnClickFlash()
                 .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))

@@ -31,6 +31,18 @@ void M1OrientationClient::command_setTrackingRollEnabled(bool enable) {
     send("/setTrackingRollEnabled", nlohmann::json({ enable }).dump());
 }
 
+void M1OrientationClient::command_setTrackingYawInverted(bool invert) {
+    send("/setTrackingYawInverted", nlohmann::json({ invert }).dump());
+}
+
+void M1OrientationClient::command_setTrackingPitchInverted(bool invert) {
+    send("/setTrackingPitchInverted", nlohmann::json({ invert }).dump());
+}
+
+void M1OrientationClient::command_setTrackingRollInverted(bool invert) {
+    send("/setTrackingRollInverted", nlohmann::json({ invert }).dump());
+}
+
 void M1OrientationClient::command_setAdditionalDeviceSettings(std::string additional_settings) {
     send("/setDeviceSettings", nlohmann::json({ additional_settings }).dump());
 }
@@ -65,6 +77,18 @@ bool M1OrientationClient::getTrackingPitchEnabled() {
 
 bool M1OrientationClient::getTrackingRollEnabled() {
     return bTrackingRollEnabled;
+}
+
+bool M1OrientationClient::getTrackingYawInverted() {
+    return bTrackingYawInverted;
+}
+
+bool M1OrientationClient::getTrackingPitchInverted() {
+    return bTrackingPitchInverted;
+}
+
+bool M1OrientationClient::getTrackingRollInverted() {
+    return bTrackingRollInverted;
 }
 
 float M1OrientationClient::getPlayerPositionInSeconds() {
@@ -209,6 +233,9 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
                     bTrackingYawEnabled = j["trackingEnabled"][0];
                     bTrackingPitchEnabled = j["trackingEnabled"][1];
                     bTrackingRollEnabled = j["trackingEnabled"][2];
+                    bTrackingYawInverted = j["trackingInverted"][0];
+                    bTrackingPitchInverted = j["trackingInverted"][1];
+                    bTrackingRollInverted = j["trackingInverted"][2];
 
                     playerFrameRate = j["player"]["frameRate"];
                     playerPositionInSeconds = j["player"]["positionInSeconds"];
