@@ -111,18 +111,30 @@ public:
         
         if (isConnected) {
             // YPR buttons / tracking enablers / inverters
-            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0 + 2,
+            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0,
                                           additionalSettingsOffsetY,
                                           m.getSize().width()/3, 30))
-            .withText("YAW").withTextAlignment(TEXT_CENTER).draw();
-            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 + 2,
+            .withText((orientationClient->getTrackingYawInverted()) ? "-YAW" : "+YAW").withTextAlignment(TEXT_CENTER)
+            .withOnClickCallback([&](){
+                orientationClient->command_setTrackingYawInverted(!orientationClient->getTrackingYawInverted());
+            })
+            .draw();
+            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 - 2,
                                           additionalSettingsOffsetY,
                                           m.getSize().width()/3, 30))
-            .withText("PITCH").withTextAlignment(TEXT_CENTER).draw();
-            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 + 0,
+            .withText((orientationClient->getTrackingPitchInverted()) ? "-PITCH" : "+PITCH").withTextAlignment(TEXT_CENTER)
+            .withOnClickCallback([&](){
+                orientationClient->command_setTrackingPitchInverted(!orientationClient->getTrackingPitchInverted());
+            })
+            .draw();
+            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 - 7,
                                           additionalSettingsOffsetY,
                                           m.getSize().width()/3, 30))
-            .withText("ROLL").withTextAlignment(TEXT_CENTER).draw();
+            .withText((orientationClient->getTrackingRollInverted()) ? "-ROLL" : "+ROLL").withTextAlignment(TEXT_CENTER)
+            .withOnClickCallback([&](){
+                orientationClient->command_setTrackingRollInverted(!orientationClient->getTrackingRollInverted());
+            })
+            .draw();
 
             // Yaw value display & Enable button
             std::stringstream ytmp;
@@ -130,24 +142,12 @@ public:
             std::string yawValue = ytmp.str();
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0 + 6,
                                           additionalSettingsOffsetY + 22,
-                                          m.getSize().width()/3 - 6 - 32, 30))
+                                          m.getSize().width()/3 - 6, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? yawValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
                 orientationClient->command_setTrackingYawEnabled(!orientationClient->getTrackingYawEnabled());
-            })
-            .draw();
-            
-            // Yaw invert button
-            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0 + 6 + m.getSize().width()/3 - 6 - 32 + 2,
-                                          additionalSettingsOffsetY + 22,
-                                          30, 30))
-            .withText((orientationClient->getTrackingYawInverted()) ? "-" : "+").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
-            .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
-            .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
-            .withOnClickCallback([&](){
-                orientationClient->command_setTrackingYawInverted(!orientationClient->getTrackingYawInverted());
             })
             .draw();
 
@@ -157,24 +157,12 @@ public:
             std::string pitchValue = ptmp.str();
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 + 4,
                                           additionalSettingsOffsetY + 22,
-                                          m.getSize().width()/3 - 8 - 32, 30))
+                                          m.getSize().width()/3 - 8, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? pitchValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
                 orientationClient->command_setTrackingPitchEnabled(!orientationClient->getTrackingPitchEnabled());
-            })
-            .draw();
-            
-            // Pitch invert button
-            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 + 4 + 1 + m.getSize().width()/3 - 8 - 32,
-                                          additionalSettingsOffsetY + 22,
-                                          30, 30))
-            .withText((orientationClient->getTrackingPitchInverted()) ? "-" : "+").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
-            .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
-            .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
-            .withOnClickCallback([&](){
-                orientationClient->command_setTrackingPitchInverted(!orientationClient->getTrackingPitchInverted());
             })
             .draw();
 
@@ -184,24 +172,12 @@ public:
             std::string rollValue = rtmp.str();
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 + 0,
                                           additionalSettingsOffsetY + 22,
-                                          m.getSize().width()/3 - 6 - 32, 30))
+                                          m.getSize().width()/3 - 6, 30))
             .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? rollValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
                 orientationClient->command_setTrackingRollEnabled(!orientationClient->getTrackingRollEnabled());
-            })
-            .draw();
-            
-            // Roll invert button
-            m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 + 2 + m.getSize().width()/3 - 6 - 32,
-                                          additionalSettingsOffsetY + 22,
-                                          30, 30))
-            .withText((orientationClient->getTrackingRollInverted()) ? "-" : "+").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(8)
-            .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
-            .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
-            .withOnClickCallback([&](){
-                orientationClient->command_setTrackingRollInverted(!orientationClient->getTrackingRollInverted());
             })
             .draw();
             

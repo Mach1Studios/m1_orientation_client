@@ -67,8 +67,6 @@ public:
         fgColor.setGreen(fgColor.getGreen() + anim - fgColor.getGreen() * 0.5 * !enabled);
         fgColor.setBlue(fgColor.getBlue() + anim - fgColor.getBlue() * 0.5 * !enabled);
         
-        
-        
         m.setColor(fgColor);
         if (alignment == TEXT_LEFT) {
             font->drawString(label, 5, verticalTextOffset);
