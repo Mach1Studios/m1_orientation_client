@@ -60,7 +60,7 @@ public:
             m.enableFill();
         }
         
-        // color
+        // text color
         MurkaColor fgColor = customColor ? color : m.getColor();
         float anim = enabled ? 40  * A(highlighted) : 0.0;
         fgColor.setRed(fgColor.getRed() + anim - fgColor.getRed() * 0.5 * !enabled);

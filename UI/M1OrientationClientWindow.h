@@ -111,6 +111,7 @@ public:
         
         if (isConnected) {
             // YPR buttons / tracking enablers / inverters
+            // TODO: Add text interaction with labels when clicked (flash on text, hover on text color change)
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0,
                                           additionalSettingsOffsetY,
                                           m.getSize().width()/3, 30))
