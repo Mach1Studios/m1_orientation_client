@@ -82,6 +82,7 @@ public:
     }
     
     // Here go parameters and any parameter convenience constructors. You need to define something called Parameters, even if it's NULL.
+
     TextAlignment alignment = TEXT_LEFT;
     
     M1Label& withTextAlignment(TextAlignment a) {
