@@ -211,6 +211,11 @@ public:
         return *this;
     }
     
+    M1OrientationClientDropdownMenu & withFontSize(float fontSize_) {
+        fontSize = fontSize_;
+        return *this;
+    }
+    
     M1OrientationClientDropdownMenu & withOptions(std::vector<std::string> options_) {
         options = options_;
         return *this;

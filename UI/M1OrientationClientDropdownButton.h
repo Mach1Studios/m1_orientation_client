@@ -74,7 +74,7 @@ public:
         return *this;
     }
     
-    M1OrientationClientDropdownButton & withFontSize(double fontSize_) {
+    M1OrientationClientDropdownButton & withFontSize(float fontSize_) {
         fontSize = fontSize_;
         return *this;
     }

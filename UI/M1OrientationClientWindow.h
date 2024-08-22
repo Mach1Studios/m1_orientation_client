@@ -8,6 +8,10 @@
 #include "M1OrientationClientDropdownButton.h"
 #include "M1OrientationClientDropdownMenu.h"
 
+#if !defined(DEFAULT_FONT_SIZE)
+#define DEFAULT_FONT_SIZE 17.6
+#endif
+
 using namespace murka;
 
 struct M1OrientationClientWindowDeviceSlot {
@@ -100,6 +104,8 @@ public:
         } else {
             m.setColor(ENABLED_PARAM); // disconnected white
         }
+        m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE);
+
         m.prepare<M1Label>(MurkaShape(m.getSize().width()/2 - 75, 0, 150, 30)).withText("CONNECTED DEVICE").withTextAlignment(TEXT_CENTER).draw();
         
         m.drawLine(7, 7, m.getSize().width()/2 - 75, 7);
@@ -300,6 +306,7 @@ public:
         deviceDropdown.withSelectedLabelColor(MurkaColor(ORIENTATION_ACTIVE_COLOR));
         deviceDropdown.withHighlightLabelColor(MurkaColor(BACKGROUND_GREY));
         deviceDropdown.textAlignment = TEXT_LEFT;
+        deviceDropdown.fontSize = DEFAULT_FONT_SIZE;
         deviceDropdown.optionHeight = 40;
         deviceDropdown.selectedOption = selectedOptionInDeviceList;
         
@@ -315,6 +322,7 @@ public:
             auto& dropdownInit = m.prepare<M1OrientationClientDropdownButton>(dropdownInitShape).withLabel(deviceSelectedOption).withLabelColor(isConnected ? MurkaColor(ORIENTATION_ACTIVE_COLOR) : MurkaColor(LABEL_TEXT_COLOR)).withOutline(false).withOutlineColor(isConnected ? MurkaColor(ORIENTATION_ACTIVE_COLOR) : MurkaColor(ENABLED_PARAM)).withBackgroundColor(MurkaColor(BACKGROUND_GREY))
                 .withTriangle(true);
             dropdownInit.textAlignment = TEXT_LEFT;
+            dropdownInit.fontSize = DEFAULT_FONT_SIZE;
             dropdownInit.heightDivisor = 3;
             dropdownInit.draw();
             
