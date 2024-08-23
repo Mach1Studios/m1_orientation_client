@@ -41,7 +41,6 @@ public:
         if ((isHovered()) && (mouseDownPressed(0))) {
             pressed = true; // Only sets to true the frame the "pressed" happened
         }
-        
     }
     
     std::string label = "";

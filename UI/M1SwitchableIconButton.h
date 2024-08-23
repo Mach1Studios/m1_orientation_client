@@ -1,10 +1,13 @@
-
 #pragma once
 
 #include "MurkaView.h"
 #include "MurkaBasicWidgets.h"
 #include "M1Label.h"
 #include "BinaryData.h"
+
+#if !defined(DEFAULT_FONT_SIZE)
+#define DEFAULT_FONT_SIZE 10
+#endif
 
 using namespace murka;
 
@@ -100,7 +103,7 @@ public:
         return *this;
     }
 
-    int fontSize = 8; // TODO: make this change from external
+    int fontSize = DEFAULT_FONT_SIZE-3;
     bool drawBorders = false;
     int elementIndex = -1;
     bool highlighted = false;

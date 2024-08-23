@@ -8,6 +8,10 @@
 #include "MurkaLinearLayoutGenerator.h"
 #include "MurkaBasicWidgets.h"
 
+#if !defined(DEFAULT_FONT_SIZE)
+#define DEFAULT_FONT_SIZE 10
+#endif
+
 using namespace murka;
 
 class M1OrientationClientDropdownMenu : public murka::View<M1OrientationClientDropdownMenu> {
@@ -164,7 +168,7 @@ public:
     Mach1DecodeAlgoType* dataToControl = nullptr;
     
     int optionHeight = 30;
-    int fontSize = 10;
+    int fontSize = DEFAULT_FONT_SIZE;
     bool enabled = true;
     std::string label;
     float labelPaddingLeft = 5;
