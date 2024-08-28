@@ -308,6 +308,7 @@ public:
         deviceDropdown.textAlignment = TEXT_LEFT;
         deviceDropdown.fontSize = DEFAULT_FONT_SIZE;
         deviceDropdown.optionHeight = 40;
+        deviceDropdown.labelPadding_x = 5;
         deviceDropdown.selectedOption = selectedOptionInDeviceList;
         
         if (!showDeviceSelectionDropdown) {
@@ -323,7 +324,7 @@ public:
                 .withTriangle(true);
             dropdownInit.textAlignment = TEXT_LEFT;
             dropdownInit.fontSize = DEFAULT_FONT_SIZE;
-            dropdownInit.heightDivisor = 3;
+            dropdownInit.labelPadding_x = 5;
             dropdownInit.draw();
             
             if (dropdownInit.pressed) {
