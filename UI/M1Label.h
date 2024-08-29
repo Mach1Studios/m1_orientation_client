@@ -55,8 +55,6 @@ public:
             m.drawLine(0, 0, 0, shape.size.y);
             m.drawLine(shape.size.x, shape.size.y, shape.size.x, 0);
             m.drawLine(shape.size.x, shape.size.y, 0, shape.size.y);
-            
-            //            m.drawRectangle(0, 0, shape.size.x, shape.size.y);
             m.enableFill();
         }
         
@@ -69,21 +67,23 @@ public:
         
         m.setColor(fgColor);
         if (alignment == TEXT_LEFT) {
-            font->drawString(label, 5, verticalTextOffset);
+            font->drawString(label, labelPadding_x, labelPadding_y + (shape.size.y / 2) - (font->getStringBoundingBox(label, 0, 0).height / 2));
         }
         if (alignment == TEXT_CENTER) {
-            float textX = 5 + (shape.size.x - 10) / 2 - font->getStringBoundingBox(label, 0, 0).width / 2;
-            font->drawString(label, textX, verticalTextOffset);
+            float textX = labelPadding_x + (shape.size.x / 2) - (font->getStringBoundingBox(label, 0, 0).width / 2);
+            font->drawString(label, textX, labelPadding_y + (shape.size.y / 2) - (font->getStringBoundingBox(label, 0, 0).height / 2));
         }
         if (alignment == TEXT_RIGHT) {
-            float textX = (shape.size.x - 10) - font->getStringBoundingBox(label, 0, 0).width;
-            font->drawString(label, textX, verticalTextOffset);
+            float textX = labelPadding_x + (shape.size.x - 10) - font->getStringBoundingBox(label, 0, 0).width;
+            font->drawString(label, textX, labelPadding_y + (shape.size.y / 2) - (font->getStringBoundingBox(label, 0, 0).height / 2));
         }
     }
     
     // Here go parameters and any parameter convenience constructors. You need to define something called Parameters, even if it's NULL.
 
     TextAlignment alignment = TEXT_LEFT;
+    int labelPadding_x = 5;
+    int labelPadding_y = 0;
     
     M1Label& withTextAlignment(TextAlignment a) {
         alignment = a;
@@ -125,7 +125,7 @@ public:
     }
     
     M1Label& withVerticalTextOffset(float offset) {
-        verticalTextOffset = offset;
+        labelPadding_y = offset;
         return *this;
     }
     
@@ -152,8 +152,6 @@ public:
     MurkaColor backgroundColor = { 0., 0., 0., 0. };
     MurkaColor backgroundColorUnhovered = { 0., 0., 0., 0. };
     bool backgroundColorHoverEnable = false;
-    
-    float verticalTextOffset = 0;
 
     FontObject* font;
 
