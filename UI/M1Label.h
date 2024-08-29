@@ -31,11 +31,7 @@ public:
             } else {
                 m.setColor(bgColor);
             }
-            if (alignment == TEXT_LEFT) {
-                m.drawRectangle(0, 0, font->getStringBoundingBox(label, 0, 0).width + 10, shape.size.y);
-            } else {
-                m.drawRectangle(0, 0, shape.size.x, shape.size.y);
-            }
+            m.drawRectangle(0, 0, shape.size.x, shape.size.y);
         }
         
         if (clicked && onClickFlash) {
@@ -44,7 +40,6 @@ public:
         }
         
         if (strokeBorder) {
-            //            m.pushStyle();
             if (strokeBorkerHoverEnable) {
                 m.setColor(hovered ? strokeBorderColor : strokeBorderColorUnhovered);
             } else {
@@ -96,6 +91,8 @@ public:
     }
     
     M1Label& withForegroundColor(MurkaColor fgColor) {
+        customColor = true;
+        color = fgColor;
         return *this;
     }
     
