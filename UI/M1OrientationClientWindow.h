@@ -104,7 +104,7 @@ public:
         } else {
             m.setColor(ENABLED_PARAM); // disconnected white
         }
-        m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE);
+        m.setFontFromRawData(PLUGIN_FONT, BINARYDATA_FONT, BINARYDATA_FONT_SIZE, DEFAULT_FONT_SIZE-1);
 
         m.prepare<M1Label>(MurkaShape(m.getSize().width()/2 - 75, 0, 150, 30)).withText("CONNECTED DEVICE").withTextAlignment(TEXT_CENTER).draw();
         
@@ -150,7 +150,7 @@ public:
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 0 + 6,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 6, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? yawValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(3)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? yawValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextCentering(true)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
@@ -165,7 +165,7 @@ public:
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 1 + 4,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 8, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? pitchValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(3)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? pitchValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextCentering(true)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
@@ -180,7 +180,7 @@ public:
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/3 * 2 + 0,
                                           additionalSettingsOffsetY + 22,
                                           m.getSize().width()/3 - 6, 30))
-            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? rollValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(3)
+            .withText((orientationClient->getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone) ? rollValue : "0.00").withTextAlignment(TEXT_CENTER).withVerticalTextCentering(true)
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
@@ -193,7 +193,7 @@ public:
             m.prepare<M1Label>(MurkaShape(m.getSize().width()/2 * 0 + 6,
                                           additionalSettingsOffsetY + 60,
                                           m.getSize().width()/2 - 8, 30))
-            .withText("RECENTER").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(3)
+            .withText("RECENTER").withTextAlignment(TEXT_CENTER).withVerticalTextCentering(true)
             .withOnClickFlash()
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
@@ -207,7 +207,7 @@ public:
                                           m.getSize().width()/2 - 8, 30))
             .withBackgroundFill(MurkaColor(DISABLED_PARAM), MurkaColor(BACKGROUND_GREY))
             .withOnClickFlash()
-            .withText("DISCONNECT").withTextAlignment(TEXT_CENTER).withVerticalTextOffset(3)
+            .withText("DISCONNECT").withTextAlignment(TEXT_CENTER).withVerticalTextCentering(true)
             .withStrokeBorder(MurkaColor(ORIENTATION_ACTIVE_COLOR))
             .withOnClickCallback([&](){
                 orientationClient->command_disconnect();

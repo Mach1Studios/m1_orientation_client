@@ -59,26 +59,33 @@ public:
         fgColor.setRed(fgColor.getRed() + anim - fgColor.getRed() * 0.5 * !enabled);
         fgColor.setGreen(fgColor.getGreen() + anim - fgColor.getGreen() * 0.5 * !enabled);
         fgColor.setBlue(fgColor.getBlue() + anim - fgColor.getBlue() * 0.5 * !enabled);
-        
         m.setColor(fgColor);
+        
+        if (labelVerticalCentering) {
+            // add to the labelPadding_y the text height halved subtracted from the height halved
+            label_y_center = shape.size.y/2 - font->getStringBoundingBox(label, 0, 0).height/2;
+        }
+        
         if (alignment == TEXT_LEFT) {
-            font->drawString(label, labelPadding_x, labelPadding_y + (shape.size.y / 2) - (font->getStringBoundingBox(label, 0, 0).height / 2));
+            font->drawString(label, labelPadding_x, labelPadding_y + label_y_center);
         }
         if (alignment == TEXT_CENTER) {
-            float textX = labelPadding_x + (shape.size.x / 2) - (font->getStringBoundingBox(label, 0, 0).width / 2);
-            font->drawString(label, textX, labelPadding_y + (shape.size.y / 2) - (font->getStringBoundingBox(label, 0, 0).height / 2));
+            float textX = (shape.size.x / 2) - (font->getStringBoundingBox(label, 0, 0).width / 2);
+            font->drawString(label, textX, labelPadding_y + label_y_center);
         }
         if (alignment == TEXT_RIGHT) {
-            float textX = labelPadding_x + (shape.size.x - 10) - font->getStringBoundingBox(label, 0, 0).width;
-            font->drawString(label, textX, labelPadding_y + (shape.size.y / 2) - (font->getStringBoundingBox(label, 0, 0).height / 2));
+            float textX = (shape.size.x - labelPadding_x) - font->getStringBoundingBox(label, 0, 0).width;
+            font->drawString(label, textX, labelPadding_y + label_y_center);
         }
     }
     
-    // Here go parameters and any parameter convenience constructors. You need to define something called Parameters, even if it's NULL.
+    // Here go parameters and any parameter convenience constructors. 
 
     TextAlignment alignment = TEXT_LEFT;
     int labelPadding_x = 5;
     int labelPadding_y = 0;
+    float label_y_center = 0;
+    bool labelVerticalCentering = false;
     
     M1Label& withTextAlignment(TextAlignment a) {
         alignment = a;
@@ -123,6 +130,11 @@ public:
     
     M1Label& withVerticalTextOffset(float offset) {
         labelPadding_y = offset;
+        return *this;
+    }
+    
+    M1Label& withVerticalTextCentering(bool withVertCenter) {
+        labelVerticalCentering = withVertCenter;
         return *this;
     }
     
