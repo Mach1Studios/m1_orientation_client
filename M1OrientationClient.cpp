@@ -222,7 +222,7 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
 					if (j["orientation"].size() == 3) {
                         auto raw_rot = j["orientation"];
                         Mach1::Float3 incomingRot = {raw_rot[1], raw_rot[0], raw_rot[2]};
-						m_orientation.SetRotation(incomingRot.Map(-1, 1, -M_PI, M_PI));
+						m_orientation.SetRotation(incomingRot.Map(-1, 1, -PI, PI));
 					}
 					else if (j["orientation"].size() == 4) {
 						// quat input

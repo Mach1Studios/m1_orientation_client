@@ -8,6 +8,10 @@
 #include "libs/httplib/httplib.h"
 #include "m1_mathematics/Orientation.h"
 
+#ifndef PI
+#define PI       3.14159265358979323846
+#endif
+
 class M1OrientationClient :
     private juce::OSCReceiver::Listener<juce::OSCReceiver::RealtimeCallback>,
     public M1OrientationManagerOSCSettings
