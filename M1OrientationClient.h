@@ -34,12 +34,6 @@ class M1OrientationClient :
     bool bTrackingPitchInverted = false;
     bool bTrackingRollInverted = false;
 
-    float playerPositionInSeconds = 0;
-    float playerFrameRate = 0;
-    bool playerIsPlaying = false;
-    int playerLastUpdate = 0;
-    //int HH, MM, SS, FS;
-
     std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback = nullptr;
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
@@ -66,9 +60,6 @@ public:
     void command_setTrackingPitchInverted(bool invert);
     void command_setTrackingRollInverted(bool invert);
     void command_setAdditionalDeviceSettings(std::string additional_settings);
-    void command_setPlayerFrameRate(float frameRate);
-    void command_setPlayerPositionInSeconds(float playheadPositionInSeconds);
-    void command_setPlayerIsPlaying(bool isPlaying);
     void command_recenter();
     void command_refresh();
 
@@ -82,11 +73,6 @@ public:
     bool getTrackingYawInverted();
     bool getTrackingPitchInverted();
     bool getTrackingRollInverted();
-    
-    // Master Timecode and Playhead position
-    float getPlayerPositionInSeconds();
-    bool getPlayerIsPlaying();
-    float getPlayerLastUpdate();
 
     // Connection handling
     bool isConnectedToServer();

@@ -47,18 +47,6 @@ void M1OrientationClient::command_setAdditionalDeviceSettings(std::string additi
     send("/setDeviceSettings", nlohmann::json({ additional_settings }).dump());
 }
 
-void M1OrientationClient::command_setPlayerFrameRate(float playerFrameRate) {
-    send("/setPlayerFrameRate", nlohmann::json({ playerFrameRate }).dump());
-}
-
-void M1OrientationClient::command_setPlayerPositionInSeconds(float playerPlayheadPositionInSeconds) {
-    send("/setPlayerPosition", nlohmann::json({ playerPlayheadPositionInSeconds }).dump());
-}
-
-void M1OrientationClient::command_setPlayerIsPlaying(bool playerIsPlaying) {
-    send("/setPlayerIsPlaying", nlohmann::json({ playerIsPlaying }).dump());
-}
-
 void M1OrientationClient::command_recenter() {
     send("/recenter", "");
 }
@@ -89,18 +77,6 @@ bool M1OrientationClient::getTrackingPitchInverted() {
 
 bool M1OrientationClient::getTrackingRollInverted() {
     return bTrackingRollInverted;
-}
-
-float M1OrientationClient::getPlayerPositionInSeconds() {
-    return playerPositionInSeconds;
-}
-
-bool M1OrientationClient::getPlayerIsPlaying() {
-    return playerIsPlaying;
-}
-
-float M1OrientationClient::getPlayerLastUpdate() {
-    return playerLastUpdate;
 }
 
 bool M1OrientationClient::isConnectedToServer() {
@@ -236,11 +212,6 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
                     bTrackingYawInverted = j["trackingInverted"][0];
                     bTrackingPitchInverted = j["trackingInverted"][1];
                     bTrackingRollInverted = j["trackingInverted"][2];
-
-                    playerFrameRate = j["player"]["frameRate"];
-                    playerPositionInSeconds = j["player"]["positionInSeconds"];
-                    playerIsPlaying = j["player"]["isPlaying"];
-                    playerLastUpdate = j["player"]["lastUpdate"];
 
                     connectedToServer = true;
                 }
