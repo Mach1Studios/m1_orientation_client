@@ -222,11 +222,11 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
             
             if (this->helperPort != 0) {
                 if (!connectedToServer) {
-                    juce::OSCMessage clientRequestsServerMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientRequestsServer"));
+                    juce::OSCMessage clientRequestsServerMessage = juce::OSCMessage(juce::OSCAddressPattern("/m1-clientRequestsServer"));
                     helperInterface.send(clientRequestsServerMessage);
                 }
 
-                juce::OSCMessage clientExistsMessage = juce::OSCMessage(juce::OSCAddressPattern("/clientExists"));
+                juce::OSCMessage clientExistsMessage = juce::OSCMessage(juce::OSCAddressPattern("/m1-clientExists"));
                 helperInterface.send(clientExistsMessage);
             }
 
