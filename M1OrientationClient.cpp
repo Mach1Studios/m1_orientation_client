@@ -136,16 +136,18 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
         this->helperPort = mainVar["helperPort"];
     } else {
         if (!settingsFile.exists()) {
-            juce::AlertWindow::showMessageBoxAsync(
-                juce::AlertWindow::NoIcon,
-                "Warning",
-                "Mach1: settings.json file doesn't exist in Mach1's Application Support directory, please reinstall the Spatial System",
-                "",
-                nullptr,
-                juce::ModalCallbackFunction::create(([&](int result) {
-                   //juce::JUCEApplicationBase::quit();
-                }))
-            );
+            // Hiding UI error by default
+            // TODO: handle this more elegantly
+//            juce::AlertWindow::showMessageBoxAsync(
+//                juce::AlertWindow::NoIcon,
+//                "Warning",
+//                "Mach1: settings.json file doesn't exist in Mach1's Application Support directory, please reinstall the Spatial System",
+//                "",
+//                nullptr,
+//                juce::ModalCallbackFunction::create(([&](int result) {
+//                   //juce::JUCEApplicationBase::quit();
+//                }))
+//            );
             return false;
         }
     }
