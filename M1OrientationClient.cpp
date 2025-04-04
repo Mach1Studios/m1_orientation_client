@@ -7,6 +7,19 @@
 #include "libs/json/single_include/nlohmann/json.hpp"
 
 void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
+    if (message.getAddressPattern() == "/m1-helper-port-changed") {
+        if (message.size() >= 1 && message[0].isInt32()) {
+            int newHelperPort = message[0].getInt32();
+            DBG("[M1OrientationClient] Helper port changed to: " + std::to_string(newHelperPort));
+            
+            // Update our stored helper port
+            helperPort = newHelperPort;
+            
+            // Reconnect with the new port
+            helperInterface.disconnect();
+            helperInterface.connect("127.0.0.1", helperPort);
+        }
+    }
 }
 
 void M1OrientationClient::send(std::string path, std::string data)
@@ -77,10 +90,6 @@ bool M1OrientationClient::getTrackingPitchInverted() {
 
 bool M1OrientationClient::getTrackingRollInverted() {
     return bTrackingRollInverted;
-}
-
-bool M1OrientationClient::isConnectedToServer() {
-    return connectedToServer;
 }
 
 int M1OrientationClient::getServerPort() {
@@ -166,9 +175,14 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
         client.set_read_timeout(0, usec);
         client.set_write_timeout(0, usec);
 
+        int failedRequestCount = 0;
+        static const int MAX_FAILED_REQUESTS = 3; // Adjust this value as needed
+
         while (isRunning) {
             auto res = client.Get("/ping");
-            if (res) {
+            if (res && res->body != "") {
+                failedRequestCount = 0;  // Reset counter on successful request
+                setConnectedToServer(true);
                 std::string body = res->body;
                 if (body != "") {
                     auto j = nlohmann::json::parse(body);
@@ -214,16 +228,17 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
                     bTrackingYawInverted = j["trackingInverted"][0];
                     bTrackingPitchInverted = j["trackingInverted"][1];
                     bTrackingRollInverted = j["trackingInverted"][2];
-
-                    connectedToServer = true;
                 }
             }
             else {
-                connectedToServer = false;
+                failedRequestCount++;
+                if (failedRequestCount >= MAX_FAILED_REQUESTS) {
+                    setConnectedToServer(false);
+                }
             }
             
             if (this->helperPort != 0) {
-                if (!connectedToServer) {
+                if (!isConnectedToServer()) {
                     juce::OSCMessage clientRequestsServerMessage = juce::OSCMessage(juce::OSCAddressPattern("/m1-clientRequestsServer"));
                     helperInterface.send(clientRequestsServerMessage);
                 }
@@ -279,4 +294,14 @@ void M1OrientationClient::close() {
 
 M1OrientationClient::~M1OrientationClient() {
     close();
+}
+
+void M1OrientationClient::setConnectedToServer(bool connected) {
+    std::lock_guard<std::mutex> lock(connectionMutex);
+    connectedToServer = connected;
+}
+
+bool M1OrientationClient::isConnectedToServer() {
+    std::lock_guard<std::mutex> lock(connectionMutex);
+    return connectedToServer;
 }

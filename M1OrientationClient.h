@@ -17,7 +17,9 @@ class M1OrientationClient :
     public M1OrientationManagerOSCSettings
 {
     std::mutex mutex;
+    std::mutex connectionMutex;
     bool isRunning;
+    bool connectedToServer = false;
 
     juce::OSCSender helperInterface;
     int helperPort = 0;
@@ -36,6 +38,9 @@ class M1OrientationClient :
 
     std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback = nullptr;
 
+    int failedRequestCount = 0;
+    static const int MAX_FAILED_REQUESTS = 3; // Adjust this value as needed
+
     void oscMessageReceived(const juce::OSCMessage& message) override;
 	void send(std::string path, std::string data);
     
@@ -45,7 +50,6 @@ public:
     int client_id = 0;
     bool client_active = true;
     std::string clientType = ""; // Use this to specify a client with a specific behavior
-    bool connectedToServer = false;
 
     // setup the server and watcher connections, the watcher is off by default
     bool init(int serverPort, int watcherPort) override;
@@ -75,7 +79,6 @@ public:
     bool getTrackingRollInverted();
 
     // Connection handling
-    bool isConnectedToServer();
     int getServerPort();
     int getHelperPort();
     std::string getClientType();
@@ -86,4 +89,7 @@ public:
     bool isConnectedToDevice() {
         return getCurrentDevice().getDeviceType() != M1OrientationManagerDeviceTypeNone;
     }
+
+    void setConnectedToServer(bool connected);
+    bool isConnectedToServer();
 };
