@@ -1,9 +1,9 @@
 [submodule "libs/httplib"]
 	path = libs/httplib
-	url = git@github.com:yhirose/cpp-httplib.git
+	url = https://github.com/yhirose/cpp-httplib.git
 [submodule "libs/json"]
 	path = libs/json
-	url = git@github.com:nlohmann/json.git
+	url = https://github.com/nlohmann/json.git
 [submodule "libs/m1-mathematics"]
 	path = libs/m1-mathematics
-	url = git@github.com:Mach1Studios/m1-mathematics.git
+	url = https://github.com/Mach1Studios/m1-mathematics.git
