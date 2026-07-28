@@ -22,14 +22,37 @@ void M1OrientationClient::oscMessageReceived(const juce::OSCMessage& message) {
     }
 }
 
-void M1OrientationClient::send(std::string path, std::string data)
+bool M1OrientationClient::send(std::string path, std::string data)
 {
     httplib::Client client("localhost", serverPort);
-    time_t usec = 10000; // 10ms
-    client.set_connection_timeout(0, usec);
-    client.set_read_timeout(0, usec);
-    client.set_write_timeout(0, usec);
-    client.Post(path, data, "text/plain");
+    // The previous 10ms timeouts made commands such as /startTrackingUsingDevice
+    // fail silently whenever the orientation manager took more than 10ms to
+    // accept a connection (e.g. while busy connecting to a device).
+    client.set_connection_timeout(0, 250000); // 250ms
+    client.set_read_timeout(0, 500000); // 500ms
+    client.set_write_timeout(0, 500000); // 500ms
+
+    auto res = client.Post(path, data, "text/plain");
+    if (res)
+        return true;
+
+    // A read timeout means the server accepted the command but is still busy
+    // processing it (e.g. a slow device connect); only report real delivery
+    // failures so the UI is not shown spurious errors.
+    const auto err = res.error();
+    const bool deliveryFailed = (err == httplib::Error::Connection
+                                 || err == httplib::Error::ConnectionTimeout
+                                 || err == httplib::Error::Write);
+    if (deliveryFailed)
+    {
+        DBG("[M1OrientationClient] Failed to deliver command: " + path);
+        if (statusCallback)
+        {
+            statusCallback(false, "Could not reach the orientation manager (" + path + ")", "", 0, "");
+        }
+        return false;
+    }
+    return true;
 }
     
 void M1OrientationClient::command_setTrackingYawEnabled(bool enable) {
@@ -170,13 +193,16 @@ bool M1OrientationClient::init(int serverPort, int helperPort) {
 
     std::thread([&, this]() {
         httplib::Client client("localhost", this->serverPort);
-        time_t usec = 10000; // 10ms
-        client.set_connection_timeout(0, usec);
-        client.set_read_timeout(0, usec);
-        client.set_write_timeout(0, usec);
+        // Keep the ping tolerant of a busy server. With the previous 10ms
+        // timeouts and 3-strike limit, ~90ms of server busyness was enough to
+        // flip clients to "disconnected", which in turn made them ask the
+        // helper to (re)start the orientation manager - dropping any
+        // connected device in the process.
+        client.set_connection_timeout(0, 250000); // 250ms
+        client.set_read_timeout(0, 250000); // 250ms
+        client.set_write_timeout(0, 250000); // 250ms
 
         int failedRequestCount = 0;
-        static const int MAX_FAILED_REQUESTS = 3; // Adjust this value as needed
 
         while (isRunning) {
             auto res = client.Get("/ping");
@@ -275,11 +301,12 @@ M1OrientationDeviceInfo M1OrientationClient::getCurrentDevice() {
 }
 
 void M1OrientationClient::command_startTrackingUsingDevice(M1OrientationDeviceInfo device) {
-    mutex.lock();
-    if (currentDevice != device) {
-        send("/startTrackingUsingDevice", nlohmann::json({ device.getDeviceName(), (int)device.getDeviceType(), device.getDeviceAddress() }).dump());
-    }
-    mutex.unlock();
+    // Always send the request, even if this device already appears to be the
+    // current one. The previous currentDevice guard made it impossible to
+    // reconnect to a device the server still believed was connected (e.g.
+    // after the physical connection dropped); the server owns reconnect
+    // semantics now.
+    send("/startTrackingUsingDevice", nlohmann::json({ device.getDeviceName(), (int)device.getDeviceType(), device.getDeviceAddress() }).dump());
 }
 
 void M1OrientationClient::command_disconnect()

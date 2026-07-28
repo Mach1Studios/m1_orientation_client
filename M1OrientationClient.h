@@ -39,10 +39,18 @@ class M1OrientationClient :
     std::function<void(bool success, std::string message, std::string connectedDeviceName, int connectedDeviceType, std::string connectedDeviceAddress)> statusCallback = nullptr;
 
     int failedRequestCount = 0;
-    static const int MAX_FAILED_REQUESTS = 3; // Adjust this value as needed
+    // Number of consecutive failed pings before we consider the server gone.
+    // Keep this tolerant: declaring the server dead makes clients request a
+    // service (re)start from the helper, which restarts the orientation
+    // manager and drops any connected device.
+    static const int MAX_FAILED_REQUESTS = 10;
 
     void oscMessageReceived(const juce::OSCMessage& message) override;
-	void send(std::string path, std::string data);
+
+    // Posts a command to the orientation manager.
+    // Returns false when the command could not be delivered (server down or
+    // unreachable); slow responses are not treated as delivery failures.
+    bool send(std::string path, std::string data);
     
 public:
     ~M1OrientationClient();
